@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#7C3925</color>
+    <color name="colorPrimaryDark">#512618</color>
+    <color name="colorPrimaryLight">#AF5E45</color>
+    <color name="colorAccent">#3F51B5</color>
+
+    <color name="transparent">#1A000000</color>
+    <color name="semitransparent">#4D000000</color>
+
+    <color name="responseCorrect">#01B309</color>
+    <color name="responseFail">#B60000</color>
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="red">#FF0000</color>
+    <color name="yellow">#FF9800</color>
+
+    <color name="textColor">#FFFFFF</color>
+    <color name="textColorDark">#4C186C</color>
+</resources>

@@ -1,0 +1,30 @@
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="height_status_bar">24dp</dimen>
+    <dimen name="no_elevation">0dp</dimen>
+    <dimen name="height_back">50dp</dimen>
+    <dimen name="width_back">50dp</dimen>
+    <dimen name="padding_back">5dp</dimen>
+    <dimen name="magin_end_title_toolbar">16dp</dimen>
+    <dimen name="padding_game">12dp</dimen>
+    <dimen name="corner_radius">16dp</dimen>
+    <dimen name="margin_top_game_buttons">12dp</dimen>
+    <dimen name="padding_game_buttons">10dp</dimen>
+    <dimen name="margin_top_calification">24dp</dimen>
+    <dimen name="margin_text_result">60dp</dimen>
+    <dimen name="margin_button_signature">20dp</dimen>
+    <dimen name="margin_button_stamp">20dp</dimen>
+    <dimen name="dialog_corner_radius">24dp</dimen>
+    <dimen name="dialog_elevation">12dp</dimen>
+
+
+    <!--Text sizes -->
+    <dimen name="title_toolbar">40sp</dimen>
+    <dimen name="very_very_large">28sp</dimen>
+    <dimen name="very_large">22sp</dimen>
+    <dimen name="large">20sp</dimen>
+    <dimen name="medium">18sp</dimen>
+    <dimen name="small">16sp</dimen>
+    <dimen name="very_small">14sp</dimen>
+</resources>

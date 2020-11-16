@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.game.GameFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cardQuiz"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.35"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/imageQuiz"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="12dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/game_image"/>
+
+        <ImageView
+            android:id="@+id/imagenLoading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintHeight_percent="0.6"
+            tools:src="@drawable/image_loading"
+            android:scaleType="centerCrop"
+            android:layout_gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:contentDescription="@string/loading_image" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerButtons"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:alpha="0"
+        tools:alpha="1"
+        android:layout_margin="12dp"
+        app:layout_constraintHeight_percent="0.35"
+        app:layout_constraintTop_toBottomOf="@+id/cardQuiz"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" >
+
+        <Button
+            android:id="@+id/btnOptionOne"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="4dp"
+            android:maxLines="3"
+            android:padding="@dimen/padding_game_buttons"
+            app:layout_constraintWidth_percent="0.49"
+            app:layout_constraintHeight_percent="0.45"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Alaskan malute" />
+
+        <Button
+            android:id="@+id/btnOptionTwo"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:maxLines="3"
+            android:padding="@dimen/padding_game_buttons"
+            app:layout_constraintWidth_percent="0.49"
+            app:layout_constraintHeight_percent="0.45"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="Braco de pelo largo" />
+
+        <Button
+            android:id="@+id/btnOptionThree"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="@dimen/padding_game_buttons"
+            android:maxLines="3"
+            app:layout_constraintWidth_percent="0.49"
+            app:layout_constraintHeight_percent="0.45"
+            android:layout_marginTop="@dimen/margin_top_game_buttons"
+            app:layout_constraintTop_toBottomOf="@+id/btnOptionOne"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Yorkshire Terrier toy" />
+
+        <Button
+            android:id="@+id/btnOptionFour"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            tools:text="Braco aleman"
+            android:padding="@dimen/padding_game_buttons"
+            android:maxLines="3"
+            app:layout_constraintWidth_percent="0.49"
+            app:layout_constraintHeight_percent="0.45"
+            android:layout_marginTop="@dimen/margin_top_game_buttons"
+            app:layout_constraintTop_toBottomOf="@+id/btnOptionOne"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

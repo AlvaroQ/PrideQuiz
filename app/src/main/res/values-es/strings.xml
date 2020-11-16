@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Orgullo test</string>
+    <string name="resultado_screen_title">Resultado final</string>
+    <string name="ranking_screen_title">Ranking</string>
+    <string name="share_message">\nHice una puntuación de %d ¿eres capaz de superarlo?\n\n</string>
+    <string name="choose_one">Elige una:</string>
+    <string name="other_apps">Otras aplicaciones</string>
+    <string name="life">life</string>
+    <string name="play_again">Jugar de nuevo</string>
+    <string name="play">Jugar</string>
+    <string name="share">Compartir</string>
+    <string name="rate_on_play_store">Puntuar en play store</string>
+    <string name="result">Resultado: %d</string>
+    <string name="personal_record">Récord personal: %s</string>
+    <string name="world_record">Récord mundial: %s</string>
+    <string name="best_points">Mejores puntuaciones</string>
+    <string name="dialog_ranking_congratulation">¡Enhorabuena!</string>
+    <string name="dialog_ranking_description">Entraste en el ranking de mejores puntuaciones</string>
+    <string name="dialog_name">Nombre</string>
+    <string name="dialog_save">Guardar</string>
+    <string name="not_exist">Not exist</string>
+    <string name="start">Empezar</string>
+
+
+    <!-- content description image -->
+    <string name="game_title">Título del juego</string>
+    <string name="loading_image">imagen de cargando</string>
+    <string name="back">Volver</string>
+    <string name="game_image">Imagen del país</string>
+    <string name="best_score">Mejores puntuaciones</string>
+    <string name="score_image_background">fondo de la clasificación</string>
+    <string name="locale">es</string>
+</resources>

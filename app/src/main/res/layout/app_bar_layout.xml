@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/appBarLayout"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/height_status_bar"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:elevation="@dimen/no_elevation">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_centerVertical="true"
+                android:layout_width="@dimen/width_back"
+                android:layout_height="@dimen/height_back"
+                android:padding="@dimen/padding_back"
+                android:src="@drawable/back"
+                android:contentDescription="@string/back" />
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/magin_end_title_toolbar"
+                android:layout_centerInParent="true"
+                tools:text="@string/app_name"
+                app:fontFamily="@font/cutout"
+                android:textAppearance="@style/Regular.TextColor.ToolbatTitle" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutLife"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/height_back"
+                android:layout_marginEnd="8dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true">
+
+                <ImageView
+                    android:id="@+id/lifeFirst"
+                    android:layout_width="35dp"
+                    android:layout_height="@dimen/height_back"
+                    android:src="@drawable/ic_life_on"
+                    android:contentDescription="@string/life"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"/>
+
+                <ImageView
+                    android:id="@+id/lifeSecond"
+                    android:layout_width="35dp"
+                    android:layout_height="@dimen/height_back"
+                    android:src="@drawable/ic_life_on"
+                    android:contentDescription="@string/life"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/lifeFirst"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </RelativeLayout>
+    </androidx.appcompat.widget.Toolbar>
+</com.google.android.material.appbar.AppBarLayout>

@@ -1,0 +1,7 @@
+include ':data'
+include ':domain'
+include ':domain'
+include ':domain'
+include ':usecases'
+include ':app'
+rootProject.name = "Pride Quiz"

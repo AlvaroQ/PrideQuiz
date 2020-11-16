@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Pride Quiz</string>
+    <string name="resultado_screen_title">Final result</string>
+    <string name="ranking_screen_title">Ranking</string>
+    <string name="share_message">\nMy score is %d, can you get over me?\n\n</string>
+    <string name="choose_one">Choose:</string>
+    <string name="other_apps">Other applications</string>
+    <string name="life">life</string>
+    <string name="play">Play</string>
+    <string name="play_again">Play again</string>
+    <string name="share">Share</string>
+    <string name="rate_on_play_store">Rate on play store</string>
+    <string name="result">Result: %d</string>
+    <string name="personal_record">Personal record: %s</string>
+    <string name="world_record">World record: %s</string>
+    <string name="best_points">Best scores</string>
+    <string name="dialog_ranking_congratulation">¡Congratulations</string>
+    <string name="dialog_ranking_description">Your score has entered the world ranking</string>
+    <string name="dialog_name">Name</string>
+    <string name="dialog_save">Save</string>
+    <string name="best_score">Best scores</string>
+    <string name="not_exist">Not exist</string>
+    <string name="start">Start</string>
+
+    <!-- content description image -->
+    <string name="game_title">game title</string>
+    <string name="loading_image">loading</string>
+    <string name="back">back</string>
+    <string name="game_image">image to guess</string>
+    <string name="score_image_background">background</string>
+    <string name="locale">en</string>
+</resources>
