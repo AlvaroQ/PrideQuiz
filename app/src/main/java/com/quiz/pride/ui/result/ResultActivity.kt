@@ -3,12 +3,10 @@ package com.quiz.pride.ui.result
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.ui.select.SelectActivity
-import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.android.synthetic.main.app_bar_layout.*
 

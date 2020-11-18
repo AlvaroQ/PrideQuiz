@@ -21,6 +21,7 @@
     <string name="best_score">Best scores</string>
     <string name="not_exist">Not exist</string>
     <string name="start">Start</string>
+    <string name="anonymous">Anonymous</string>
 
     <!-- content description image -->
     <string name="game_title">game title</string>

@@ -2,9 +2,9 @@ package com.quiz.pride.managers
 
 import android.content.Context
 import android.os.Bundle
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.base.BaseActivity
-import com.google.firebase.analytics.FirebaseAnalytics
 
 object Analytics {
     lateinit var mFirebase: FirebaseAnalytics

@@ -3,15 +3,14 @@ package com.quiz.pride.ui.game
 import android.content.Intent
 import android.os.Bundle
 import android.view.animation.AnimationUtils
-import com.quiz.pride.R
-import com.quiz.pride.base.BaseActivity
-import com.quiz.pride.common.startActivity
-import com.quiz.pride.managers.Analytics
-import com.quiz.pride.ui.select.SelectActivity
-import com.quiz.pride.utils.setSafeOnClickListener
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.quiz.pride.R
+import com.quiz.pride.base.BaseActivity
+import com.quiz.pride.common.startActivity
+import com.quiz.pride.ui.select.SelectActivity
+import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.android.synthetic.main.app_bar_layout.*
 import kotlinx.android.synthetic.main.game_activity.*
 

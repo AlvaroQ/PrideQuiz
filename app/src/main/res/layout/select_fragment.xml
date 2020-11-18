@@ -40,8 +40,16 @@
             android:layout_height="60dp"
             android:layout_margin="20dp"
             android:text="Ayuda"
-            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/btnStart"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
+            android:id="@+id/btnRanking"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_margin="20dp"
+            android:text="Ranking"
+            app:layout_constraintTop_toBottomOf="@+id/btnInfo"
             app:layout_constraintStart_toStartOf="parent" />
 
 

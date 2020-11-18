@@ -1,19 +1,17 @@
 package com.quiz.pride.ui.select
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
+import com.quiz.pride.ui.ranking.RankingActivity
 import com.quiz.pride.utils.setSafeOnClickListener
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -44,6 +42,11 @@ class SelectFragment : Fragment() {
             selectViewModel.navigateToInfo()
         }
 
+        val btnRanking: Button = root.findViewById(R.id.btnRanking)
+        btnRanking.setSafeOnClickListener {
+            selectViewModel.navigateToRanking()
+        }
+
         return root
     }
 
@@ -54,12 +57,9 @@ class SelectFragment : Fragment() {
 
     private fun navigate(navigation: SelectViewModel.Navigation?) {
         when (navigation) {
-            SelectViewModel.Navigation.Game -> {
-                activity?.startActivity<GameActivity> {}
-            }
-            SelectViewModel.Navigation.Info -> {
-
-            }
+            SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
+            SelectViewModel.Navigation.Info -> { }
+            SelectViewModel.Navigation.Ranking -> activity?.startActivity<RankingActivity> {}
         }
     }
 }

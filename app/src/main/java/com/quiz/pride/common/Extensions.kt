@@ -11,7 +11,6 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.quiz.pride.R
 import kotlin.properties.Delegates
 
 

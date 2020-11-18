@@ -2,12 +2,12 @@ package com.quiz.pride.ui.game
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
-import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.ResourceProvider
+import com.quiz.pride.common.ScopedViewModel
+import com.quiz.pride.managers.Analytics
+import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPrideById
 import kotlinx.coroutines.launch
 

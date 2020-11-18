@@ -6,13 +6,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.quiz.domain.App
 import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.glideLoadBase64
 import com.quiz.pride.utils.setSafeOnClickListener
-import com.quiz.domain.App
 
 class AppListAdapter(private var context: Context,
                      var appList: MutableList<App>,

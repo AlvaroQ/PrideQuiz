@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
+import com.quiz.domain.App
+import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.Analytics
 import com.quiz.pride.utils.Constants.RECORD_PERSONAL
-import com.quiz.domain.App
-import com.quiz.domain.User
 import com.quiz.usecases.GetAppsRecommended
 import com.quiz.usecases.GetRecordScore
 import com.quiz.usecases.SaveTopScore
@@ -34,6 +34,9 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
     private val _worldRecord = MutableLiveData<String>()
     val worldRecord: LiveData<String> = _worldRecord
 
+    private val _photoUrl = MutableLiveData<String>()
+    val photoUrl: LiveData<String> = _photoUrl
+
     init {
         Analytics.analyticsScreenViewed(Analytics.SCREEN_RESULT)
         launch {
@@ -58,12 +61,6 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
             if(gamePoints > pointsLastClassified.toInt()) {
                 showDialogToSaveGame(gamePoints.toString())
             }
-        }
-    }
-
-    fun saveTopScore(user: User) {
-        launch {
-            saveTopScore.invoke(user)
         }
     }
 
@@ -112,6 +109,19 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         Analytics.analyticsClicked(Analytics.BTN_SHARE)
         _navigation.value = Navigation.Share(points)
     }
+    fun saveTopScore(user: User) {
+        launch {
+            saveTopScore.invoke(user)
+        }
+    }
+
+    fun clickOnPicker() {
+        _navigation.value = Navigation.PickerImage
+    }
+
+    fun setImage(image: String?) {
+        _photoUrl.value = image
+    }
 
     sealed class Navigation {
         data class Share(val points: Int) : Navigation()
@@ -120,6 +130,7 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         object Ranking : Navigation()
         data class Dialog(val points : String): Navigation()
         data class Open(val url : String): Navigation()
+        object PickerImage : Navigation()
     }
 
     sealed class UiModel {

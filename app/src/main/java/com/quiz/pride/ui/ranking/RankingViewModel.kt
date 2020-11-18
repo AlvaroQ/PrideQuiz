@@ -2,9 +2,9 @@ package com.quiz.pride.ui.ranking
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.Analytics
-import com.quiz.domain.User
 import com.quiz.usecases.GetRankingScore
 import kotlinx.coroutines.launch
 

@@ -4,19 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.quiz.pride.R
-import com.quiz.pride.common.startActivity
-import com.quiz.pride.databinding.RankingFragmentBinding
-import com.quiz.pride.ui.game.GameActivity
-import com.quiz.pride.utils.glideLoadingGif
-import com.quiz.domain.User
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.quiz.domain.User
+import com.quiz.pride.R
+import com.quiz.pride.databinding.RankingFragmentBinding
+import com.quiz.pride.utils.glideLoadingGif
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
 
@@ -36,9 +32,6 @@ class RankingFragment : Fragment() {
         binding = RankingFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        val cardScore: CardView = root.findViewById(R.id.cardScore)
-        cardScore.alpha = 0f
-
         loadAd(root.findViewById(R.id.adViewRanking))
 
         return root
@@ -52,8 +45,7 @@ class RankingFragment : Fragment() {
     }
 
     private fun fillRanking(userList: MutableList<User>) {
-        binding.recyclerviewRanking.adapter = RankingListAdapter(userList)
-        binding.cardScore.animate().alpha(1f).duration = 500
+        binding.recyclerviewRanking.adapter = RankingListAdapter(requireContext(), userList)
     }
 
     private fun updateProgress(model: RankingViewModel.UiModel?) {

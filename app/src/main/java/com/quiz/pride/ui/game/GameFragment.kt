@@ -1,7 +1,5 @@
 package com.quiz.pride.ui.game
 
-import android.content.Context
-import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +10,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.common.traslationAnimation
@@ -23,11 +22,9 @@ import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadBase64
 import com.quiz.pride.utils.glideLoadingGif
 import com.quiz.pride.utils.setSafeOnClickListener
-import com.quiz.domain.Pride
 import kotlinx.coroutines.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 

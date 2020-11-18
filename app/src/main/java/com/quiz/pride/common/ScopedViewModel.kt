@@ -2,7 +2,6 @@ package com.quiz.pride.common
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.ViewModel
-import com.quiz.pride.common.Scope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 

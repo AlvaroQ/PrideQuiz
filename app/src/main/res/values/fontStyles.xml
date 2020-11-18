@@ -17,6 +17,9 @@
     <style name="Regular.TextColorDark">
         <item name="android:textColor">@color/textColorDark</item>
     </style>
+    <style name="Bold.TextColorDark">
+        <item name="android:textColor">@color/textColorDark</item>
+    </style>
 
     <!-- TextColor -->
     <style name="Bold.TextColor.VeryLarge" >
@@ -59,5 +62,11 @@
     <!-- textColorDark -->
     <style name="Regular.TextColorDark.Small" >
         <item name="android:textSize">@dimen/small</item>
+    </style>
+    <style name="Regular.TextColorDark.VerySmall" >
+        <item name="android:textSize">@dimen/very_small</item>
+    </style>
+    <style name="Bold.TextColorDark.Medium" >
+        <item name="android:textSize">@dimen/medium</item>
     </style>
 </resources>

@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.result
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -13,22 +14,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.github.dhaval2404.imagepicker.ImagePicker
+import com.quiz.domain.App
+import com.quiz.domain.User
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.ResultFragmentBinding
-import com.quiz.pride.ui.game.GameActivity
 import com.quiz.pride.ui.ranking.RankingActivity
-import com.quiz.pride.ui.select.SelectActivity
+import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
-import com.quiz.pride.utils.glideLoadingGif
-import com.quiz.pride.utils.log
-import com.quiz.pride.utils.setSafeOnClickListener
-import com.quiz.domain.App
-import com.quiz.domain.User
 import kotlinx.android.synthetic.main.dialog_save_record.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -38,6 +38,7 @@ class ResultFragment : Fragment() {
     private lateinit var binding: ResultFragmentBinding
     private val resultViewModel: ResultViewModel by lifecycleScope.viewModel(this)
     private var gamePoints = 0
+    private lateinit var imageViewPickup: ImageView
 
     companion object {
         fun newInstance() = ResultFragment()
@@ -81,6 +82,7 @@ class ResultFragment : Fragment() {
         resultViewModel.list.observe(viewLifecycleOwner, Observer(::fillAppList))
         resultViewModel.personalRecord.observe(viewLifecycleOwner, Observer(::fillPersonalRecord))
         resultViewModel.worldRecord.observe(viewLifecycleOwner, Observer(::fillWorldRecord))
+        resultViewModel.photoUrl.observe(viewLifecycleOwner, Observer(::writeUserImage))
     }
 
     private fun fillWorldRecord(recordWorldPoints: String) {
@@ -116,6 +118,13 @@ class ResultFragment : Fragment() {
             is ResultViewModel.Navigation.Share -> shareApp(navigation.points)
             is ResultViewModel.Navigation.Open -> openAppOnPlayStore(navigation.url)
             is ResultViewModel.Navigation.Dialog -> showEnterNameDialog(navigation.points)
+            ResultViewModel.Navigation.PickerImage -> {
+                ImagePicker.with(this)
+                        .crop()
+                        .compress(maxSize = 1024)
+                        .maxResultSize(width = 1080, height = 1080)
+                        .start()
+            }
         }
     }
 
@@ -160,14 +169,46 @@ class ResultFragment : Fragment() {
 
     private fun showEnterNameDialog(points: String) {
         Dialog(requireContext()).apply {
+
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(R.layout.dialog_save_record)
             btnSubmit.setSafeOnClickListener {
-                resultViewModel.saveTopScore(User(editTextWorldRecord.text.toString(), points))
+                val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE else resultViewModel.photoUrl.value!!
+                resultViewModel.saveTopScore(User(
+                        name = editTextWorldRecord.text.toString(),
+                        points = gamePoints.toString(),
+                        userImage = userImage,
+                        timestamp = System.currentTimeMillis())
+                )
                 dismiss()
             }
+
+            imageViewPickup = imageUserPickup
+            imageViewPickup.setSafeOnClickListener {
+                resultViewModel.clickOnPicker()
+            }
             show()
+        }
+    }
+
+    private fun writeUserImage(image64: String) {
+        glideLoadBase64(requireContext(), image64, imageViewPickup)
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (resultCode) {
+            Activity.RESULT_OK -> {
+                resultViewModel.setImage(ImagePicker.getFile(data)?.toBase64())
+            }
+            ImagePicker.RESULT_ERROR -> {
+                Toast.makeText(activity, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
+            }
+            else -> {
+                Toast.makeText(activity, "Task Cancelled", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
