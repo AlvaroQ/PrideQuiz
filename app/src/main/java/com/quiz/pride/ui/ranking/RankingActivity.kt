@@ -21,7 +21,8 @@ class RankingActivity : BaseActivity() {
         btnBack.setSafeOnClickListener {
             finish()
         }
-        toolbarTitle.text = getString(R.string.ranking_screen_title)
+        layoutExtendedTitle.background = getDrawable(R.drawable.background_title_top_score)
+        toolbarTitle.text = getString(R.string.best_points)
         layoutLife.visibility = View.GONE
     }
 }

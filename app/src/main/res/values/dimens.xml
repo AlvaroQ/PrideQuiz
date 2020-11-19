@@ -1,10 +1,10 @@
 <resources>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="height_status_bar">24dp</dimen>
+    <dimen name="height_status_bar">16dp</dimen>
     <dimen name="no_elevation">0dp</dimen>
     <dimen name="height_back">50dp</dimen>
-    <dimen name="width_back">50dp</dimen>
+    <dimen name="width_back">40dp</dimen>
     <dimen name="padding_back">5dp</dimen>
     <dimen name="magin_end_title_toolbar">16dp</dimen>
     <dimen name="padding_game">12dp</dimen>
@@ -20,7 +20,7 @@
 
 
     <!--Text sizes -->
-    <dimen name="title_toolbar">40sp</dimen>
+    <dimen name="title_toolbar">26sp</dimen>
     <dimen name="very_very_large">28sp</dimen>
     <dimen name="very_large">22sp</dimen>
     <dimen name="large">20sp</dimen>

@@ -11,6 +11,7 @@ import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
+import com.quiz.pride.ui.info.InfoActivity
 import com.quiz.pride.ui.ranking.RankingActivity
 import com.quiz.pride.utils.setSafeOnClickListener
 import org.koin.android.scope.lifecycleScope
@@ -58,7 +59,7 @@ class SelectFragment : Fragment() {
     private fun navigate(navigation: SelectViewModel.Navigation?) {
         when (navigation) {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
-            SelectViewModel.Navigation.Info -> { }
+            SelectViewModel.Navigation.Info -> activity?.startActivity<InfoActivity> {}
             SelectViewModel.Navigation.Ranking -> activity?.startActivity<RankingActivity> {}
         }
     }

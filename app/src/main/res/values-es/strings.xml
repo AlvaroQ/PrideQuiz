@@ -14,6 +14,7 @@
     <string name="personal_record">Récord personal: %s</string>
     <string name="world_record">Récord mundial: %s</string>
     <string name="best_points">Mejores puntuaciones</string>
+    <string name="info_title">Información</string>
     <string name="dialog_ranking_congratulation">¡Enhorabuena!</string>
     <string name="dialog_ranking_description">¡Entraste en las mejores puntuaciones!</string>
     <string name="dialog_name">Nombre</string>
@@ -21,6 +22,7 @@
     <string name="not_exist">Not exist</string>
     <string name="start">Empezar</string>
     <string name="anonymous">Anónimo</string>
+    <string name="points">Puntos\n%d</string>
 
 
     <!-- content description image -->

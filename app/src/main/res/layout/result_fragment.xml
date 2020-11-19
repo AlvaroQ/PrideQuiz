@@ -28,7 +28,7 @@
             android:id="@+id/textResult"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="50dp"
             tools:text="Resultado: 0"
             android:textAppearance="@style/Bold.TextColor.VeryLarge"
             android:gravity="center"
@@ -122,10 +122,10 @@
         android:layout_height="wrap_content"
         android:text="@string/other_apps"
         android:textAppearance="@style/Regular.TextColor.VeryVeryLarge"
-        app:fontFamily="@font/cutout"
+        android:fontFamily="@font/rock_salt_regular"
         app:layout_constraintBottom_toTopOf="@+id/recyclerviewOtherApps"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:layout_marginStart="@dimen/activity_horizontal_margin"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerviewOtherApps"
@@ -138,11 +138,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:listitem="@layout/item_app" />
 
-
     <ImageView
         android:id="@+id/imagenLoading"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="120dp"
         tools:src="@drawable/image_loading"
         android:scaleType="centerCrop"
         android:layout_gravity="center"

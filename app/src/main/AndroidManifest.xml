@@ -27,6 +27,10 @@
         </activity>
 
         <activity
+            android:name=".ui.info.InfoActivity"
+            android:noHistory="true"/>
+
+        <activity
             android:name=".ui.game.GameActivity"
             android:noHistory="true"/>
 

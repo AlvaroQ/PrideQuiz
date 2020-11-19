@@ -1,7 +1,9 @@
 package com.quiz.pride.ui.game
 
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AnimationUtils
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -29,12 +31,12 @@ class GameActivity : BaseActivity() {
 
         loadAd(adView)
         btnBack.setSafeOnClickListener {
-            startActivity<SelectActivity> {
-                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            }
+            finishAfterTransition()
         }
 
-        writeStage(1)
+        layoutExtendedTitle.background = null
+        layoutLife.visibility = View.VISIBLE
+        writePoints(0)
     }
 
     private fun loadAd(mAdView: AdView) {
@@ -43,8 +45,9 @@ class GameActivity : BaseActivity() {
         mAdView.loadAd(adRequest)
     }
 
-    fun writeStage(stage: Int) {
-        toolbarTitle.text = stage.toString()
+    fun writePoints(points: Int) {
+        toolbarTitle.text = getString(R.string.points, points)
+        toolbarTitle.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
     }
 
     fun writeDeleteLife(life: Int) {

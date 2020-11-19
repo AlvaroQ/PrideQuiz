@@ -11,7 +11,7 @@ import com.quiz.domain.App
 import com.quiz.domain.Pride
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_APPS
-import com.quiz.pride.utils.Constants.PATH_REFERENCE_COUNTRIES
+import com.quiz.pride.utils.Constants.PATH_REFERENCE_PRIDE
 import com.quiz.pride.utils.log
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -19,7 +19,7 @@ class DataBaseSourceImpl : DataBaseSource {
 
     override suspend fun getPrideById(id: Int): Pride {
         return suspendCancellableCoroutine { continuation ->
-            FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_COUNTRIES + id)
+            FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_PRIDE + id)
                 .addValueEventListener(object : ValueEventListener {
 
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -32,6 +32,26 @@ class DataBaseSourceImpl : DataBaseSource {
                         FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
                     }
                 })
+        }
+    }
+
+    override suspend fun getSymbolFlagList(): MutableList<Pride> {
+        return suspendCancellableCoroutine { continuation ->
+            FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_PRIDE)
+                    .addValueEventListener(object : ValueEventListener {
+
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            var value = dataSnapshot.getValue<MutableList<Pride>>()
+                            if(value == null) value = mutableListOf()
+                            continuation.resume(value.toMutableList()){}
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
+                            continuation.resume(mutableListOf()){}
+                            FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
+                        }
+                    })
         }
     }
 

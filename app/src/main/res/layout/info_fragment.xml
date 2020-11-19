@@ -5,15 +5,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ranking.RankingFragment">
+    tools:context=".ui.info.InfoFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerviewRanking"
+        android:id="@+id/recyclerviewInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        tools:listitem="@layout/item_ranking_user"
+        tools:listitem="@layout/item_info"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <ImageView
@@ -29,15 +29,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/loading_image" />
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adViewRanking"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        ads:adSize="FULL_BANNER"
-        ads:adUnitId="@string/admob_banner_test_id"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,8 +6,8 @@
         android:pivotY="50%"
         android:fromXScale="1.0"
         android:fromYScale="1.0"
-        android:toXScale="0.5"
-        android:toYScale="0.5" />
+        android:toXScale="0.25"
+        android:toYScale="0.25" />
 
     <scale
         android:startOffset="150"
@@ -16,6 +16,6 @@
         android:pivotY="50%"
         android:fromXScale="1.0"
         android:fromYScale="1.0"
-        android:toYScale="2.0"
-        android:toXScale="2.0" />
+        android:toYScale="4.0"
+        android:toXScale="4.0" />
 </set>

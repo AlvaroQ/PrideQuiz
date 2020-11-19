@@ -14,6 +14,7 @@
     <string name="personal_record">Personal record: %s</string>
     <string name="world_record">World record: %s</string>
     <string name="best_points">Best scores</string>
+    <string name="info_title">General info</string>
     <string name="dialog_ranking_congratulation">¡Congratulations</string>
     <string name="dialog_ranking_description">Your score has entered the world ranking</string>
     <string name="dialog_name">Name</string>
@@ -22,6 +23,7 @@
     <string name="not_exist">Not exist</string>
     <string name="start">Start</string>
     <string name="anonymous">Anonymous</string>
+    <string name="points">Points\n%d</string>
 
     <!-- content description image -->
     <string name="game_title">game title</string>

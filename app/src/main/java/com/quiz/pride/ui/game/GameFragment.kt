@@ -118,7 +118,6 @@ class GameFragment : Fragment() {
             imageQuiz.visibility = View.VISIBLE
 
             enableBtn(true)
-            (activity as GameActivity).writeStage(stage)
         }
     }
 
@@ -169,6 +168,7 @@ class GameFragment : Fragment() {
                     btnOptionOne.isSelected -> {
                         MediaPlayer.create(context, R.raw.success).start()
                         points += 1
+                        (activity as GameActivity).writePoints(points)
                     }
                     btnOptionTwo.isSelected -> {
                         MediaPlayer.create(context, R.raw.fail).start()
@@ -202,6 +202,7 @@ class GameFragment : Fragment() {
                     btnOptionTwo.isSelected -> {
                         MediaPlayer.create(context, R.raw.success).start()
                         points += 1
+                        (activity as GameActivity).writePoints(points)
                     }
                     btnOptionThree.isSelected -> {
                         MediaPlayer.create(context, R.raw.fail).start()
@@ -235,6 +236,7 @@ class GameFragment : Fragment() {
                     btnOptionThree.isSelected -> {
                         MediaPlayer.create(context, R.raw.success).start()
                         points += 1
+                        (activity as GameActivity).writePoints(points)
                     }
                     btnOptionFour.isSelected -> {
                         MediaPlayer.create(context, R.raw.fail).start()
@@ -268,6 +270,7 @@ class GameFragment : Fragment() {
                     btnOptionFour.isSelected -> {
                         MediaPlayer.create(context, R.raw.success).start()
                         points += 1
+                        (activity as GameActivity).writePoints(points)
                     }
                     else -> {
                         MediaPlayer.create(context, R.raw.fail).start()

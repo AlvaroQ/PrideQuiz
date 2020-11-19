@@ -22,7 +22,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutPosition"
-            android:layout_width="40dp"
+            android:layout_width="50dp"
             android:layout_height="match_parent"
             android:background="@drawable/gradient_position"
             app:layout_constraintTop_toTopOf="parent"
@@ -34,14 +34,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="1"
-                android:fontFamily="@font/cutout"
-                android:textAppearance="@style/Bold.TextColor.Large"
+                android:fontFamily="@font/rock_salt_regular"
+                android:textAppearance="@style/Bold.TextColor.VeryVeryLarge"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/layoutPosition"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutCard"
@@ -61,7 +60,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="@dimen/activity_horizontal_margin"/>
+                android:layout_marginStart="10dp"/>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"

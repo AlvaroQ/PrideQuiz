@@ -14,6 +14,8 @@ import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
 import com.quiz.pride.ui.game.GameFragment
 import com.quiz.pride.ui.game.GameViewModel
+import com.quiz.pride.ui.info.InfoFragment
+import com.quiz.pride.ui.info.InfoViewModel
 import com.quiz.pride.ui.ranking.RankingFragment
 import com.quiz.pride.ui.ranking.RankingViewModel
 import com.quiz.pride.ui.result.ResultFragment
@@ -74,5 +76,9 @@ private val scopesModule = module {
     scope(named<RankingFragment>()) {
         viewModel { RankingViewModel(get()) }
         scoped { GetRankingScore(get()) }
+    }
+    scope(named<InfoFragment>()) {
+        viewModel { InfoViewModel(get()) }
+        scoped { GetSymbolFlagList(get()) }
     }
 }

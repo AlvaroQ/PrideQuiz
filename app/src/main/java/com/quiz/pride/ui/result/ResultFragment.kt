@@ -169,10 +169,10 @@ class ResultFragment : Fragment() {
 
     private fun showEnterNameDialog(points: String) {
         Dialog(requireContext()).apply {
-
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(R.layout.dialog_save_record)
+            btnCancel.setSafeOnClickListener { dismiss() }
             btnSubmit.setSafeOnClickListener {
                 val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE else resultViewModel.photoUrl.value!!
                 resultViewModel.saveTopScore(User(
@@ -185,9 +185,7 @@ class ResultFragment : Fragment() {
             }
 
             imageViewPickup = imageUserPickup
-            imageViewPickup.setSafeOnClickListener {
-                resultViewModel.clickOnPicker()
-            }
+            imageViewPickup.setSafeOnClickListener { resultViewModel.clickOnPicker() }
             show()
         }
     }
