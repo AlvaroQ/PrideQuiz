@@ -23,6 +23,7 @@
     <string name="start">Empezar</string>
     <string name="anonymous">Anónimo</string>
     <string name="points">Puntos\n%d</string>
+    <string name="settings">Ajustes</string>
 
 
     <!-- content description image -->
@@ -33,4 +34,6 @@
     <string name="best_score">Mejores puntuaciones</string>
     <string name="score_image_background">fondo de la clasificación</string>
     <string name="locale">es</string>
+    <string name="know_more">Saber más</string>
+    <string name="delete_ads">Quitar publicidad</string>
 </resources>

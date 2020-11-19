@@ -24,6 +24,9 @@
     <string name="start">Start</string>
     <string name="anonymous">Anonymous</string>
     <string name="points">Points\n%d</string>
+    <string name="know_more">Know more</string>
+    <string name="delete_ads">Delete ads</string>
+    <string name="settings">Settings</string>
 
     <!-- content description image -->
     <string name="game_title">game title</string>
