@@ -18,6 +18,7 @@ import org.koin.android.viewmodel.scope.viewModel
 
 
 class RankingFragment : Fragment() {
+    private lateinit var adViewRanking: AdView
     private lateinit var binding: RankingFragmentBinding
     private val rankingViewModel: RankingViewModel by lifecycleScope.viewModel(this)
 
@@ -32,7 +33,7 @@ class RankingFragment : Fragment() {
         binding = RankingFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        loadAd(root.findViewById(R.id.adViewRanking))
+        adViewRanking = root.findViewById(R.id.adViewRanking)
 
         return root
     }
@@ -42,6 +43,7 @@ class RankingFragment : Fragment() {
         rankingViewModel.rankingList.observe(viewLifecycleOwner, Observer(::fillRanking))
         rankingViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
         rankingViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
+        rankingViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
     }
 
     private fun fillRanking(userList: MutableList<User>) {
@@ -65,9 +67,13 @@ class RankingFragment : Fragment() {
         }
     }
 
-    private fun loadAd(mAdView: AdView) {
-        MobileAds.initialize(activity)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
+    private fun loadAd(model: RankingViewModel.UiModel) {
+        if (model is RankingViewModel.UiModel.ShowAd && model.show) {
+            MobileAds.initialize(activity)
+            val adRequest = AdRequest.Builder().build()
+            adViewRanking.loadAd(adRequest)
+        } else {
+            adViewRanking.visibility = View.GONE
+        }
     }
 }

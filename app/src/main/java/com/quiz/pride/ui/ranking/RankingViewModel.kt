@@ -4,11 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetRankingScore
 import kotlinx.coroutines.launch
 
-class RankingViewModel(private val getRankingScore: GetRankingScore) : ScopedViewModel() {
+class RankingViewModel(private val getRankingScore: GetRankingScore,
+                       private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
 
     private val _progress = MutableLiveData<UiModel>()
     val progress: LiveData<UiModel> = _progress
@@ -19,11 +21,15 @@ class RankingViewModel(private val getRankingScore: GetRankingScore) : ScopedVie
     private val _rankingList = MutableLiveData<MutableList<User>>()
     val rankingList: LiveData<MutableList<User>> = _rankingList
 
+    private val _showingAds = MutableLiveData<UiModel>()
+    val showingAds: LiveData<UiModel> = _showingAds
+
     init {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_RANKING)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RANKING)
         launch {
             _progress.value = UiModel.Loading(true)
             _rankingList.value = getRanking()
+            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -38,5 +44,6 @@ class RankingViewModel(private val getRankingScore: GetRankingScore) : ScopedVie
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
+        data class ShowAd(val show: Boolean) : UiModel()
     }
 }

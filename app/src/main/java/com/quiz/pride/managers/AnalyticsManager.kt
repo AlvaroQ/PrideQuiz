@@ -6,7 +6,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.base.BaseActivity
 
-object Analytics {
+object AnalyticsManager {
     lateinit var mFirebase: FirebaseAnalytics
     lateinit var ctx: Context
 

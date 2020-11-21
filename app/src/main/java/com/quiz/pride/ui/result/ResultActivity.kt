@@ -6,16 +6,16 @@ import android.os.Bundle
 import android.view.View
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.ui.select.SelectActivity
+import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.android.synthetic.main.app_bar_layout.*
-import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.quiz.pride.utils.log
 
 class ResultActivity : BaseActivity() {
     private lateinit var rewardedAd: RewardedAd
@@ -30,7 +30,6 @@ class ResultActivity : BaseActivity() {
                 .commitNow()
         }
         activity = this
-        loadRewardedAd()
 
         btnBack.setSafeOnClickListener {
             startActivity<SelectActivity> {
@@ -41,17 +40,20 @@ class ResultActivity : BaseActivity() {
         layoutLife.visibility = View.GONE
     }
 
-    private fun loadRewardedAd() {
-        rewardedAd = RewardedAd(this, getString(R.string.admob_bonificado_test_id))
-        val adLoadCallback: RewardedAdLoadCallback = object: RewardedAdLoadCallback() {
-            override fun onRewardedAdLoaded() {
-                rewardedAd.show(activity, null)
+    fun showAd(show: Boolean){
+        if(show) {
+            rewardedAd = RewardedAd(this, getString(R.string.admob_bonificado_test_id))
+            val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
+                override fun onRewardedAdLoaded() {
+                    rewardedAd.show(activity, null)
+                }
+
+                override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
+                    FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                    log("ResultActivity - loadAd", "Ad failed to load.")
+                }
             }
-            override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
-                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
-                log("ResultActivity - loadAd", "Ad failed to load.")
-            }
+            rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
         }
-        rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
     }
 }

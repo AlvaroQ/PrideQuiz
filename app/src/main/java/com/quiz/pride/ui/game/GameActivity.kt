@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
 import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
@@ -21,11 +20,10 @@ class GameActivity : BaseActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.containerGame, GameFragment.newInstance())
-                .commitNow()
+                    .replace(R.id.containerGame, GameFragment.newInstance())
+                    .commitNow()
         }
 
-        loadAd(adView)
         btnBack.setSafeOnClickListener {
             finishAfterTransition()
         }
@@ -33,12 +31,6 @@ class GameActivity : BaseActivity() {
         layoutExtendedTitle.background = null
         layoutLife.visibility = View.VISIBLE
         writePoints(0)
-    }
-
-    private fun loadAd(mAdView: AdView) {
-        MobileAds.initialize(this)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
     }
 
     fun writePoints(points: Int) {
@@ -65,6 +57,16 @@ class GameActivity : BaseActivity() {
                 lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
                 lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_off))
             }
+        }
+    }
+
+    fun showAd(show: Boolean){
+        if(show) {
+            MobileAds.initialize(this)
+            val adRequest = AdRequest.Builder().build()
+            adViewGame.loadAd(adRequest)
+        } else {
+            adViewGame.visibility = View.GONE
         }
     }
 }

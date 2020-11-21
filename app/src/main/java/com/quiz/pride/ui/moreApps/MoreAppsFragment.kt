@@ -10,7 +10,6 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import com.quiz.domain.App
-import com.quiz.domain.User
 import com.quiz.pride.R
 import com.quiz.pride.databinding.MoreAppsFragmentBinding
 import com.quiz.pride.utils.glideLoadingGif
@@ -20,6 +19,7 @@ import org.koin.android.viewmodel.scope.viewModel
 
 class MoreAppsFragment : Fragment() {
     private lateinit var binding: MoreAppsFragmentBinding
+    private lateinit var adViewMoreApps: AdView
     private val moreAppsViewModel: MoreAppsViewModel by lifecycleScope.viewModel(this)
 
     companion object {
@@ -33,7 +33,7 @@ class MoreAppsFragment : Fragment() {
         binding = MoreAppsFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        loadAd(root.findViewById(R.id.adViewMoreApps))
+        adViewMoreApps = root.findViewById(R.id.adViewMoreApps)
 
         return root
     }
@@ -43,6 +43,7 @@ class MoreAppsFragment : Fragment() {
         moreAppsViewModel.list.observe(viewLifecycleOwner, Observer(::fillList))
         moreAppsViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
         moreAppsViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
+        moreAppsViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
     }
 
     private fun fillList(appList: MutableList<App>) {
@@ -64,9 +65,13 @@ class MoreAppsFragment : Fragment() {
         }
     }
 
-    private fun loadAd(mAdView: AdView) {
-        MobileAds.initialize(activity)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
+    private fun loadAd(model: MoreAppsViewModel.UiModel) {
+        if (model is MoreAppsViewModel.UiModel.ShowAd && model.show) {
+            MobileAds.initialize(activity)
+            val adRequest = AdRequest.Builder().build()
+            adViewMoreApps.loadAd(adRequest)
+        } else {
+            adViewMoreApps.visibility = View.GONE
+        }
     }
 }

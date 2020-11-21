@@ -1,22 +1,20 @@
 package com.quiz.pride.ui.result
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import com.quiz.domain.App
 import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
-import com.quiz.pride.utils.Constants.RECORD_PERSONAL
-import com.quiz.usecases.GetAppsRecommended
-import com.quiz.usecases.GetRecordScore
-import com.quiz.usecases.SaveTopScore
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.usecases.*
 import kotlinx.coroutines.launch
 
 class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
                       private val saveTopScore: SaveTopScore,
-                      private val getRecordScore: GetRecordScore
+                      private val getRecordScore: GetRecordScore,
+                      private val getPersonalRecord: GetPersonalRecord,
+                      private val setPersonalRecord: SetPersonalRecord,
+                      private val getPaymentDone: GetPaymentDone
 ) : ScopedViewModel() {
 
     private val _progress = MutableLiveData<UiModel>()
@@ -37,12 +35,16 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
     private val _photoUrl = MutableLiveData<String>()
     val photoUrl: LiveData<String> = _photoUrl
 
+    private val _showingAds = MutableLiveData<UiModel>()
+    val showingAds: LiveData<UiModel> = _showingAds
+
     init {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_RESULT)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
         launch {
             _progress.value = UiModel.Loading(true)
             _list.value = appsRecommended()
             _worldRecord.value = getPointsWorldRecord()
+            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -64,49 +66,47 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         }
     }
 
-    fun getPersonalRecord(points: Int, context: Context) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val personalRecordPoints = sharedPreferences.getInt(RECORD_PERSONAL, 0)
+    fun getPersonalRecord(points: Int) {
+        val personalRecordPoints = getPersonalRecord.invoke()
         if(points > personalRecordPoints) {
-            savePersonalRecord(context, points)
+            savePersonalRecord(points)
             _personalRecord.value = points.toString()
         } else {
             _personalRecord.value = personalRecordPoints.toString()
         }
     }
 
-    private fun savePersonalRecord(context: Context, record: Int) {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        sharedPreferences.edit().putInt(RECORD_PERSONAL, record).apply()
+    private fun savePersonalRecord(record: Int) {
+        setPersonalRecord.invoke(record)
     }
 
     private fun showDialogToSaveGame(points: String) {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_DIALOG_SAVE_SCORE)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
         _navigation.value = Navigation.Dialog(points)
     }
 
     fun onAppClicked(url: String) {
-        Analytics.analyticsAppRecommendedOpen(url)
+        AnalyticsManager.analyticsAppRecommendedOpen(url)
         _navigation.value = Navigation.Open(url)
     }
 
     fun navigateToGame() {
-        Analytics.analyticsClicked(Analytics.BTN_PLAY_AGAIN)
+        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_PLAY_AGAIN)
         _navigation.value = Navigation.Game
     }
 
     fun navigateToRate() {
-        Analytics.analyticsClicked(Analytics.BTN_RATE)
+        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
         _navigation.value = Navigation.Rate
     }
 
     fun navigateToRanking() {
-        Analytics.analyticsClicked(Analytics.BTN_RANKING)
+        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RANKING)
         _navigation.value = Navigation.Ranking
     }
 
     fun navigateToShare(points: Int) {
-        Analytics.analyticsClicked(Analytics.BTN_SHARE)
+        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
         _navigation.value = Navigation.Share(points)
     }
     fun saveTopScore(user: User) {
@@ -135,5 +135,6 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
+        data class ShowAd(val show: Boolean) : UiModel()
     }
 }

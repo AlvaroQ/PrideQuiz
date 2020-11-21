@@ -18,8 +18,8 @@ import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
 import com.quiz.pride.ui.info.InfoActivity
-import com.quiz.pride.ui.ranking.RankingActivity
 import com.quiz.pride.ui.settings.SettingsActivity
+import com.quiz.pride.ui.settings.SettingsViewModel
 import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import org.koin.android.scope.lifecycleScope
@@ -27,6 +27,7 @@ import org.koin.android.viewmodel.scope.viewModel
 
 
 class SelectFragment : Fragment() {
+    private var loadAd: Boolean = true
     private lateinit var rewardedAd: RewardedAd
     private lateinit var binding: SelectFragmentBinding
     private val selectViewModel: SelectViewModel by lifecycleScope.viewModel(this)
@@ -63,6 +64,7 @@ class SelectFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         selectViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
+        selectViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
     }
 
     private fun navigate(navigation: SelectViewModel.Navigation?) {
@@ -70,10 +72,15 @@ class SelectFragment : Fragment() {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
             SelectViewModel.Navigation.Settings -> activity?.startActivity<SettingsActivity> {}
             SelectViewModel.Navigation.Info -> {
-                loadRewardedAd()
+                if(loadAd) loadRewardedAd()
                 activity?.startActivity<InfoActivity> {}
             }
         }
+    }
+
+    private fun loadAd(model: SelectViewModel.UiModel) {
+        if (model is SelectViewModel.UiModel.ShowAd)
+            loadAd = model.show
     }
 
 
@@ -85,7 +92,6 @@ class SelectFragment : Fragment() {
             }
             override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
                 FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
-                log("ResultActivity - loadAd", "Ad failed to load.")
             }
         }
         rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)

@@ -3,15 +3,25 @@ package com.quiz.pride.ui.select
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.settings.SettingsViewModel
+import com.quiz.usecases.GetPaymentDone
 
-class SelectViewModel : ScopedViewModel() {
+class SelectViewModel(private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
 
     private val _navigation = MutableLiveData<Navigation>()
     val navigation: LiveData<Navigation> = _navigation
 
+    private val _showingAds = MutableLiveData<UiModel>()
+    val showingAds: LiveData<UiModel> = _showingAds
+
     init {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_SELECT_GAME)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT_GAME)
+        _showingAds.value = UiModel.ShowAd(!getPaymentDone())
+    }
+
+    private fun getPaymentDone(): Boolean {
+        return getPaymentDone.invoke()
     }
 
     fun navigateToGame() {
@@ -30,5 +40,9 @@ class SelectViewModel : ScopedViewModel() {
         object Game : Navigation()
         object Info : Navigation()
         object Settings : Navigation()
+    }
+
+    sealed class UiModel {
+        data class ShowAd(val show: Boolean) : UiModel()
     }
 }

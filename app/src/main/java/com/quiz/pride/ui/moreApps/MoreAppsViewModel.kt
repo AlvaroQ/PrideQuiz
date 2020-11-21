@@ -3,15 +3,15 @@ package com.quiz.pride.ui.moreApps
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.App
-import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
-import com.quiz.pride.ui.result.ResultViewModel
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.info.InfoViewModel
 import com.quiz.usecases.GetAppsRecommended
-import com.quiz.usecases.GetRankingScore
+import com.quiz.usecases.GetPaymentDone
 import kotlinx.coroutines.launch
 
-class MoreAppsViewModel(private val getAppsRecommended: GetAppsRecommended) : ScopedViewModel() {
+class MoreAppsViewModel(private val getAppsRecommended: GetAppsRecommended,
+                        private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
 
     private val _progress = MutableLiveData<UiModel>()
     val progress: LiveData<UiModel> = _progress
@@ -22,11 +22,15 @@ class MoreAppsViewModel(private val getAppsRecommended: GetAppsRecommended) : Sc
     private val _list = MutableLiveData<MutableList<App>>()
     val list: LiveData<MutableList<App>> = _list
 
+    private val _showingAds = MutableLiveData<UiModel>()
+    val showingAds: LiveData<UiModel> = _showingAds
+
     init {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_MORE_APPS)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_MORE_APPS)
         launch {
             _progress.value = UiModel.Loading(true)
             _list.value = appsRecommended()
+            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -41,5 +45,6 @@ class MoreAppsViewModel(private val getAppsRecommended: GetAppsRecommended) : Sc
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
+        data class ShowAd(val show: Boolean) : UiModel()
     }
 }

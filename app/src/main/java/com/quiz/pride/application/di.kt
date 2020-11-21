@@ -5,13 +5,16 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.quiz.data.datasource.DataBaseSource
 import com.quiz.data.datasource.FirestoreDataSource
+import com.quiz.data.datasource.SharedPreferencesLocalDataSource
 import com.quiz.data.repository.AppsRecommendedRepository
 import com.quiz.data.repository.PrideByIdRepository
 import com.quiz.data.repository.RankingRepository
+import com.quiz.data.repository.SharedPreferencesRepository
 import com.quiz.pride.common.ResourceProvider
 import com.quiz.pride.common.ResourceProviderImpl
 import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
+import com.quiz.pride.managers.SharedPrefsDataSource
 import com.quiz.pride.ui.game.GameFragment
 import com.quiz.pride.ui.game.GameViewModel
 import com.quiz.pride.ui.info.InfoFragment
@@ -24,6 +27,8 @@ import com.quiz.pride.ui.result.ResultFragment
 import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectFragment
 import com.quiz.pride.ui.select.SelectViewModel
+import com.quiz.pride.ui.settings.SettingsFragment
+import com.quiz.pride.ui.settings.SettingsViewModel
 import com.quiz.usecases.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -53,38 +58,53 @@ private val appModule = module {
     single<CoroutineDispatcher> { Dispatchers.Main }
     factory<DataBaseSource> { DataBaseSourceImpl() }
     factory<FirestoreDataSource> { FirestoreDataSourceImpl(get()) }
+    factory<SharedPreferencesLocalDataSource> { SharedPrefsDataSource(get()) }
 }
 
 val dataModule = module {
     factory { PrideByIdRepository(get()) }
     factory { AppsRecommendedRepository(get()) }
     factory { RankingRepository(get()) }
+    factory { SharedPreferencesRepository(get()) }
 }
 
 private val scopesModule = module {
     scope(named<SelectFragment>()) {
-        viewModel { SelectViewModel() }
+        viewModel { SelectViewModel(get()) }
+        scoped { GetPaymentDone(get()) }
     }
     scope(named<GameFragment>()) {
-        viewModel { GameViewModel(get(), get()) }
+        viewModel { GameViewModel(get(), get(), get()) }
         scoped { GetPrideById(get()) }
+        scoped { GetPaymentDone(get()) }
     }
     scope(named<ResultFragment>()) {
-        viewModel { ResultViewModel(get(), get(), get()) }
+        viewModel { ResultViewModel(get(), get(), get(), get(), get(), get()) }
         scoped { GetRecordScore(get()) }
         scoped { GetAppsRecommended(get()) }
         scoped { SaveTopScore(get()) }
+        scoped { GetPersonalRecord(get())}
+        scoped { SetPersonalRecord(get())}
+        scoped { GetPaymentDone(get()) }
     }
     scope(named<RankingFragment>()) {
-        viewModel { RankingViewModel(get()) }
+        viewModel { RankingViewModel(get(), get()) }
         scoped { GetRankingScore(get()) }
+        scoped { GetPaymentDone(get()) }
     }
     scope(named<InfoFragment>()) {
-        viewModel { InfoViewModel(get()) }
+        viewModel { InfoViewModel(get(), get()) }
         scoped { GetSymbolFlagList(get()) }
+        scoped { GetPaymentDone(get()) }
     }
     scope(named<MoreAppsFragment>()) {
-        viewModel { MoreAppsViewModel(get()) }
+        viewModel { MoreAppsViewModel(get(), get()) }
         scoped { GetAppsRecommended(get()) }
+        scoped { GetPaymentDone(get()) }
+    }
+    scope(named<SettingsFragment>()) {
+        viewModel { SettingsViewModel(get(), get()) }
+        scoped { GetPaymentDone(get()) }
+        scoped { SetPaymentDone(get()) }
     }
 }

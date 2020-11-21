@@ -18,6 +18,7 @@ import com.quiz.pride.common.traslationAnimation
 import com.quiz.pride.common.traslationAnimationFadeIn
 import com.quiz.pride.databinding.GameFragmentBinding
 import com.quiz.pride.ui.result.ResultActivity
+import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadBase64
@@ -92,6 +93,12 @@ class GameFragment : Fragment() {
         gameViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
         gameViewModel.question.observe(viewLifecycleOwner, Observer(::drawQuestionQuiz))
         gameViewModel.responseOptions.observe(viewLifecycleOwner, Observer(::drawOptionsResponse))
+        gameViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
+    }
+
+    private fun loadAd(model: GameViewModel.UiModel) {
+        if (model is GameViewModel.UiModel.ShowAd)
+            (activity as GameActivity).showAd(model.show)
     }
 
     private fun navigate(navigation: GameViewModel.Navigation?) {

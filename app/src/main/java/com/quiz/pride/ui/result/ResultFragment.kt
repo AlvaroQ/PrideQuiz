@@ -2,12 +2,10 @@ package com.quiz.pride.ui.result
 
 import android.app.Activity
 import android.app.Dialog
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,11 +21,12 @@ import androidx.preference.PreferenceManager
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.quiz.domain.App
 import com.quiz.domain.User
-import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.ResultFragmentBinding
 import com.quiz.pride.ui.ranking.RankingActivity
+import com.quiz.pride.ui.settings.SettingsActivity
+import com.quiz.pride.ui.settings.SettingsViewModel
 import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
 import kotlinx.android.synthetic.main.dialog_save_record.*
@@ -60,7 +59,7 @@ class ResultFragment : Fragment() {
         val textResult: TextView = root.findViewById(R.id.textResult)
         textResult.text = resources.getString(R.string.result, gamePoints)
 
-        resultViewModel.getPersonalRecord(gamePoints, requireContext())
+        resultViewModel.getPersonalRecord(gamePoints)
         resultViewModel.setPersonalRecordOnServer(gamePoints)
 
         val btnContinue: Button = root.findViewById(R.id.btnContinue)
@@ -86,6 +85,12 @@ class ResultFragment : Fragment() {
         resultViewModel.personalRecord.observe(viewLifecycleOwner, Observer(::fillPersonalRecord))
         resultViewModel.worldRecord.observe(viewLifecycleOwner, Observer(::fillWorldRecord))
         resultViewModel.photoUrl.observe(viewLifecycleOwner, Observer(::writeUserImage))
+        resultViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
+    }
+
+    private fun loadAd(model: ResultViewModel.UiModel) {
+        if (model is ResultViewModel.UiModel.ShowAd)
+            (activity as ResultActivity).showAd(model.show)
     }
 
     private fun fillWorldRecord(recordWorldPoints: String) {

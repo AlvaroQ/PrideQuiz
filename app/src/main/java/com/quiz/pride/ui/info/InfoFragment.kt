@@ -7,12 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.quiz.domain.Pride
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.InfoFragmentBinding
+import com.quiz.pride.ui.result.ResultActivity
+import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectActivity
 import com.quiz.pride.utils.glideLoadingGif
 import org.koin.android.scope.lifecycleScope
@@ -32,9 +31,7 @@ class InfoFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
 
         binding = InfoFragmentBinding.inflate(inflater)
-        val root = binding.root
-
-        return root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,6 +39,12 @@ class InfoFragment : Fragment() {
         infoViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
         infoViewModel.prideList.observe(viewLifecycleOwner, Observer(::fillRanking))
         infoViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
+        infoViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
+    }
+
+    private fun loadAd(model: InfoViewModel.UiModel) {
+        if (model is InfoViewModel.UiModel.ShowAd)
+            (activity as InfoActivity).showAd(model.show)
     }
 
     private fun updateProgress(model: InfoViewModel.UiModel?) {

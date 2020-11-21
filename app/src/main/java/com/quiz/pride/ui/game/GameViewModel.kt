@@ -6,13 +6,15 @@ import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.ResourceProvider
 import com.quiz.pride.common.ScopedViewModel
-import com.quiz.pride.managers.Analytics
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
+import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
 import kotlinx.coroutines.launch
 
 class GameViewModel(private val getPrideById: GetPrideById,
-                    private val resourceProvider: ResourceProvider) : ScopedViewModel() {
+                    private val resourceProvider: ResourceProvider,
+                    private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
     private var randomCountries = mutableListOf<Int>()
     private lateinit var pride: Pride
 
@@ -28,9 +30,13 @@ class GameViewModel(private val getPrideById: GetPrideById,
     private val _navigation = MutableLiveData<Navigation>()
     val navigation: LiveData<Navigation> = _navigation
 
+    private val _showingAds = MutableLiveData<UiModel>()
+    val showingAds: LiveData<UiModel> = _showingAds
+
     init {
-        Analytics.analyticsScreenViewed(Analytics.SCREEN_GAME)
+        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
         generateNewStage()
+        _showingAds.value = UiModel.ShowAd(!getPaymentDone())
     }
 
     fun generateNewStage() {
@@ -76,7 +82,7 @@ class GameViewModel(private val getPrideById: GetPrideById,
     }
 
     fun navigateToResult(points: String) {
-        Analytics.analyticsGameFinished(points)
+        AnalyticsManager.analyticsGameFinished(points)
         _navigation.value = Navigation.Result
     }
 
@@ -94,6 +100,7 @@ class GameViewModel(private val getPrideById: GetPrideById,
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
+        data class ShowAd(val show: Boolean) : UiModel()
     }
 
     sealed class Navigation {
