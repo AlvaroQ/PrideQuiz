@@ -69,7 +69,9 @@ object Analytics {
     const val SCREEN_RANKING = "screen_ranking"
     const val SCREEN_INFO = "screen_info"
     const val SCREEN_SELECT_GAME = "screen_select_game"
+    const val SCREEN_MORE_APPS = "screen_more_apps"
     const val SCREEN_DIALOG_SAVE_SCORE = "screen_dialog_save_score"
+    const val SCREEN_SETTINGS = "screen_settings"
 
     // CLICKED
     const val BTN_PLAY_AGAIN = "btn_play_again"

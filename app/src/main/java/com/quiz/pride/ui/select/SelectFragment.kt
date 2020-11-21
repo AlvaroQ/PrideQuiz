@@ -5,20 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
 import com.quiz.pride.ui.info.InfoActivity
 import com.quiz.pride.ui.ranking.RankingActivity
+import com.quiz.pride.ui.settings.SettingsActivity
+import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
 
 
 class SelectFragment : Fragment() {
+    private lateinit var rewardedAd: RewardedAd
     private lateinit var binding: SelectFragmentBinding
     private val selectViewModel: SelectViewModel by lifecycleScope.viewModel(this)
 
@@ -33,6 +42,11 @@ class SelectFragment : Fragment() {
         binding = SelectFragmentBinding.inflate(inflater)
         val root = binding.root
 
+        val imageSettings: ImageView = root.findViewById(R.id.imageSettings)
+        imageSettings.setSafeOnClickListener {
+            selectViewModel.navigateToSettings()
+        }
+
         val btnStart: Button = root.findViewById(R.id.btnStart)
         btnStart.setSafeOnClickListener {
             selectViewModel.navigateToGame()
@@ -41,11 +55,6 @@ class SelectFragment : Fragment() {
         val btnInfo: Button = root.findViewById(R.id.btnInfo)
         btnInfo.setSafeOnClickListener {
             selectViewModel.navigateToInfo()
-        }
-
-        val btnRanking: Button = root.findViewById(R.id.btnRanking)
-        btnRanking.setSafeOnClickListener {
-            selectViewModel.navigateToRanking()
         }
 
         return root
@@ -59,8 +68,26 @@ class SelectFragment : Fragment() {
     private fun navigate(navigation: SelectViewModel.Navigation?) {
         when (navigation) {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
-            SelectViewModel.Navigation.Info -> activity?.startActivity<InfoActivity> {}
-            SelectViewModel.Navigation.Ranking -> activity?.startActivity<RankingActivity> {}
+            SelectViewModel.Navigation.Settings -> activity?.startActivity<SettingsActivity> {}
+            SelectViewModel.Navigation.Info -> {
+                loadRewardedAd()
+                activity?.startActivity<InfoActivity> {}
+            }
         }
+    }
+
+
+    private fun loadRewardedAd() {
+        rewardedAd = RewardedAd(requireContext(), getString(R.string.admob_bonificado_test_id))
+        val adLoadCallback: RewardedAdLoadCallback = object: RewardedAdLoadCallback() {
+            override fun onRewardedAdLoaded() {
+                rewardedAd.show(activity, null)
+            }
+            override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
+                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                log("ResultActivity - loadAd", "Ad failed to load.")
+            }
+        }
+        rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
     }
 }

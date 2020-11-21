@@ -63,7 +63,10 @@ class DataBaseSourceImpl : DataBaseSource {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         var value = dataSnapshot.getValue<MutableList<App>>()
                         if(value == null) value = mutableListOf()
-                        continuation.resume(value.filter { it.url != BuildConfig.APPLICATION_ID }.toMutableList()){}
+                        continuation.resume(value
+                                .sortedBy { it.priority }
+                                .filter { it.url != BuildConfig.APPLICATION_ID }
+                                .toMutableList()){}
                     }
 
                     override fun onCancelled(error: DatabaseError) {

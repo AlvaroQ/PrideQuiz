@@ -25,7 +25,7 @@ class AppListAdapter(private var context: Context,
 
     override fun onBindViewHolder(holder: AppListViewHolder, position: Int) {
         val app = appList[position]
-        holder.appName.text = app.name
+        holder.appName.text = if(context.getString(R.string.locale) == "en") app.localeName?.EN!! else app.localeName?.ES!!
         glideLoadBase64(context,  app.image, holder.appImage)
         holder.itemContainer.setSafeOnClickListener { clickListener(app.url!!) }
     }

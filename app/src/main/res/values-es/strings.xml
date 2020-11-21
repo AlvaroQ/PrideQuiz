@@ -3,6 +3,7 @@
     <string name="resultado_screen_title">Resultado final</string>
     <string name="ranking_screen_title">Ranking</string>
     <string name="share_message">\nHice una puntuación de %d ¿eres capaz de superarlo?\n\n</string>
+    <string name="share_message_general">\nMe ha gustado mucho esta aplicación.\n\n</string>
     <string name="choose_one">Elige una:</string>
     <string name="other_apps">Otras aplicaciones</string>
     <string name="life">life</string>
@@ -19,11 +20,21 @@
     <string name="dialog_ranking_description">¡Entraste en las mejores puntuaciones!</string>
     <string name="dialog_name">Nombre</string>
     <string name="dialog_save">Guardar</string>
-    <string name="not_exist">Not exist</string>
+    <string name="not_exist">No existe</string>
     <string name="start">Empezar</string>
     <string name="anonymous">Anónimo</string>
     <string name="points">Puntos\n%d</string>
+    <string name="read_info">Información del orgullo</string>
     <string name="settings">Ajustes</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_delete_ads">Quitar anuncios</string>
+    <string name="settings_delete_ads_summary">Quitar anuncios para siempre</string>
+    <string name="settings_sounds">Sonidos</string>
+    <string name="settings_rate_app">Valorar la aplicación</string>
+    <string name="settings_rate_app_summary">Ir al play store para puntuar la app</string>
+    <string name="settings_more_apps">Más aplicaciones</string>
+    <string name="settings_more_apps_summary">Aplicaciones gratuitas recomendadas</string>
+    <string name="more_apps">Más aplicaciones</string>
 
 
     <!-- content description image -->
@@ -35,5 +46,5 @@
     <string name="score_image_background">fondo de la clasificación</string>
     <string name="locale">es</string>
     <string name="know_more">Saber más</string>
-    <string name="delete_ads">Quitar publicidad</string>
+    <string name="learn">Aprende</string>
 </resources>

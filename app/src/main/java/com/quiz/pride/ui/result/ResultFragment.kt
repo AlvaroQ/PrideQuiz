@@ -19,6 +19,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.preference.PreferenceManager
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.quiz.domain.App
 import com.quiz.domain.User
@@ -51,7 +52,9 @@ class ResultFragment : Fragment() {
         binding = ResultFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        MediaPlayer.create(context, R.raw.game_over).start()
+        if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
+            MediaPlayer.create(context, R.raw.game_over).start()
+        }
         gamePoints = activity?.intent?.extras?.getInt(POINTS)!!
 
         val textResult: TextView = root.findViewById(R.id.textResult)
@@ -112,11 +115,11 @@ class ResultFragment : Fragment() {
 
     private fun navigate(navigation: ResultViewModel.Navigation?) {
         when (navigation) {
-            ResultViewModel.Navigation.Rate -> rateApp()
+            ResultViewModel.Navigation.Rate -> rateApp(requireContext())
             ResultViewModel.Navigation.Game -> activity?.finishAfterTransition()
             ResultViewModel.Navigation.Ranking -> activity?.startActivity<RankingActivity> {}
-            is ResultViewModel.Navigation.Share -> shareApp(navigation.points)
-            is ResultViewModel.Navigation.Open -> openAppOnPlayStore(navigation.url)
+            is ResultViewModel.Navigation.Share -> shareApp(navigation.points, requireContext())
+            is ResultViewModel.Navigation.Open -> openAppOnPlayStore(requireContext(), navigation.url)
             is ResultViewModel.Navigation.Dialog -> showEnterNameDialog(navigation.points)
             ResultViewModel.Navigation.PickerImage -> {
                 ImagePicker.with(this)
@@ -125,45 +128,6 @@ class ResultFragment : Fragment() {
                         .maxResultSize(width = 1080, height = 1080)
                         .start()
             }
-        }
-    }
-
-    private fun openAppOnPlayStore(appPackageName: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName")))
-        } catch (notFoundException: ActivityNotFoundException) {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")))
-        }
-    }
-
-    private fun shareApp(points: Int) {
-        try {
-            val shareIntent = Intent(Intent.ACTION_SEND)
-            shareIntent.type = "text/plain"
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-            var shareMessage = resources.getString(R.string.share_message, points)
-            shareMessage =
-                """
-                ${shareMessage}https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}
-                """.trimIndent()
-            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
-            startActivity(Intent.createChooser(shareIntent, getString(R.string.choose_one)))
-        } catch (e: Exception) {
-            log(getString(R.string.share), e.toString())
-        }
-    }
-
-    private fun rateApp() {
-        val uri: Uri = Uri.parse("market://details?id=${BuildConfig.APPLICATION_ID}")
-        val goToMarket = Intent(Intent.ACTION_VIEW, uri)
-        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
-                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
-                Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        try {
-            startActivity(goToMarket)
-        } catch (e: ActivityNotFoundException) {
-            startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}")))
         }
     }
 

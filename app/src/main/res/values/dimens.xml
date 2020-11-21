@@ -3,8 +3,8 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="height_status_bar">16dp</dimen>
     <dimen name="no_elevation">0dp</dimen>
-    <dimen name="height_back">50dp</dimen>
-    <dimen name="width_back">40dp</dimen>
+    <dimen name="height_back">40dp</dimen>
+    <dimen name="width_back">35dp</dimen>
     <dimen name="padding_back">5dp</dimen>
     <dimen name="magin_end_title_toolbar">16dp</dimen>
     <dimen name="padding_game">12dp</dimen>

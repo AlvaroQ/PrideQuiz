@@ -41,6 +41,14 @@
             android:name=".ui.ranking.RankingActivity"
             android:noHistory="true"/>
 
+        <activity
+            android:name=".ui.moreApps.MoreAppsActivity"
+            android:noHistory="true"/>
+
+        <activity
+            android:theme="@style/PreferenceScreen"
+            android:name=".ui.settings.SettingsActivity"/>
+
     </application>
 
 </manifest>

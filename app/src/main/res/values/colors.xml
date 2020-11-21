@@ -13,7 +13,9 @@
 
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="light_gray">#A8A8A8</color>
     <color name="red">#FF0000</color>
+    <color name="light_purple">#B688D1</color>
     <color name="yellow">#FF9800</color>
 
     <color name="textColor">#FFFFFF</color>
