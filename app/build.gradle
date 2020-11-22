@@ -27,6 +27,15 @@ android {
             firebaseCrashlytics {
                 mappingFileUploadEnabled false
             }
+
+            resValue 'string', 'BANNER_GAME', getAdmobBannerTestId()
+            resValue 'string', 'BANNER_RANKING', getAdmobBannerTestId()
+            resValue 'string', 'BANNER_INFO', getAdmobBannerTestId()
+            resValue 'string', 'BANNER_PREFERENCES', getAdmobBannerTestId()
+            resValue 'string', 'BANNER_MORE_APPS', getAdmobBannerTestId()
+
+            resValue 'string', 'BONIFICADO_GAME_OVER', getAdmobBonificadoTestId()
+            resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoTestId()
         }
         release {
             minifyEnabled true
@@ -35,6 +44,15 @@ android {
             firebaseCrashlytics {
                 mappingFileUploadEnabled true
             }
+
+            resValue 'string', 'BANNER_GAME', getAdmobBannerGameId()
+            resValue 'string', 'BANNER_RANKING', getAdmobBannerRankingId()
+            resValue 'string', 'BANNER_INFO', getAdmobBannerInfoId()
+            resValue 'string', 'BANNER_PREFERENCES', getAdmobBannerPreferencesId()
+            resValue 'string', 'BANNER_MORE_APPS', getAdmobBannerMoreAppsId()
+
+            resValue 'string', 'BONIFICADO_GAME_OVER', getAdmobBonificadoGameOverId()
+            resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoShowInfoId()
         }
     }
     compileOptions {
@@ -64,4 +82,89 @@ dependencies {
     testImplementation androidxTestLibs.values()
     androidTestImplementation androidTestLibs.values()
 
+}
+
+// KEYS ADMOB TEST
+def getAdmobBannerTestId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_test_id' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBonificadoTestId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_test_id' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+
+// KEYS ADMOB PRODUCTION
+def getAdmobBannerGameId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_game' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBannerRankingId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_ranking' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBannerInfoId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_info' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBannerPreferencesId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_preferences' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBannerMoreAppsId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_more_apps' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBonificadoGameOverId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_game_over' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+def getAdmobBonificadoShowInfoId() {
+    try {
+        def stringsFile = file("./src/main/res/values/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_show_info' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
 }

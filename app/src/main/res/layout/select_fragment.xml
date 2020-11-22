@@ -183,7 +183,7 @@
                     android:id="@+id/textSettingsDescription"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Quite sonido o publicidad"
+                    android:text="@string/settings_description"
                     android:gravity="center"
                     android:paddingBottom="12dp"
                     android:textAppearance="@style/Regular.TextColor.Medium"

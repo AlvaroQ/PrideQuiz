@@ -83,7 +83,7 @@ class SelectFragment : Fragment() {
 
 
     private fun loadRewardedAd() {
-        rewardedAd = RewardedAd(requireContext(), getString(R.string.admob_bonificado_test_id))
+        rewardedAd = RewardedAd(requireContext(), getString(R.string.BONIFICADO_SHOW_INFO))
         val adLoadCallback: RewardedAdLoadCallback = object: RewardedAdLoadCallback() {
             override fun onRewardedAdLoaded() {
                 rewardedAd.show(activity, null)

@@ -42,7 +42,7 @@ class ResultActivity : BaseActivity() {
 
     fun showAd(show: Boolean){
         if(show) {
-            rewardedAd = RewardedAd(this, getString(R.string.admob_bonificado_test_id))
+            rewardedAd = RewardedAd(this, getString(R.string.BONIFICADO_GAME_OVER))
             val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
                 override fun onRewardedAdLoaded() {
                     rewardedAd.show(activity, null)
