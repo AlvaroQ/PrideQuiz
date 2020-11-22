@@ -65,6 +65,11 @@ class SelectFragment : Fragment() {
         selectViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
     }
 
+    override fun onResume() {
+        super.onResume()
+        selectViewModel.updateShowingAd()
+    }
+
     private fun navigate(navigation: SelectViewModel.Navigation?) {
         when (navigation) {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}

@@ -17,6 +17,10 @@ class SelectViewModel(private val getPaymentDone: GetPaymentDone) : ScopedViewMo
 
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT_GAME)
+        updateShowingAd()
+    }
+
+     fun updateShowingAd()  {
         _showingAds.value = UiModel.ShowAd(!getPaymentDone())
     }
 
