@@ -20,6 +20,7 @@
 
     <color name="textColor">#FFFFFF</color>
     <color name="textColorDark">#4C186C</color>
+    <color name="settongsIconColor">#000000</color>
 
     <color name="gradientPositionTop">#C86FFF</color>
     <color name="gradientPositionBottom">#8F59AF</color>

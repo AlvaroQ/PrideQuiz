@@ -23,7 +23,6 @@ class InfoActivity : BaseActivity() {
         }
 
         btnBack.setSafeOnClickListener { finishAfterTransition() }
-        layoutExtendedTitle.background = getDrawable(R.drawable.background_title_top_score)
         toolbarTitle.text = getString(R.string.info_title)
         layoutLife.visibility = View.GONE
     }

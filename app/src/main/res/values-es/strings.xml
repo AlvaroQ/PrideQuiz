@@ -1,31 +1,16 @@
 <resources>
+    <!-- Title APP -->
     <string name="app_name">Orgullo test</string>
-    <string name="resultado_screen_title">Resultado final</string>
-    <string name="ranking_screen_title">Ranking</string>
-    <string name="share_message">\nHice una puntuación de %d ¿eres capaz de superarlo?\n\n</string>
-    <string name="share_message_general">\nMe ha gustado mucho esta aplicación.\n\n</string>
-    <string name="choose_one">Elige una:</string>
-    <string name="other_apps">Otras aplicaciones</string>
-    <string name="life">life</string>
-    <string name="play_again">Jugar de nuevo</string>
-    <string name="play">Jugar</string>
-    <string name="share">Compartir</string>
-    <string name="rate_on_play_store">Puntuar en play store</string>
-    <string name="result">Resultado: %d</string>
-    <string name="personal_record">Récord personal: %s</string>
-    <string name="world_record">Récord mundial: %s</string>
-    <string name="best_points">Mejores puntuaciones</string>
-    <string name="info_title">Información</string>
-    <string name="dialog_ranking_congratulation">¡Enhorabuena!</string>
-    <string name="dialog_ranking_description">¡Entraste en las mejores puntuaciones!</string>
-    <string name="dialog_name">Nombre</string>
-    <string name="dialog_save">Guardar</string>
-    <string name="not_exist">No existe</string>
-    <string name="start">Empezar</string>
-    <string name="anonymous">Anónimo</string>
-    <string name="points">Puntos\n%d</string>
-    <string name="read_info">Información del orgullo</string>
+
+    <!-- Select screen -->
+    <string name="start">Jugar</string>
+    <string name="start_new_game">Empezar nuevo juego</string>
+    <string name="learn">Aprender</string>
+    <string name="learn_more">Leer información</string>
     <string name="settings">Ajustes</string>
+    <string name="settings_description">Quitar sonido o borrar publicidad</string>
+
+    <!-- Settings screen -->
     <string name="settings_version">Version</string>
     <string name="settings_delete_ads">Quitar anuncios</string>
     <string name="settings_delete_ads_summary">Quitar anuncios para siempre</string>
@@ -34,8 +19,40 @@
     <string name="settings_rate_app_summary">Ir al play store para puntuar la app</string>
     <string name="settings_more_apps">Más aplicaciones</string>
     <string name="settings_more_apps_summary">Aplicaciones gratuitas recomendadas</string>
+    <string name="sounds_on">Sonido activo</string>
+    <string name="sounds_off">Sonido desactivado</string>
     <string name="more_apps">Más aplicaciones</string>
 
+    <!-- Result screen -->
+    <string name="resultado_screen_title">Resultado final</string>
+    <string name="share_message">\nHice una puntuación de %d ¿eres capaz de superarlo?\n\n</string>
+    <string name="share_message_general">\nMe ha gustado mucho esta aplicación.\n\n</string>
+    <string name="choose_one">Elige una:</string>
+    <string name="other_apps">Otras aplicaciones</string>
+    <string name="play_again">Jugar de nuevo</string>
+    <string name="share">Compartir</string>
+    <string name="rate_on_play_store">Puntuar en play store</string>
+    <string name="result">Resultado: %d</string>
+    <string name="personal_record">Récord personal: %s</string>
+    <string name="world_record">Récord mundial: %s</string>
+    <string name="anonymous">Anónimo</string>
+
+    <!-- Ranking screen -->
+    <string name="ranking_screen_title">Ranking</string>
+    <string name="best_points">Mejores puntuaciones</string>
+
+    <!-- Dialog screen -->
+    <string name="dialog_ranking_congratulation">¡Enhorabuena!</string>
+    <string name="dialog_ranking_description">¡Entraste en las mejores puntuaciones!</string>
+    <string name="dialog_name">Nombre</string>
+    <string name="dialog_save">Guardar</string>
+
+    <!-- Game screen -->
+    <string name="life">life</string>
+    <string name="points">Puntos\n%d</string>
+
+    <!-- Info screen -->
+    <string name="info_title">Información</string>
 
     <!-- content description image -->
     <string name="game_title">Título del juego</string>
@@ -46,5 +63,4 @@
     <string name="score_image_background">fondo de la clasificación</string>
     <string name="locale">es</string>
     <string name="know_more">Saber más</string>
-    <string name="learn">Aprende</string>
 </resources>

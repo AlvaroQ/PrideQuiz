@@ -32,7 +32,7 @@
         <item name="android:textSize">@dimen/very_large</item>
     </style>
     <style name="Regular.TextColor.VeryVeryLarge" >
-        <item name="android:textSize">@dimen/very_large</item>
+        <item name="android:textSize">@dimen/very_very_large</item>
     </style>
     <style name="Bold.TextColor.Large" >
         <item name="android:textSize">@dimen/large</item>

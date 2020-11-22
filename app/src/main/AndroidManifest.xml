@@ -46,7 +46,6 @@
             android:noHistory="true"/>
 
         <activity
-            android:theme="@style/PreferenceScreen"
             android:name=".ui.settings.SettingsActivity"/>
 
     </application>

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.google.android.gms.ads.AdRequest
@@ -19,8 +19,6 @@ import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
 import com.quiz.pride.ui.info.InfoActivity
 import com.quiz.pride.ui.settings.SettingsActivity
-import com.quiz.pride.ui.settings.SettingsViewModel
-import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -43,19 +41,19 @@ class SelectFragment : Fragment() {
         binding = SelectFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        val imageSettings: ImageView = root.findViewById(R.id.imageSettings)
-        imageSettings.setSafeOnClickListener {
-            selectViewModel.navigateToSettings()
-        }
-
-        val btnStart: Button = root.findViewById(R.id.btnStart)
-        btnStart.setSafeOnClickListener {
+        val cardStart: CardView = root.findViewById(R.id.cardStart)
+        cardStart.setSafeOnClickListener {
             selectViewModel.navigateToGame()
         }
 
-        val btnInfo: Button = root.findViewById(R.id.btnInfo)
-        btnInfo.setSafeOnClickListener {
+        val cardLearn: CardView = root.findViewById(R.id.cardLearn)
+        cardLearn.setSafeOnClickListener {
             selectViewModel.navigateToInfo()
+        }
+
+        val cardSettings: CardView = root.findViewById(R.id.cardSettings)
+        cardSettings.setSafeOnClickListener {
+            selectViewModel.navigateToSettings()
         }
 
         return root
