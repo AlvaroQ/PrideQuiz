@@ -55,7 +55,7 @@
 
                 <ImageView
                     android:id="@+id/imageStart"
-                    android:layout_width="120dp"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/image_play"
                     android:layout_marginEnd="6dp"
@@ -107,7 +107,7 @@
 
                 <ImageView
                     android:id="@+id/imageLearn"
-                    android:layout_width="120dp"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/image_learn"
                     android:layout_marginEnd="6dp"
@@ -159,7 +159,7 @@
 
                 <ImageView
                     android:id="@+id/imageSettings"
-                    android:layout_width="120dp"
+                    android:layout_width="80dp"
                     android:layout_height="80dp"
                     android:src="@drawable/image_settings"
                     android:layout_marginEnd="6dp"

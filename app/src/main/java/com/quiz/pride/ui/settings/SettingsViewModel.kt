@@ -21,6 +21,7 @@ class SettingsViewModel(private val setPaymentDone: SetPaymentDone,
 
     fun savePaymentDone() {
         launch {
+            // remove_ad
             setPaymentDone.invoke(true)
             _showingAds.value = UiModel.ShowAd(false)
         }

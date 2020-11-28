@@ -9,6 +9,21 @@ android {
     compileSdkVersion versions.compileSdk
     buildToolsVersion versions.buildtoolsVersion
 
+    signingConfigs {
+        config {
+            keyAlias PRIDEQUIZ_RELEASE_KEY_ALIAS
+            keyPassword PRIDEQUIZ_RELEASE_KEY_PASSWORD
+            storeFile file(PRIDEQUIZ_RELEASE_STORE_FILE)
+            storePassword PRIDEQUIZ_RELEASE_STORE_PASSWORD
+        }
+        debug {
+            keyAlias PRIDEQUIZ_RELEASE_KEY_ALIAS
+            keyPassword PRIDEQUIZ_RELEASE_KEY_PASSWORD
+            storeFile file(PRIDEQUIZ_RELEASE_STORE_FILE)
+            storePassword PRIDEQUIZ_RELEASE_STORE_PASSWORD
+        }
+    }
+
     defaultConfig {
         applicationId names.applicationId
         minSdkVersion versions.minSdk
@@ -20,6 +35,7 @@ android {
 
     buildTypes {
         debug {
+            signingConfig signingConfigs.debug
             jniDebuggable true
             testCoverageEnabled true
             debuggable true
@@ -38,6 +54,7 @@ android {
             resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoTestId()
         }
         release {
+            signingConfig signingConfigs.config
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable false
