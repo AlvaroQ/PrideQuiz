@@ -10,11 +10,12 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerviewRanking"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         tools:listitem="@layout/item_ranking_user"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/adViewRanking"/>
 
     <ImageView
         android:id="@+id/imagenLoading"

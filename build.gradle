@@ -1,7 +1,4 @@
 buildscript {
-    ext {
-        kotlin_version = '1.4.10'
-    }
     repositories {
         jcenter()
         mavenLocal()
@@ -14,13 +11,13 @@ buildscript {
             'compileSdk'            : 30,
             'minSdk'                : 23,
             'targetSdk'             : 30,
-            'name'                  : '1.0.0',
-            'code'                  : 4,
+            'name'                  : '1.0.1',
+            'code'                  : 5,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
-            'kotlin_version'         : '1.4.10',
-            'gradle_version'         : '4.2.0-beta01',
+            'kotlin_version'         : '1.4.30',
+            'gradle_version'         : '4.1.2',
             'koin_version'           : '2.1.5',
             'preference_version'     : '1.1.1',
             'google_services_version': '4.3.4',
@@ -32,7 +29,7 @@ buildscript {
         classpath 'com.google.firebase:firebase-crashlytics-gradle:2.4.1'
         classpath "com.android.tools.build:gradle:${libsversions.gradle_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libsversions.kotlin_version}"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.1"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.3.3"
     }
     ext {
         androidLibs = [

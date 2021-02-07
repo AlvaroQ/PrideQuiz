@@ -11,8 +11,10 @@ import com.quiz.data.datasource.FirestoreDataSource
 import com.quiz.data.repository.RepositoryException
 import com.quiz.domain.User
 import com.quiz.pride.utils.Constants.COLLECTION_RANKING
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@ExperimentalCoroutinesApi
 class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : FirestoreDataSource {
 
     override suspend fun addRecord(user: User): Either<RepositoryException, User> {
@@ -33,8 +35,8 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
         return suspendCancellableCoroutine { continuation ->
             val ref = database
                 .collection(COLLECTION_RANKING)
-                .orderBy("points", Query.Direction.DESCENDING)
-                .limit(8)
+                .orderBy("score", Query.Direction.DESCENDING)
+                .limit(15)
 
             ref.get()
                 .addOnSuccessListener {
@@ -51,12 +53,12 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
         return suspendCancellableCoroutine { continuation ->
             val ref = database
                 .collection(COLLECTION_RANKING)
-                .orderBy("points", Query.Direction.DESCENDING)
+                .orderBy("score", Query.Direction.DESCENDING)
                 .limit(limit)
 
             ref.get()
                 .addOnSuccessListener {
-                    continuation.resume(it.toObjects<User>().last().points.toString()){}
+                    continuation.resume(it.toObjects<User>().last().score.toString()){}
                 }
                 .addOnFailureListener {
                     continuation.resume(""){}

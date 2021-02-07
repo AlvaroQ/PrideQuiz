@@ -145,10 +145,11 @@ class ResultFragment : Fragment() {
             btnSubmit.setSafeOnClickListener {
                 val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE else resultViewModel.photoUrl.value!!
                 resultViewModel.saveTopScore(User(
-                        name = editTextWorldRecord.text.toString(),
-                        points = gamePoints.toString(),
-                        userImage = userImage,
-                        timestamp = System.currentTimeMillis())
+                    name = editTextWorldRecord.text.toString(),
+                    points = gamePoints.toString(),
+                    score = gamePoints,
+                    userImage = userImage,
+                    timestamp = System.currentTimeMillis())
                 )
                 dismiss()
             }
@@ -162,7 +163,6 @@ class ResultFragment : Fragment() {
     private fun writeUserImage(image64: String) {
         glideLoadBase64(requireContext(), image64, imageViewPickup)
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
