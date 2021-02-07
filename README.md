@@ -4,6 +4,8 @@
   <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/app.gif" width="250">
 </p>
 
+Promo-Video: https://youtu.be/4PY0JA5JFXI
+
 This is an example Android Application that follow up Clean Architecture principles using MVVM pattern with Google architecture components and kotlin.
 
  - Follow SOLID principles
