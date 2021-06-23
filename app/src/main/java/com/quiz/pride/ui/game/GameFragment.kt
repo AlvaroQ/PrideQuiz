@@ -22,6 +22,7 @@ import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadBase64
+import com.quiz.pride.utils.glideLoadURL
 import com.quiz.pride.utils.glideLoadingGif
 import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.coroutines.*
@@ -130,7 +131,7 @@ class GameFragment : Fragment() {
     }
 
     private fun drawQuestionQuiz(pride: Pride) {
-        glideLoadBase64(activity as GameActivity, pride.flag, imageQuiz)
+        glideLoadURL(activity as GameActivity, pride.flag, imageQuiz)
     }
 
     private fun drawOptionsResponse(optionsListByPos: MutableList<String>) {
@@ -157,7 +158,14 @@ class GameFragment : Fragment() {
         stage += 1
 
         val name = gameViewModel.getPride()?.name
-        val nameLocalize = if(getString(R.string.locale) == "en") name?.EN else name?.ES
+        val nameLocalize = when {
+            getString(R.string.locale) == "es" -> name?.ES
+            getString(R.string.locale) == "fr" -> name?.FR
+            getString(R.string.locale) == "pt" -> name?.PT
+            getString(R.string.locale) == "de" -> name?.DE
+            getString(R.string.locale) == "it" -> name?.IT
+            else -> name?.EN
+        }
 
         drawCorrectResponse(nameLocalize!!)
         nextScreen()
@@ -307,7 +315,7 @@ class GameFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             delay(TimeUnit.MILLISECONDS.toMillis(1000))
             withContext(Dispatchers.Main) {
-                if(stage > TOTAL_PRIDES || life < 1) gameViewModel.navigateToResult(points.toString())
+                if(stage > (TOTAL_PRIDES + 1) || life < 1) gameViewModel.navigateToResult(points.toString())
                 else gameViewModel.generateNewStage()
             }
         }

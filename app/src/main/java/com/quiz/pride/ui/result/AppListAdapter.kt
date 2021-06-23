@@ -11,6 +11,7 @@ import com.quiz.domain.App
 import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.glideLoadBase64
+import com.quiz.pride.utils.glideLoadURL
 import com.quiz.pride.utils.setSafeOnClickListener
 
 class AppListAdapter(private var context: Context,
@@ -25,8 +26,8 @@ class AppListAdapter(private var context: Context,
 
     override fun onBindViewHolder(holder: AppListViewHolder, position: Int) {
         val app = appList[position]
-        holder.appName.text = if(context.getString(R.string.locale) == "en") app.localeName?.EN!! else app.localeName?.ES!!
-        glideLoadBase64(context,  app.image, holder.appImage)
+        holder.appName.text = if(context.getString(R.string.locale) == "es") app.localeName?.ES!! else app.localeName?.EN!!
+        glideLoadURL(context,  app.image, holder.appImage)
         holder.itemContainer.setSafeOnClickListener { clickListener(app.url!!) }
     }
 

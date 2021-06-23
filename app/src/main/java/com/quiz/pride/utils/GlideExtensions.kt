@@ -47,7 +47,6 @@ private fun initUrlGlide(context: Context, url: String?) =
 fun glideLoadURL(context: Context, url: String?, where: ImageView) {
     initUrlGlide(context, url)
         .placeholder(getCircularProgressDrawable(context))
-        .transition(DrawableTransitionOptions.withCrossFade())
         .into(where)
 }
 

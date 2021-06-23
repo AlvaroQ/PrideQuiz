@@ -132,6 +132,8 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             Toast.makeText(requireContext(), "Billing USER_CANCELED", Toast.LENGTH_SHORT).show()
             AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
 
+        } else if(billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
+            settingsViewModel.savePaymentDone()
         } else {
             // Handle any other error codes.
             Toast.makeText(requireContext(), "Billing errors", Toast.LENGTH_SHORT).show()

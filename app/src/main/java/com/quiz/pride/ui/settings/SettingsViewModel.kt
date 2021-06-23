@@ -16,7 +16,7 @@ class SettingsViewModel(private val setPaymentDone: SetPaymentDone,
 
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SETTINGS)
-        _showingAds.value = UiModel.ShowAd(!getPaymentDone())
+        //_showingAds.value = UiModel.ShowAd(!getPaymentDone())
     }
 
     fun savePaymentDone() {

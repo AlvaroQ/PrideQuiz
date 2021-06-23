@@ -10,6 +10,7 @@ import com.quiz.domain.App
 import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.glideCircleLoadBase64
+import com.quiz.pride.utils.glideLoadURL
 
 class MoreAppsListAdapter(
     val context: Context,
@@ -24,7 +25,7 @@ class MoreAppsListAdapter(
         val app = rankingList[position]
         holder.applicationNameText.text = if(context.getString(R.string.locale) == "en") app.localeName?.EN!! else app.localeName?.ES!!
         holder.applicationDescriptionText.text = if(context.getString(R.string.locale) == "en") app.localeDescription?.EN!! else app.localeDescription?.ES!!
-        glideCircleLoadBase64(context,  app.image, holder.applicationImage)
+        glideLoadURL(context,  app.image, holder.applicationImage)
     }
 
     override fun getItemCount(): Int {

@@ -66,10 +66,41 @@ class GameViewModel(private val getPrideById: GetPrideById,
 
             /** Save value */
             val optionList = mutableListOf("", "", "", "")
-            optionList[numRandomMainPosition] =  if(resourceProvider.getString(R.string.locale) == "en") pride.name?.EN!! else pride.name?.ES!!
-            optionList[numRandomPosition1] = if(resourceProvider.getString(R.string.locale) == "en") option1.name?.EN!! else option1.name?.ES!!
-            optionList[numRandomPosition2] = if(resourceProvider.getString(R.string.locale) == "en") option2.name?.EN!! else option2.name?.ES!!
-            optionList[numRandomPosition3] = if(resourceProvider.getString(R.string.locale) == "en") option3.name?.EN!! else option3.name?.ES!!
+            optionList[numRandomMainPosition] = when {
+                resourceProvider.getString(R.string.locale) == "es" -> pride.name?.ES!!
+                resourceProvider.getString(R.string.locale) == "fr" -> pride.name?.FR!!
+                resourceProvider.getString(R.string.locale) == "pt" -> pride.name?.PT!!
+                resourceProvider.getString(R.string.locale) == "de" -> pride.name?.DE!!
+                resourceProvider.getString(R.string.locale) == "it" -> pride.name?.IT!!
+                else -> pride.name?.EN!!
+            }
+
+            optionList[numRandomPosition1] = when {
+                resourceProvider.getString(R.string.locale) == "es" -> option1.name?.ES!!
+                resourceProvider.getString(R.string.locale) == "fr" -> option1.name?.FR!!
+                resourceProvider.getString(R.string.locale) == "pt" -> option1.name?.PT!!
+                resourceProvider.getString(R.string.locale) == "de" -> option1.name?.DE!!
+                resourceProvider.getString(R.string.locale) == "it" -> option1.name?.IT!!
+                else -> option1.name?.EN!!
+            }
+
+            optionList[numRandomPosition2] = when {
+                resourceProvider.getString(R.string.locale) == "es" -> option2.name?.ES!!
+                resourceProvider.getString(R.string.locale) == "fr" -> option2.name?.FR!!
+                resourceProvider.getString(R.string.locale) == "pt" -> option2.name?.PT!!
+                resourceProvider.getString(R.string.locale) == "de" -> option2.name?.DE!!
+                resourceProvider.getString(R.string.locale) == "it" -> option2.name?.IT!!
+                else -> option2.name?.EN!!
+            }
+
+            optionList[numRandomPosition3] = when {
+                resourceProvider.getString(R.string.locale) == "es" -> option3.name?.ES!!
+                resourceProvider.getString(R.string.locale) == "fr" -> option3.name?.FR!!
+                resourceProvider.getString(R.string.locale) == "pt" -> option3.name?.PT!!
+                resourceProvider.getString(R.string.locale) == "de" -> option3.name?.DE!!
+                resourceProvider.getString(R.string.locale) == "it" -> option3.name?.IT!!
+                else -> option3.name?.EN!!
+            }
 
             _responseOptions.value = optionList
             _question.value = pride

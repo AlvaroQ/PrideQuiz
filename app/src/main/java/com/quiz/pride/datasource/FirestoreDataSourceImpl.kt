@@ -58,7 +58,11 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
 
             ref.get()
                 .addOnSuccessListener {
-                    continuation.resume(it.toObjects<User>().last().score.toString()){}
+                    try {
+                        continuation.resume(it.toObjects<User>().last().score.toString()){}
+                    } catch (noSuchElementException: NoSuchElementException) {
+                        FirebaseCrashlytics.getInstance().recordException(Throwable(noSuchElementException.cause))
+                    }
                 }
                 .addOnFailureListener {
                     continuation.resume(""){}

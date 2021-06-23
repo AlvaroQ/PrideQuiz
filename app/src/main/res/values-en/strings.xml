@@ -13,7 +13,7 @@
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
     <string name="settings_delete_ads">Delete ads</string>
-    <string name="settings_delete_ads_summary">Remove ads forever</string>
+    <string name="settings_delete_ads_summary">Remove ads</string>
     <string name="settings_sounds">Sounds</string>
     <string name="settings_rate_app">Rate app</string>
     <string name="settings_rate_app_summary">Go to play store to rate app</string>
@@ -59,12 +59,7 @@
 
     <!-- Info screen -->
     <string name="info_title">General info</string>
-    <string name="locale">en</string>
 
-    <!-- content description image -->
-    <string name="game_title" translatable="false">game title</string>
-    <string name="loading_image" translatable="false">loading</string>
-    <string name="back" translatable="false">back</string>
-    <string name="game_image" translatable="false">image to guess</string>
-    <string name="score_image_background" translatable="false">background</string>
+    <!-- content -->
+    <string name="locale">en</string>
 </resources>

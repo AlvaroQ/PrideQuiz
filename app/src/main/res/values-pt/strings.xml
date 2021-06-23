@@ -1,0 +1,65 @@
+<resources>
+    <!-- Title APP -->
+    <string name="app_name">Questionário do Orgulho</string>
+
+    <!-- Select screen -->
+    <string name="start">Início</string>
+    <string name="start_new_game">Começar um novo jogo</string>
+    <string name="learn">Aprenda</string>
+    <string name="learn_more">Ler toda a informação</string>
+    <string name="settings">Definições</string>
+    <string name="settings_description">Apagar som ou anúncios</string>
+
+    <!-- Settings screen -->
+    <string name="settings_version">Versão</string>
+    <string name="settings_delete_ads">Eliminar anúncios</string>
+    <string name="settings_delete_ads_summary">Remover os anúncios</string>
+    <string name="settings_sounds">Sons</string>
+    <string name="settings_rate_app">Avaliar aplicação</string>
+    <string name="settings_rate_app_summary">Ir à loja de jogos para avaliar a aplicação</string>
+    <string name="settings_more_apps">Mais aplicação</string>
+    <string name="settings_more_apps_summary">Aplicações gratuitas recomendadas</string>
+    <string name="settings_share">Partilhe com os seus amigos</string>
+    <string name="settings_share_summary">Partilhe com o seu amigo esta aplicação para jogar com eles</string>
+    <string name="more_apps">Mais aplicações</string>
+    <string name="sounds_on">Som em</string>
+    <string name="sounds_off">Som desligado</string>
+
+    <!-- Result screen -->
+    <string name="resultado_screen_title">Resultado final</string>
+    <string name="share_message">\nA minha pontuação é %d, consegues superar-me?\n\n</string>
+    <string name="share_message_general">\nEsta é uma grande aplicação e é grátis!\n\n</string>
+    <string name="choose_one">Escolha:</string>
+    <string name="other_apps">Outras aplicações</string>
+    <string name="play_again">Reproduzir novamente</string>
+    <string name="share">Partilhar</string>
+    <string name="rate_on_play_store">Tarifa na loja de jogos</string>
+    <string name="result">Resultado: %d</string>
+    <string name="personal_record">Registo pessoal: %s</string>
+    <string name="world_record">Recorde mundial: %s</string>
+    <string name="best_score">Melhores pontuações</string>
+    <string name="not_exist">Não existe</string>
+    <string name="anonymous">Anónimo</string>
+    <string name="read_info">Informações sobre o orgulho</string>
+    <string name="know_more">Saber mais</string>
+
+    <!-- Ranking screen -->
+    <string name="ranking_screen_title">Ranking</string>
+    <string name="best_points">Melhores pontuações</string>
+
+    <!-- Dialog screen -->
+    <string name="dialog_ranking_congratulation">Parabéns!</string>
+    <string name="dialog_ranking_description">A sua pontuação entrou no ranking mundial!</string>
+    <string name="dialog_name">Nome</string>
+    <string name="dialog_save">Guardar</string>
+
+    <!-- Game screen -->
+    <string name="life">vida</string>
+    <string name="points">Pontos\n%d</string>
+
+    <!-- Info screen -->
+    <string name="info_title">Informação geral</string>
+
+    <!-- content -->
+    <string name="locale">pt</string>
+</resources>

@@ -10,6 +10,7 @@ import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.glideLoadBase64
+import com.quiz.pride.utils.glideLoadURL
 
 class InfoListAdapter(
     val context: Context,
@@ -23,12 +24,26 @@ class InfoListAdapter(
     override fun onBindViewHolder(holder: InfoListViewHolder, position: Int) {
         val pride = infoList[position]
 
-        glideLoadBase64(context,  pride.flag, holder.flagImage)
+        glideLoadURL(context,  pride.flag, holder.flagImage)
 
-        val nameLocalize = if(context.getString(R.string.locale) == "en") pride.name?.EN else pride.name?.ES
+        val nameLocalize = when {
+            context.getString(R.string.locale) == "es" -> pride.name?.ES
+            context.getString(R.string.locale) == "fr" -> pride.name?.FR
+            context.getString(R.string.locale) == "pt" -> pride.name?.PT
+            context.getString(R.string.locale) == "de" -> pride.name?.DE
+            context.getString(R.string.locale) == "it" -> pride.name?.IT
+            else -> pride.name?.EN
+        }
         holder.nameText.text = nameLocalize
 
-        val descriptionLocalize = if(context.getString(R.string.locale) == "en") pride.description?.EN else pride.description?.ES
+        val descriptionLocalize = when {
+            context.getString(R.string.locale) == "es" -> pride.description?.ES
+            context.getString(R.string.locale) == "fr" -> pride.description?.FR
+            context.getString(R.string.locale) == "pt" -> pride.description?.PT
+            context.getString(R.string.locale) == "de" -> pride.description?.DE
+            context.getString(R.string.locale) == "it" -> pride.description?.IT
+            else -> pride.name?.EN
+        }
         holder.descriptionText.text = descriptionLocalize
     }
 
