@@ -59,7 +59,7 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
 
     fun setPersonalRecordOnServer(gamePoints: Int) {
         launch {
-            val pointsLastClassified = getRecordScore.invoke(8)
+            val pointsLastClassified = getRecordScore.invoke(50)
             if(gamePoints > pointsLastClassified.toInt()) {
                 showDialogToSaveGame(gamePoints.toString())
             }

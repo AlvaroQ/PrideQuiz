@@ -88,7 +88,6 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             }
 
             override fun onBillingServiceDisconnected() {
-                Toast.makeText(requireContext(), "Billing Service Disconnected", Toast.LENGTH_SHORT).show()
                 AnalyticsManager.analyticsScreenViewed("Billing Service Disconnected")
             }
         })

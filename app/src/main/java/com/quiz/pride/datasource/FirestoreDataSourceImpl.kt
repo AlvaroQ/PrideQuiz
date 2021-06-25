@@ -36,7 +36,7 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
             val ref = database
                 .collection(COLLECTION_RANKING)
                 .orderBy("score", Query.Direction.DESCENDING)
-                .limit(15)
+                .limit(50)
 
             ref.get()
                 .addOnSuccessListener {
@@ -61,6 +61,7 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
                     try {
                         continuation.resume(it.toObjects<User>().last().score.toString()){}
                     } catch (noSuchElementException: NoSuchElementException) {
+                        continuation.resume(""){}
                         FirebaseCrashlytics.getInstance().recordException(Throwable(noSuchElementException.cause))
                     }
                 }

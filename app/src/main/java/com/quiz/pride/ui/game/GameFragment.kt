@@ -1,10 +1,14 @@
 package com.quiz.pride.ui.game
 
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -18,13 +22,11 @@ import com.quiz.pride.common.traslationAnimation
 import com.quiz.pride.common.traslationAnimationFadeIn
 import com.quiz.pride.databinding.GameFragmentBinding
 import com.quiz.pride.ui.result.ResultActivity
-import com.quiz.pride.ui.result.ResultViewModel
+import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
-import com.quiz.pride.utils.glideLoadBase64
-import com.quiz.pride.utils.glideLoadURL
-import com.quiz.pride.utils.glideLoadingGif
-import com.quiz.pride.utils.setSafeOnClickListener
+import kotlinx.android.synthetic.main.dialog_extra_life.*
+import kotlinx.android.synthetic.main.dialog_save_record.*
 import kotlinx.coroutines.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -32,15 +34,16 @@ import java.util.concurrent.TimeUnit
 
 
 class GameFragment : Fragment() {
+    private var extraLife = false
     private val gameViewModel: GameViewModel by lifecycleScope.viewModel(this)
     private lateinit var binding: GameFragmentBinding
 
-    lateinit var imageLoading: ImageView
-    lateinit var imageQuiz: ImageView
-    lateinit var btnOptionOne: TextView
-    lateinit var btnOptionTwo: TextView
-    lateinit var btnOptionThree: TextView
-    lateinit var btnOptionFour: TextView
+    private lateinit var imageLoading: ImageView
+    private lateinit var imageQuiz: ImageView
+    private lateinit var btnOptionOne: TextView
+    private lateinit var btnOptionTwo: TextView
+    private lateinit var btnOptionThree: TextView
+    private lateinit var btnOptionFour: TextView
 
     private var life: Int = 2
     private var stage: Int = 1
@@ -55,7 +58,6 @@ class GameFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         binding = GameFragmentBinding.inflate(inflater)
         val root = binding.root
 
@@ -91,15 +93,22 @@ class GameFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         gameViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
-        gameViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
         gameViewModel.question.observe(viewLifecycleOwner, Observer(::drawQuestionQuiz))
         gameViewModel.responseOptions.observe(viewLifecycleOwner, Observer(::drawOptionsResponse))
-        gameViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
+        gameViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAdAndProgress))
+        gameViewModel.progress.observe(viewLifecycleOwner, Observer(::loadAdAndProgress))
     }
 
-    private fun loadAd(model: GameViewModel.UiModel) {
-        if (model is GameViewModel.UiModel.ShowAd)
-            (activity as GameActivity).showAd(model.show)
+    private fun loadAdAndProgress(model: GameViewModel.UiModel) {
+        when(model) {
+            is GameViewModel.UiModel.ShowBannerAd -> {
+                (activity as GameActivity).showBannerAd(model.show)
+            }
+            is GameViewModel.UiModel.ShowReewardAd -> {
+                (activity as GameActivity).showRewardedAd(model.show)
+            }
+            is GameViewModel.UiModel.Loading -> updateProgress(model.show)
+        }
     }
 
     private fun navigate(navigation: GameViewModel.Navigation?) {
@@ -107,11 +116,14 @@ class GameFragment : Fragment() {
             is GameViewModel.Navigation.Result -> {
                 activity?.startActivity<ResultActivity> { putExtra(POINTS, points) }
             }
+            is GameViewModel.Navigation.ExtraLifeDialog -> {
+                showExtraLifeDialog()
+            }
         }
     }
 
-    private fun updateProgress(model: GameViewModel.UiModel?) {
-        if (model is GameViewModel.UiModel.Loading && model.show) {
+    private fun updateProgress(isShowing: Boolean) {
+        if (isShowing) {
             glideLoadingGif(activity as GameActivity, imageLoading)
             imageLoading.visibility = View.VISIBLE
             imageQuiz.visibility = View.GONE
@@ -157,7 +169,7 @@ class GameFragment : Fragment() {
         enableBtn(false)
         stage += 1
 
-        val name = gameViewModel.getPride()?.name
+        val name = gameViewModel.getPride().name
         val nameLocalize = when {
             getString(R.string.locale) == "es" -> name?.ES
             getString(R.string.locale) == "fr" -> name?.FR
@@ -173,7 +185,20 @@ class GameFragment : Fragment() {
 
     private fun deleteLife() {
         life--
-        (activity as GameActivity).writeDeleteLife(life)
+        (activity as GameActivity).writeLife(life)
+    }
+
+    private fun addExtraLife() {
+        CoroutineScope(Dispatchers.IO).launch {
+            if(life == 0) {
+                delay(TimeUnit.MILLISECONDS.toMillis(2500))
+                life++
+                (activity as GameActivity).writeLife(life)
+                points--
+                (activity as GameActivity).writePoints(points)
+                gameViewModel.generateNewStage()
+            }
+        }
     }
 
     private fun drawCorrectResponse(capitalNameCorrect: String) {
@@ -315,9 +340,36 @@ class GameFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             delay(TimeUnit.MILLISECONDS.toMillis(1000))
             withContext(Dispatchers.Main) {
-                if(stage > (TOTAL_PRIDES + 1) || life < 1) gameViewModel.navigateToResult(points.toString())
-                else gameViewModel.generateNewStage()
+                if(life < 1 && !extraLife && stage < TOTAL_PRIDES) {
+                    extraLife = true
+                    gameViewModel.navigateToExtraLifeDialog()
+                }
+
+                else if(stage > (TOTAL_PRIDES + 1) || life < 1) {
+                    gameViewModel.navigateToResult(points.toString())
+                } else {
+                    gameViewModel.generateNewStage()
+                    if(stage % 15 == 0) gameViewModel.showRewardedAd()
+                }
             }
+        }
+    }
+
+    private fun showExtraLifeDialog() {
+        Dialog(requireContext()).apply {
+            requestWindowFeature(Window.FEATURE_NO_TITLE)
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setContentView(R.layout.dialog_extra_life)
+            btnNo.setSafeOnClickListener {
+                dismiss()
+                gameViewModel.navigateToResult(points.toString())
+            }
+            btnYes.setSafeOnClickListener {
+                dismiss()
+                gameViewModel.showRewardedAd()
+                addExtraLife()
+            }
+            show()
         }
     }
 

@@ -10,8 +10,6 @@ import androidx.lifecycle.Observer
 import com.quiz.domain.Pride
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.InfoFragmentBinding
-import com.quiz.pride.ui.result.ResultActivity
-import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectActivity
 import com.quiz.pride.utils.glideLoadingGif
 import org.koin.android.scope.lifecycleScope

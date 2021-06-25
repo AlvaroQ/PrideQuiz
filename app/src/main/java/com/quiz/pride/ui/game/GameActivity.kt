@@ -1,18 +1,29 @@
 package com.quiz.pride.ui.game
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
+import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.rewarded.RewardItem
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdCallback
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
+import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.android.synthetic.main.app_bar_layout.*
 import kotlinx.android.synthetic.main.game_activity.*
 
 
 class GameActivity : BaseActivity() {
+    private lateinit var rewardedAd: RewardedAd
+    private lateinit var activity: Activity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +34,7 @@ class GameActivity : BaseActivity() {
                     .replace(R.id.containerGame, GameFragment.newInstance())
                     .commitNow()
         }
+        activity = this
 
         btnBack.setSafeOnClickListener {
             finishAfterTransition()
@@ -38,7 +50,7 @@ class GameActivity : BaseActivity() {
         toolbarTitle.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
     }
 
-    fun writeDeleteLife(life: Int) {
+    fun writeLife(life: Int) {
         when(life) {
             2 -> {
                 lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_on))
@@ -60,13 +72,29 @@ class GameActivity : BaseActivity() {
         }
     }
 
-    fun showAd(show: Boolean){
+    fun showBannerAd(show: Boolean){
         if(show) {
             MobileAds.initialize(this)
             val adRequest = AdRequest.Builder().build()
             adViewGame.loadAd(adRequest)
         } else {
             adViewGame.visibility = View.GONE
+        }
+    }
+
+    fun showRewardedAd(show: Boolean){
+        if(show) {
+            rewardedAd = RewardedAd(this, getString(R.string.BONIFICADO_GAME))
+            val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
+                override fun onRewardedAdLoaded() {
+                    rewardedAd.show(activity, null)
+                }
+
+                override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
+                    FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                }
+            }
+            rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
         }
     }
 }

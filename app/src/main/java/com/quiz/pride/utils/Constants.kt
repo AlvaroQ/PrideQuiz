@@ -2,7 +2,7 @@ package com.quiz.pride.utils
 
 object Constants {
     const val POINTS = "points"
-    const val TOTAL_PRIDES = 43
+    const val TOTAL_PRIDES = 76
     const val PATH_REFERENCE_PRIDE = "newQuiz/pride/"
     const val PATH_REFERENCE_APPS = "newQuiz/apps"
     const val COLLECTION_RANKING = "ranking-pride"

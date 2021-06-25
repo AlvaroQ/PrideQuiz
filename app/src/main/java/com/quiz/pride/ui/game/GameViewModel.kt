@@ -7,6 +7,7 @@ import com.quiz.pride.R
 import com.quiz.pride.common.ResourceProvider
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
@@ -36,7 +37,11 @@ class GameViewModel(private val getPrideById: GetPrideById,
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
         generateNewStage()
-        _showingAds.value = UiModel.ShowAd(!getPaymentDone())
+        _showingAds.value = UiModel.ShowBannerAd(!getPaymentDone())
+    }
+
+    fun showRewardedAd() {
+        _showingAds.value = UiModel.ShowReewardAd(!getPaymentDone())
     }
 
     fun generateNewStage() {
@@ -117,8 +122,13 @@ class GameViewModel(private val getPrideById: GetPrideById,
         _navigation.value = Navigation.Result
     }
 
-    fun getPride() : Pride? {
+    fun getPride() : Pride {
         return pride
+    }
+
+    fun navigateToExtraLifeDialog() {
+        if(!getPaymentDone()) _navigation.value = Navigation.ExtraLifeDialog
+        else _navigation.value = Navigation.Result
     }
 
     private fun generateRandomWithExcusion(start: Int, end: Int, vararg exclude: Int): Int {
@@ -131,10 +141,12 @@ class GameViewModel(private val getPrideById: GetPrideById,
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
-        data class ShowAd(val show: Boolean) : UiModel()
+        data class ShowBannerAd(val show: Boolean) : UiModel()
+        data class ShowReewardAd(val show: Boolean) : UiModel()
     }
 
     sealed class Navigation {
         object Result : Navigation()
+        object ExtraLifeDialog : Navigation()
     }
 }

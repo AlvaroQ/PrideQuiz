@@ -53,6 +53,12 @@
     <string name="dialog_name">Name</string>
     <string name="dialog_save">Save</string>
 
+    <!-- Dialog screen extra life -->
+    <string name="dialog_extra_life_title">Extra life</string>
+    <string name="dialog_extra_life_description">Do you want an extra life watching an ad?</string>
+    <string name="dialog_extra_life_btn_yes">Yes</string>
+    <string name="dialog_extra_life_btn_no">No</string>
+
     <!-- Game screen -->
     <string name="life">life</string>
     <string name="points">Points\n%d</string>
