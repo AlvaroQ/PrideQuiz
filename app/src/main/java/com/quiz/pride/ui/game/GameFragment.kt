@@ -192,8 +192,8 @@ class GameFragment : Fragment() {
         CoroutineScope(Dispatchers.IO).launch {
             if(life == 0) {
                 delay(TimeUnit.MILLISECONDS.toMillis(2500))
-                life++
-                (activity as GameActivity).writeLife(life)
+                life = 1
+                (activity as GameActivity).writeLife(1)
                 points--
                 (activity as GameActivity).writePoints(points)
                 gameViewModel.generateNewStage()

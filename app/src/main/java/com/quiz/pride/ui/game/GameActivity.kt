@@ -4,21 +4,18 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
-import com.google.android.gms.ads.rewarded.RewardItem
 import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdCallback
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
-import com.quiz.pride.utils.log
 import com.quiz.pride.utils.setSafeOnClickListener
 import kotlinx.android.synthetic.main.app_bar_layout.*
 import kotlinx.android.synthetic.main.game_activity.*
+import kotlinx.coroutines.launch
 
 
 class GameActivity : BaseActivity() {
@@ -51,23 +48,35 @@ class GameActivity : BaseActivity() {
     }
 
     fun writeLife(life: Int) {
-        when(life) {
-            2 -> {
-                lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_on))
-                lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
-            }
-            1 -> {
-                lifeSecond.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
+        runOnUiThread {
+            when (life) {
+                2 -> {
+                    lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_on))
+                    lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
+                }
+                1 -> {
+                    lifeSecond.startAnimation(
+                        AnimationUtils.loadAnimation(
+                            activity,
+                            R.anim.scale_xy_collapse
+                        )
+                    )
 
-                lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
-                lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
-            }
-            0 -> {
-                lifeFirst.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
+                    lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
+                    lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
+                }
+                0 -> {
+                    lifeFirst.startAnimation(
+                        AnimationUtils.loadAnimation(
+                            activity,
+                            R.anim.scale_xy_collapse
+                        )
+                    )
 
-                // GAME OVER
-                lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
-                lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_off))
+                    // GAME OVER
+                    lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
+                    lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_off))
+                }
             }
         }
     }

@@ -11,6 +11,7 @@ import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.getRelationTime
 import com.quiz.pride.utils.glideCircleLoadBase64
+import kotlinx.android.synthetic.main.item_ranking_user.view.*
 
 class RankingListAdapter(
     val context: Context,
@@ -23,7 +24,26 @@ class RankingListAdapter(
 
     override fun onBindViewHolder(holder: RankingListViewHolder, position: Int) {
         val user = rankingList[position]
-        holder.positionText.text = (position + 1).toString()
+
+        when (position) {
+            0 -> {
+                holder.firstPositionImage.visibility = View.VISIBLE
+                holder.positionText.visibility = View.GONE
+                holder.firstPositionImage.setImageResource(R.drawable.medal_gold)
+            }
+            1 -> {
+                holder.firstPositionImage.visibility = View.VISIBLE
+                holder.positionText.visibility = View.GONE
+                holder.firstPositionImage.setImageResource(R.drawable.medal_silver)
+            }
+            2 -> {
+                holder.firstPositionImage.visibility = View.VISIBLE
+                holder.positionText.visibility = View.GONE
+                holder.firstPositionImage.setImageResource(R.drawable.medal_bronze)
+            }
+            else -> holder.positionText.text = (position + 1).toString()
+        }
+
         holder.userName.text = if(user.name.isNullOrEmpty()) context.getString(R.string.anonymous) else user.name
         glideCircleLoadBase64(context,  user.userImage, holder.userImage)
         holder.timeText.text = getRelationTime(user.timestamp!!)
@@ -38,8 +58,13 @@ class RankingListAdapter(
         return rankingList[position]
     }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
+
     class RankingListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var positionText: TextView = view.findViewById(R.id.positionText)
+        var firstPositionImage: ImageView = view.findViewById(R.id.firstPositionImage)
         var userName: TextView = view.findViewById(R.id.nameText)
         var userImage: ImageView = view.findViewById(R.id.userImage)
         var timeText: TextView = view.findViewById(R.id.timeText)
