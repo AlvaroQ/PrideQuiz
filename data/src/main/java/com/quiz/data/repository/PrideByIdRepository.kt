@@ -7,6 +7,6 @@ class PrideByIdRepository(private val dataBaseSource: DataBaseSource) {
 
     suspend fun getPrideById(id: Int): Pride = dataBaseSource.getPrideById(id)
 
-    suspend fun getSymbolFlagList(): MutableList<Pride> = dataBaseSource.getSymbolFlagList()
+    suspend fun getPrideList(currentPage: Int): MutableList<Pride> = dataBaseSource.getPrideList(currentPage)
 
 }

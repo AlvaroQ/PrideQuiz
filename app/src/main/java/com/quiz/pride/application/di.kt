@@ -94,7 +94,7 @@ private val scopesModule = module {
     }
     scope(named<InfoFragment>()) {
         viewModel { InfoViewModel(get(), get()) }
-        scoped { GetSymbolFlagList(get()) }
+        scoped { GetPrideList(get()) }
         scoped { GetPaymentDone(get()) }
     }
     scope(named<MoreAppsFragment>()) {

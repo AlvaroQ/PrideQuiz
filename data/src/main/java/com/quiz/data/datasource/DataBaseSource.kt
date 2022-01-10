@@ -5,6 +5,6 @@ import com.quiz.domain.Pride
 
 interface DataBaseSource {
     suspend fun getPrideById(id: Int): Pride
-    suspend fun getSymbolFlagList(): MutableList<Pride>
+    suspend fun getPrideList(currentPage: Int): MutableList<Pride>
     suspend fun getAppsRecommended(): MutableList<App>
 }

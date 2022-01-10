@@ -1,16 +1,22 @@
 package com.quiz.pride.ui.info
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.quiz.domain.Pride
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.InfoFragmentBinding
 import com.quiz.pride.ui.select.SelectActivity
+import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
+import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadingGif
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -19,6 +25,9 @@ import org.koin.android.viewmodel.scope.viewModel
 class InfoFragment : Fragment() {
     private lateinit var binding: InfoFragmentBinding
     private val infoViewModel: InfoViewModel by lifecycleScope.viewModel(this)
+    private var currentPage = 0
+    private lateinit var scrollListener: RecyclerView.OnScrollListener
+    lateinit var adapter: InfoListAdapter
 
     companion object {
         fun newInstance() = InfoFragment()
@@ -35,7 +44,8 @@ class InfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         infoViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
-        infoViewModel.prideList.observe(viewLifecycleOwner, Observer(::fillRanking))
+        infoViewModel.prideList.observe(viewLifecycleOwner, Observer(::fillPrideList))
+        infoViewModel.updatePrideList.observe(viewLifecycleOwner, Observer(::updatePrideList))
         infoViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
         infoViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
     }
@@ -54,8 +64,38 @@ class InfoFragment : Fragment() {
         }
     }
 
-    private fun fillRanking(prideList: MutableList<Pride>) {
-        binding.recyclerviewInfo.adapter = InfoListAdapter(requireContext(), prideList)
+    private fun fillPrideList(prideList: MutableList<Pride>) {
+        adapter = InfoListAdapter(requireContext(), prideList)
+        binding.recyclerviewInfo.adapter = adapter
+        setRecyclerViewScrollListener()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updatePrideList(prideList: MutableList<Pride>) {
+        adapter.update(prideList)
+        adapter.notifyDataSetChanged()
+        setRecyclerViewScrollListener()
+    }
+
+    private fun setRecyclerViewScrollListener() {
+        scrollListener = object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                val totalItemCount = recyclerView.layoutManager?.itemCount
+                val lastVisibleItemPosition = (recyclerView.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+                if (totalItemCount == lastVisibleItemPosition + 1) {
+                    binding.recyclerviewInfo.removeOnScrollListener(scrollListener)
+
+                    if(currentPage * TOTAL_ITEM_EACH_LOAD < TOTAL_PRIDES) {
+                        Log.d("MyTAG", "Load new list")
+                        currentPage++
+                        infoViewModel.loadMorePrideList(currentPage)
+                    }
+                }
+            }
+        }
+        binding.recyclerviewInfo.addOnScrollListener(scrollListener)
     }
 
     private fun navigate(navigation: InfoViewModel.Navigation?) {
@@ -65,6 +105,7 @@ class InfoFragment : Fragment() {
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 }
             }
+            else -> {}
         }
     }
 }

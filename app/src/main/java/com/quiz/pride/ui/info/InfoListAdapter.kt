@@ -55,6 +55,10 @@ class InfoListAdapter(
         return infoList[position]
     }
 
+    fun update(modelList: MutableList<Pride>){
+        infoList = modelList
+    }
+
     class InfoListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         var nameText: TextView = view.findViewById(R.id.nameText)
         var flagImage: ImageView = view.findViewById(R.id.flagImage)

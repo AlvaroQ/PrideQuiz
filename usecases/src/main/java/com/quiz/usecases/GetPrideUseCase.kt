@@ -8,6 +8,6 @@ class GetPrideById(private val prideByIdRepository: PrideByIdRepository) {
     suspend fun invoke(id: Int): Pride = prideByIdRepository.getPrideById(id)
 }
 
-class GetSymbolFlagList(private val prideByIdRepository: PrideByIdRepository) {
-    suspend fun invoke(): MutableList<Pride> = prideByIdRepository.getSymbolFlagList()
+class GetPrideList(private val prideByIdRepository: PrideByIdRepository) {
+    suspend fun invoke(currentPage: Int): MutableList<Pride> = prideByIdRepository.getPrideList(currentPage)
 }

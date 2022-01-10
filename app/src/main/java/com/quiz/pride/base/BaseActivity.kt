@@ -44,7 +44,7 @@ abstract class BaseActivity(var uiContext: CoroutineContext = Dispatchers.Main) 
 
         // Initialize Firebase Auth
         auth = Firebase.auth
-        AnalyticsManager.initialize(this)
+        AnalyticsManager.initialize(this, getUID())
     }
 
     public override fun onStart() {

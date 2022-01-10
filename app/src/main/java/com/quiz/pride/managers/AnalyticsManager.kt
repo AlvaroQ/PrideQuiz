@@ -4,21 +4,20 @@ import android.content.Context
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.quiz.pride.BuildConfig
-import com.quiz.pride.base.BaseActivity
 
 object AnalyticsManager {
-    lateinit var mFirebase: FirebaseAnalytics
-    lateinit var ctx: Context
+    private lateinit var mFirebase: FirebaseAnalytics
+    lateinit var uid: String
 
-    fun initialize(ctx: Context) {
-        this.ctx = ctx
+    fun initialize(ctx: Context, uid: String) {
+        this.uid = uid
         mFirebase = FirebaseAnalytics.getInstance(ctx.applicationContext)
     }
 
     fun analyticsScreenViewed(screenTitle: String) {
 
         logEvent(Event("screen_viewed")
-            .with("uid", (ctx as BaseActivity).getUID())
+            .with("uid", uid)
             .with("screen_title", screenTitle)
             .with("app_version", BuildConfig.VERSION_NAME)
             .with("app_name", BuildConfig.APPLICATION_ID))
@@ -27,7 +26,7 @@ object AnalyticsManager {
     fun analyticsGameFinished(points: String) {
 
         logEvent(Event("game_finished")
-            .with("uid", (ctx as BaseActivity).getUID())
+            .with("uid", uid)
             .with("points", points)
             .with("app_version", BuildConfig.VERSION_NAME)
             .with("app_name", BuildConfig.APPLICATION_ID))
@@ -36,7 +35,7 @@ object AnalyticsManager {
     fun analyticsClicked(btnDescription: String) {
 
         logEvent(Event("clicked")
-            .with("uid", (ctx as BaseActivity).getUID())
+            .with("uid", uid)
             .with("component", btnDescription)
             .with("app_version", BuildConfig.VERSION_NAME)
             .with("app_name", BuildConfig.APPLICATION_ID))
@@ -45,7 +44,7 @@ object AnalyticsManager {
     fun analyticsAppRecommendedOpen(appName: String) {
 
         logEvent(Event("app_recommended_open")
-            .with("uid", (ctx as BaseActivity).getUID())
+            .with("uid", uid)
             .with("app_name", appName)
             .with("app_version", BuildConfig.VERSION_NAME)
             .with("app_name", BuildConfig.APPLICATION_ID))

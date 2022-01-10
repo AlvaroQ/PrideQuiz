@@ -12,6 +12,7 @@ import com.quiz.domain.Pride
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_APPS
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_PRIDE
+import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.log
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -35,23 +36,30 @@ class DataBaseSourceImpl : DataBaseSource {
         }
     }
 
-    override suspend fun getSymbolFlagList(): MutableList<Pride> {
+    override suspend fun getPrideList(currentPage: Int): MutableList<Pride> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_PRIDE)
-                    .addValueEventListener(object : ValueEventListener {
+                .orderByKey()
+                .startAt((currentPage * TOTAL_ITEM_EACH_LOAD).toString())
+                .limitToFirst(TOTAL_ITEM_EACH_LOAD)
+                .addValueEventListener(object : ValueEventListener {
 
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            var value = dataSnapshot.getValue<MutableList<Pride>>()
-                            if(value == null) value = mutableListOf()
-                            continuation.resume(value.toMutableList()){}
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val prideList = mutableListOf<Pride>()
+                        if(dataSnapshot.hasChildren()) {
+                            for(snapshot in dataSnapshot.children) {
+                                prideList.add(snapshot.getValue(Pride::class.java)!!)
+                            }
                         }
+                        continuation.resume(prideList) {}
+                    }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                            continuation.resume(mutableListOf()){}
-                            FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
-                        }
-                    })
+                    override fun onCancelled(error: DatabaseError) {
+                        log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
+                        continuation.resume(mutableListOf()){}
+                        FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
+                    }
+                })
         }
     }
 
@@ -64,9 +72,9 @@ class DataBaseSourceImpl : DataBaseSource {
                         var value = dataSnapshot.getValue<MutableList<App>>()
                         if(value == null) value = mutableListOf()
                         continuation.resume(value
-                                .sortedBy { it.priority }
-                                .filter { it.url != BuildConfig.APPLICATION_ID }
-                                .toMutableList()){}
+                            .sortedBy { it.priority }
+                            .filter { it.url != BuildConfig.APPLICATION_ID }
+                            .toMutableList()){}
                     }
 
                     override fun onCancelled(error: DatabaseError) {
