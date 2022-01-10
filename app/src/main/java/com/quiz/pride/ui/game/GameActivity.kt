@@ -43,8 +43,10 @@ class GameActivity : BaseActivity() {
     }
 
     fun writePoints(points: Int) {
-        toolbarTitle.text = getString(R.string.points, points)
-        toolbarTitle.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
+        runOnUiThread {
+            toolbarTitle.text = getString(R.string.points, points)
+            toolbarTitle.startAnimation(AnimationUtils.loadAnimation(this, R.anim.scale_xy_collapse))
+        }
     }
 
     fun writeLife(life: Int) {
@@ -55,23 +57,12 @@ class GameActivity : BaseActivity() {
                     lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
                 }
                 1 -> {
-                    lifeSecond.startAnimation(
-                        AnimationUtils.loadAnimation(
-                            activity,
-                            R.anim.scale_xy_collapse
-                        )
-                    )
-
+                    lifeSecond.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.scale_xy_collapse))
                     lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))
                     lifeFirst.setImageDrawable(getDrawable(R.drawable.ic_life_on))
                 }
                 0 -> {
-                    lifeFirst.startAnimation(
-                        AnimationUtils.loadAnimation(
-                            activity,
-                            R.anim.scale_xy_collapse
-                        )
-                    )
+                    lifeFirst.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.scale_xy_collapse))
 
                     // GAME OVER
                     lifeSecond.setImageDrawable(getDrawable(R.drawable.ic_life_off))

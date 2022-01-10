@@ -49,7 +49,7 @@ class ResultActivity : BaseActivity() {
                 }
 
                 override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                    //FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
                     log("ResultActivity - loadAd", "Ad failed to load.")
                 }
             }
