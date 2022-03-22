@@ -343,9 +343,7 @@ class GameFragment : Fragment() {
                 if(life < 1 && !extraLife && stage < TOTAL_PRIDES) {
                     extraLife = true
                     gameViewModel.navigateToExtraLifeDialog()
-                }
-
-                else if(stage > (TOTAL_PRIDES + 1) || life < 1) {
+                } else if(stage > (TOTAL_PRIDES + 1) || life < 1) {
                     gameViewModel.navigateToResult(points.toString())
                 } else {
                     gameViewModel.generateNewStage()

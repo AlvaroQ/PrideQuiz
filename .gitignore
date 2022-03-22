@@ -19,3 +19,4 @@ local.properties
 firma/
 app/src/main/res/values/secrets.xml
 app/google-services.json
+app/release/app-release.aab
