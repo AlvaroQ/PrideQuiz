@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.annotation.RequiresPermission
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
@@ -72,6 +73,7 @@ class GameActivity : BaseActivity() {
         }
     }
 
+    @RequiresPermission("android.permission.INTERNET")
     fun showBannerAd(show: Boolean){
         if(show) {
             MobileAds.initialize(this)
@@ -82,6 +84,7 @@ class GameActivity : BaseActivity() {
         }
     }
 
+    @RequiresPermission("android.permission.INTERNET")
     fun showRewardedAd(show: Boolean){
         if(show) {
             rewardedAd = RewardedAd(this, getString(R.string.BONIFICADO_GAME))

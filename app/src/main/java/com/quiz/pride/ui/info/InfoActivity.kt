@@ -2,6 +2,7 @@ package com.quiz.pride.ui.info
 
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresPermission
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.quiz.pride.R
@@ -27,6 +28,7 @@ class InfoActivity : BaseActivity() {
         layoutLife.visibility = View.GONE
     }
 
+    @RequiresPermission("android.permission.INTERNET")
     fun showAd(show: Boolean){
         if(show) {
             MobileAds.initialize(this)

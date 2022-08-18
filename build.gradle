@@ -8,9 +8,9 @@ buildscript {
             'applicationId': "com.quiz.pride"
     ]
     ext.versions = [
-            'compileSdk'            : 30,
+            'compileSdk'            : 31,
             'minSdk'                : 24,
-            'targetSdk'             : 30,
+            'targetSdk'             : 31,
             'name'                  : '2.1.0',
             'code'                  : 16,
             'buildtoolsVersion'     : '30.0.2',

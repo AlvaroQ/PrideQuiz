@@ -3,6 +3,7 @@ package com.quiz.pride.ui.settings
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import androidx.annotation.RequiresPermission
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.quiz.pride.R
@@ -42,6 +43,7 @@ class SettingsActivity : BaseActivity() {
         btnBack.setSafeOnClickListener { finishAfterTransition() }
     }
 
+    @RequiresPermission("android.permission.INTERNET")
     fun showAd(show: Boolean){
         if(show) {
             MobileAds.initialize(this)
