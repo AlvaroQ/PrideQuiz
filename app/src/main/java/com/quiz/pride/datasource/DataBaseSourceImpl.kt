@@ -14,8 +14,10 @@ import com.quiz.pride.utils.Constants.PATH_REFERENCE_APPS
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_PRIDE
 import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.log
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@ExperimentalCoroutinesApi
 class DataBaseSourceImpl : DataBaseSource {
 
     override suspend fun getPrideById(id: Int): Pride {

@@ -42,7 +42,7 @@ class InfoListAdapter(
             context.getString(R.string.locale) == "pt" -> pride.description?.PT
             context.getString(R.string.locale) == "de" -> pride.description?.DE
             context.getString(R.string.locale) == "it" -> pride.description?.IT
-            else -> pride.name?.EN
+            else -> pride.description?.EN
         }
         holder.descriptionText.text = descriptionLocalize
     }

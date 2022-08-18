@@ -1,7 +1,7 @@
 <resources>
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="height_status_bar">16dp</dimen>
+    <dimen name="height_status_bar">26dp</dimen>
     <dimen name="no_elevation">0dp</dimen>
     <dimen name="height_back">40dp</dimen>
     <dimen name="width_back">35dp</dimen>

@@ -20,3 +20,6 @@ firma/
 app/src/main/res/values/secrets.xml
 app/google-services.json
 app/release/app-release.aab
+assets/
+capture/lujos.mp4
+capture/pride quiz.mp4

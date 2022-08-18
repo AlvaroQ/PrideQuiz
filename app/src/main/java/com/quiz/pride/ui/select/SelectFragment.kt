@@ -25,8 +25,6 @@ import org.koin.android.viewmodel.scope.viewModel
 
 
 class SelectFragment : Fragment() {
-    private var loadAd: Boolean = true
-    private lateinit var rewardedAd: RewardedAd
     private lateinit var binding: SelectFragmentBinding
     private val selectViewModel: SelectViewModel by lifecycleScope.viewModel(this)
 
@@ -62,41 +60,14 @@ class SelectFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         selectViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
-        selectViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
-    }
-
-    override fun onResume() {
-        super.onResume()
-        selectViewModel.updateShowingAd()
     }
 
     private fun navigate(navigation: SelectViewModel.Navigation?) {
         when (navigation) {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
             SelectViewModel.Navigation.Settings -> activity?.startActivity<SettingsActivity> {}
-            SelectViewModel.Navigation.Info -> {
-                if(loadAd) loadRewardedAd()
-                activity?.startActivity<InfoActivity> {}
-            }
+            SelectViewModel.Navigation.Info -> activity?.startActivity<InfoActivity> {}
+            else -> {}
         }
-    }
-
-    private fun loadAd(model: SelectViewModel.UiModel) {
-        if (model is SelectViewModel.UiModel.ShowAd)
-            loadAd = model.show
-    }
-
-
-    private fun loadRewardedAd() {
-        rewardedAd = RewardedAd(requireContext(), getString(R.string.BONIFICADO_SHOW_INFO))
-        val adLoadCallback: RewardedAdLoadCallback = object: RewardedAdLoadCallback() {
-            override fun onRewardedAdLoaded() {
-                rewardedAd.show(activity, null)
-            }
-            override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
-                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
-            }
-        }
-        rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
     }
 }

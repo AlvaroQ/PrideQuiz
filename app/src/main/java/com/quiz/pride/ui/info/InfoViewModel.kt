@@ -34,7 +34,7 @@ class InfoViewModel(private val getPrideList: GetPrideList,
         launch {
             _progress.value = UiModel.Loading(true)
             _prideList.value = getPrideList(0)
-            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
+            _showingAds.value = UiModel.ShowBannerAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -43,6 +43,9 @@ class InfoViewModel(private val getPrideList: GetPrideList,
         launch {
             _progress.value = UiModel.Loading(true)
             _updatePrideList.value = getPrideList(currentPage)
+            if(currentPage % 3 == 0) {
+                _showingAds.value = UiModel.ShowReewardAd(!getPaymentDone())
+            }
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -62,6 +65,7 @@ class InfoViewModel(private val getPrideList: GetPrideList,
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
-        data class ShowAd(val show: Boolean) : UiModel()
+        data class ShowBannerAd(val show: Boolean) : UiModel()
+        data class ShowReewardAd(val show: Boolean) : UiModel()
     }
 }

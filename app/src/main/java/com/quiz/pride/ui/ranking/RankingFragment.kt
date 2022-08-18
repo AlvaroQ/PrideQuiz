@@ -64,6 +64,7 @@ class RankingFragment : Fragment() {
             RankingViewModel.Navigation.Result -> {
                 activity?.finish()
             }
+            else -> {}
         }
     }
 

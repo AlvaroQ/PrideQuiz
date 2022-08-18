@@ -129,10 +129,11 @@ class ResultFragment : Fragment() {
             ResultViewModel.Navigation.PickerImage -> {
                 ImagePicker.with(this)
                         .crop()
-                        .compress(maxSize = 1024)
-                        .maxResultSize(width = 1080, height = 1080)
+                        .compress(maxSize = 128)
+                        .maxResultSize(width = 200, height = 400)
                         .start()
             }
+            else -> {}
         }
     }
 
@@ -174,7 +175,7 @@ class ResultFragment : Fragment() {
                 Toast.makeText(activity, ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
             }
             else -> {
-                Toast.makeText(activity, "Task Cancelled", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "Cancelled", Toast.LENGTH_SHORT).show()
             }
         }
     }

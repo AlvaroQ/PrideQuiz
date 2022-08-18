@@ -11,10 +11,17 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.domain.Pride
+import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.InfoFragmentBinding
 import com.quiz.pride.ui.select.SelectActivity
+import com.quiz.pride.ui.select.SelectViewModel
 import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadingGif
@@ -23,6 +30,7 @@ import org.koin.android.viewmodel.scope.viewModel
 
 
 class InfoFragment : Fragment() {
+    private lateinit var rewardedAd: RewardedAd
     private lateinit var binding: InfoFragmentBinding
     private val infoViewModel: InfoViewModel by lifecycleScope.viewModel(this)
     private var currentPage = 0
@@ -51,8 +59,11 @@ class InfoFragment : Fragment() {
     }
 
     private fun loadAd(model: InfoViewModel.UiModel) {
-        if (model is InfoViewModel.UiModel.ShowAd)
-            (activity as InfoActivity).showAd(model.show)
+        when(model) {
+            is InfoViewModel.UiModel.ShowBannerAd -> (activity as InfoActivity).showAd(model.show)
+            is InfoViewModel.UiModel.ShowReewardAd -> loadRewardedAd(model.show)
+            else -> {}
+        }
     }
 
     private fun updateProgress(model: InfoViewModel.UiModel?) {
@@ -106,6 +117,23 @@ class InfoFragment : Fragment() {
                 }
             }
             else -> {}
+        }
+    }
+
+
+    private fun loadRewardedAd(show: Boolean) {
+        if(show) {
+            rewardedAd = RewardedAd(requireContext(), getString(R.string.BONIFICADO_SHOW_INFO))
+            val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
+                override fun onRewardedAdLoaded() {
+                    rewardedAd.show(activity, null)
+                }
+
+                override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
+                    FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                }
+            }
+            rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
         }
     }
 }

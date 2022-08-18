@@ -41,7 +41,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardStart"
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="100dp"
             android:foreground="?android:attr/selectableItemBackground"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +92,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardLearn"
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="100dp"
             android:layout_marginTop="16dp"
             android:foreground="?android:attr/selectableItemBackground"
             app:layout_constraintTop_toBottomOf="@+id/cardStart"
@@ -144,7 +144,7 @@
         <androidx.cardview.widget.CardView
             android:id="@+id/cardSettings"
             android:layout_width="match_parent"
-            android:layout_height="90dp"
+            android:layout_height="100dp"
             android:layout_marginTop="16dp"
             android:foreground="?android:attr/selectableItemBackground"
             app:layout_constraintTop_toBottomOf="@+id/cardLearn"
