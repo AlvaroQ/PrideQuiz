@@ -25,8 +25,6 @@ import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.ResultFragmentBinding
 import com.quiz.pride.ui.ranking.RankingActivity
-import com.quiz.pride.ui.settings.SettingsActivity
-import com.quiz.pride.ui.settings.SettingsViewModel
 import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
 import kotlinx.android.synthetic.main.dialog_save_record.*
@@ -85,12 +83,6 @@ class ResultFragment : Fragment() {
         resultViewModel.personalRecord.observe(viewLifecycleOwner, Observer(::fillPersonalRecord))
         resultViewModel.worldRecord.observe(viewLifecycleOwner, Observer(::fillWorldRecord))
         resultViewModel.photoUrl.observe(viewLifecycleOwner, Observer(::writeUserImage))
-        resultViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
-    }
-
-    private fun loadAd(model: ResultViewModel.UiModel) {
-        if (model is ResultViewModel.UiModel.ShowAd)
-            (activity as ResultActivity).showAd(model.show)
     }
 
     private fun fillWorldRecord(recordWorldPoints: String) {
@@ -125,26 +117,26 @@ class ResultFragment : Fragment() {
             ResultViewModel.Navigation.Ranking -> activity?.startActivity<RankingActivity> {}
             is ResultViewModel.Navigation.Share -> shareApp(navigation.points, requireContext())
             is ResultViewModel.Navigation.Open -> openAppOnPlayStore(requireContext(), navigation.url)
-            is ResultViewModel.Navigation.Dialog -> showEnterNameDialog(navigation.points)
+            is ResultViewModel.Navigation.DialogRecordScore -> showEnterNameDialog()
             ResultViewModel.Navigation.PickerImage -> {
                 ImagePicker.with(this)
                         .crop()
-                        .compress(maxSize = 128)
-                        .maxResultSize(width = 200, height = 400)
+                        .compress(maxSize = 64)
+                        .maxResultSize(width = 100, height = 200)
                         .start()
             }
             else -> {}
         }
     }
 
-    private fun showEnterNameDialog(points: String) {
+    private fun showEnterNameDialog() {
         Dialog(requireContext()).apply {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(R.layout.dialog_save_record)
             btnCancel.setSafeOnClickListener { dismiss() }
             btnSubmit.setSafeOnClickListener {
-                val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE else resultViewModel.photoUrl.value!!
+                val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER else resultViewModel.photoUrl.value!!
                 resultViewModel.saveTopScore(User(
                     name = editTextWorldRecord.text.toString(),
                     points = gamePoints.toString(),

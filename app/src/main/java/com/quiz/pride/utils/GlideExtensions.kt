@@ -8,7 +8,6 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
@@ -60,7 +59,7 @@ fun glideLoadBase64(context: Context, imageBytes: String?, where: ImageView) {
         .into(where)
 }
 fun glideCircleLoadBase64(context: Context, imageBytes: String?, where: ImageView) {
-    val imageByteArray: ByteArray = Base64.decode(imageBytes, Base64.DEFAULT)
+    val imageByteArray = convertImageToByteArray(imageBytes)
 
     Glide.with(context)
         .asBitmap()
@@ -68,6 +67,18 @@ fun glideCircleLoadBase64(context: Context, imageBytes: String?, where: ImageVie
         .load(imageByteArray)
         .transition(BitmapTransitionOptions.withCrossFade())
         .into(where)
+}
+
+fun convertImageToByteArray(imageBytes: String?): ByteArray {
+    return if(imageBytes == null || imageBytes == Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER) {
+        Base64.decode(Constants.DEFAULT_IMAGE_TO_SHOW, Base64.DEFAULT)
+    } else {
+        try {
+            Base64.decode(imageBytes, Base64.DEFAULT)
+        } catch (exception: Exception) {
+            Base64.decode(Constants.DEFAULT_IMAGE_TO_SHOW, Base64.DEFAULT)
+        }
+    }
 }
 
 fun glideLoadingGif(context: Context, where: ImageView) {

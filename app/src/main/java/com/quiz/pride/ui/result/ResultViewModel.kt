@@ -35,16 +35,12 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
     private val _photoUrl = MutableLiveData<String>()
     val photoUrl: LiveData<String> = _photoUrl
 
-    private val _showingAds = MutableLiveData<UiModel>()
-    val showingAds: LiveData<UiModel> = _showingAds
-
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
         launch {
             _progress.value = UiModel.Loading(true)
             _list.value = appsRecommended()
             _worldRecord.value = getPointsWorldRecord()
-            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -61,7 +57,7 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         launch {
             val pointsLastClassified = getRecordScore.invoke(50)
             if(pointsLastClassified.isNotEmpty() && gamePoints > pointsLastClassified.toInt()) {
-                showDialogToSaveGame(gamePoints.toString())
+                showDialogToSaveGame()
             }
         }
     }
@@ -80,9 +76,9 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         setPersonalRecord.invoke(record)
     }
 
-    private fun showDialogToSaveGame(points: String) {
+    private fun showDialogToSaveGame() {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
-        _navigation.value = Navigation.Dialog(points)
+        _navigation.value = Navigation.DialogRecordScore
     }
 
     fun onAppClicked(url: String) {
@@ -128,13 +124,12 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
         object Rate : Navigation()
         object Game : Navigation()
         object Ranking : Navigation()
-        data class Dialog(val points : String): Navigation()
+        object DialogRecordScore: Navigation()
         data class Open(val url : String): Navigation()
         object PickerImage : Navigation()
     }
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
-        data class ShowAd(val show: Boolean) : UiModel()
     }
 }
