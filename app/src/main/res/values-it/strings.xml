@@ -46,6 +46,18 @@
     <!-- Ranking screen -->
     <string name="ranking_screen_title">Classifica</string>
     <string name="best_points">I migliori punteggi</string>
+    <plurals name="weeks_ago">
+        <item quantity="one">%d week ago</item>
+        <item quantity="other">%d weeks ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
 
     <!-- Dialog screen -->
     <string name="dialog_ranking_congratulation">Congratulazioni!</string>

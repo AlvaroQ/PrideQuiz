@@ -45,6 +45,18 @@
     <!-- Ranking screen -->
     <string name="ranking_screen_title">Ranking</string>
     <string name="best_points">Mejores puntuaciones</string>
+    <plurals name="weeks_ago">
+        <item quantity="one">Hace %d semana</item>
+        <item quantity="other">Hace %d semanas</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">Hace %d mes</item>
+        <item quantity="other">Hace %d meses</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">Hace %d año</item>
+        <item quantity="other">Hace %d años</item>
+    </plurals>
 
     <!-- Dialog screen -->
     <string name="dialog_ranking_congratulation">¡Enhorabuena!</string>

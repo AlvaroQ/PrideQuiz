@@ -10,15 +10,45 @@ import android.os.Build
 import android.text.format.DateUtils
 import android.util.Base64
 import android.util.Log
+import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.RequiresPermission
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import java.io.File
 import java.util.*
 
 
+fun showBanner(show: Boolean, adView: AdView){
+    if(show) {
+        val adRequest = AdRequest.Builder().build()
+        adView.loadAd(adRequest)
+    } else {
+        adView.visibility = View.GONE
+    }
+}
+fun loadBonificado(activity: Activity, show: Boolean, rewardedAd: RewardedAd) {
+    if(show) {
+        val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
+            override fun onRewardedAdLoaded() {
+                rewardedAd.show(activity, null)
+            }
+
+            override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
+                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+            }
+        }
+        rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
+    }
+}
 fun File.toBase64(): String {
     val bytes = readBytes()
     return Base64.encodeToString(bytes, Base64.NO_WRAP)
@@ -55,11 +85,10 @@ fun Activity.screenOrientationPortrait(){
 }
 
 const val AVERAGE_MONTH_IN_MILLIS = DateUtils.DAY_IN_MILLIS * 30
-fun getRelationTime(time: Long): String? {
+fun getRelationTime(context: Context, time: Long): String {
     val now: Long = Date().time
     val delta = now - time
-    val resolution: Long
-    resolution = when {
+    val resolution: Long = when {
         delta <= DateUtils.MINUTE_IN_MILLIS -> {
             DateUtils.SECOND_IN_MILLIS
         }
@@ -74,13 +103,13 @@ fun getRelationTime(time: Long): String? {
         }
         else -> return when {
             delta <= AVERAGE_MONTH_IN_MILLIS -> {
-                (delta / DateUtils.WEEK_IN_MILLIS).toInt().toString() + " weeks(s) ago"
+                context.resources.getQuantityString(R.plurals.weeks_ago, (delta / DateUtils.WEEK_IN_MILLIS).toInt(), (delta / DateUtils.WEEK_IN_MILLIS).toInt())
             }
             delta <= DateUtils.YEAR_IN_MILLIS -> {
-                (delta / AVERAGE_MONTH_IN_MILLIS).toInt().toString() + " month(s) ago"
+                context.resources.getQuantityString(R.plurals.months_ago, (delta / AVERAGE_MONTH_IN_MILLIS).toInt(), (delta / AVERAGE_MONTH_IN_MILLIS).toInt())
             }
             else -> {
-                (delta / DateUtils.YEAR_IN_MILLIS).toInt().toString() + " year(s) ago"
+                context.resources.getQuantityString(R.plurals.years_ago, (delta / DateUtils.YEAR_IN_MILLIS).toInt(), (delta / DateUtils.YEAR_IN_MILLIS).toInt())
             }
         }
     }

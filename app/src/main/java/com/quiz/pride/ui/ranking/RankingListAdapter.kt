@@ -46,7 +46,7 @@ class RankingListAdapter(
 
         holder.userName.text = if(user.name.isNullOrEmpty()) context.getString(R.string.anonymous) else user.name
         glideCircleLoadBase64(context,  user.userImage, holder.userImage)
-        holder.timeText.text = getRelationTime(user.timestamp!!)
+        holder.timeText.text = getRelationTime(context, user.timestamp!!)
         holder.userPoints.text = user.points
     }
 
