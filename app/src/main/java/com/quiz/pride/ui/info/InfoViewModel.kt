@@ -3,7 +3,6 @@ package com.quiz.pride.ui.info
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.Pride
-import com.quiz.pride.BuildConfig
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.usecases.GetPaymentDone

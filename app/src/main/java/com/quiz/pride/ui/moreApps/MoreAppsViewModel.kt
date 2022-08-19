@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.App
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
-import com.quiz.pride.ui.info.InfoViewModel
 import com.quiz.usecases.GetAppsRecommended
 import com.quiz.usecases.GetPaymentDone
 import kotlinx.coroutines.launch

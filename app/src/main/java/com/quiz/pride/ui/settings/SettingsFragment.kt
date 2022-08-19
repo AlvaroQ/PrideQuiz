@@ -128,7 +128,7 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             // Handle an error caused by a user cancelling the purchase flow.
-            if(requireContext() != null) Toast.makeText(requireContext(), "Billing USER_CANCELED", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Billing USER_CANCELED", Toast.LENGTH_SHORT).show()
             AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
 
         } else if(billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {

@@ -5,7 +5,9 @@ import android.view.View
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
 import com.quiz.pride.utils.setSafeOnClickListener
+import com.quiz.pride.utils.showBanner
 import kotlinx.android.synthetic.main.app_bar_layout.*
+import kotlinx.android.synthetic.main.more_apps_activity.*
 
 class MoreAppsActivity : BaseActivity() {
 
@@ -24,5 +26,9 @@ class MoreAppsActivity : BaseActivity() {
         layoutExtendedTitle.background = null
         toolbarTitle.text = getString(R.string.more_apps)
         layoutLife.visibility = View.GONE
+    }
+
+    fun showBannerAd(show: Boolean) {
+        showBanner(show, adViewMoreApps)
     }
 }

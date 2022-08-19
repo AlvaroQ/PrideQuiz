@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 tools:text="39"
                 android:fontFamily="@font/rock_salt_regular"
-                android:textAppearance="@style/Bold.TextColor.VeryVeryLarge"
+                android:textAppearance="@style/Bold.TextColor.VeryLarge"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -7,7 +7,6 @@ import com.quiz.pride.R
 import com.quiz.pride.common.ResourceProvider
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
-import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
@@ -16,6 +15,7 @@ import kotlinx.coroutines.launch
 class GameViewModel(private val getPrideById: GetPrideById,
                     private val resourceProvider: ResourceProvider,
                     private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
+
     private var randomCountries = mutableListOf<Int>()
     private lateinit var pride: Pride
 
@@ -49,25 +49,25 @@ class GameViewModel(private val getPrideById: GetPrideById,
             _progress.value = UiModel.Loading(true)
 
             /** Generate question */
-            val numRandomMain = generateRandomWithExcusion(0, TOTAL_PRIDES, *randomCountries.toIntArray())
+            val numRandomMain = generateRandomWithExcusion(TOTAL_PRIDES, *randomCountries.toIntArray())
             randomCountries.add(numRandomMain)
 
             pride = getPride(numRandomMain)
 
             /** Generate responses */
-            val numRandomMainPosition = generateRandomWithExcusion(0, 3)
+            val numRandomMainPosition = generateRandomWithExcusion(3)
 
-            val numRandomOption1 = generateRandomWithExcusion(0, TOTAL_PRIDES, numRandomMain)
+            val numRandomOption1 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain)
             val option1: Pride = getPride(numRandomOption1)
-            val numRandomPosition1 = generateRandomWithExcusion(0, 3, numRandomMainPosition)
+            val numRandomPosition1 = generateRandomWithExcusion( 3, numRandomMainPosition)
 
-            val numRandomOption2 = generateRandomWithExcusion(0, TOTAL_PRIDES, numRandomMain, numRandomOption1)
+            val numRandomOption2 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain, numRandomOption1)
             val option2: Pride = getPride(numRandomOption2)
-            val numRandomPosition2 = generateRandomWithExcusion(0, 3, numRandomMainPosition, numRandomPosition1)
+            val numRandomPosition2 = generateRandomWithExcusion(3, numRandomMainPosition, numRandomPosition1)
 
-            val numRandomOption3 = generateRandomWithExcusion(0, TOTAL_PRIDES, numRandomMain, numRandomOption1, numRandomOption2)
+            val numRandomOption3 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain, numRandomOption1, numRandomOption2)
             val option3: Pride = getPride(numRandomOption3)
-            val numRandomPosition3 = generateRandomWithExcusion(0, 3, numRandomMainPosition, numRandomPosition1, numRandomPosition2)
+            val numRandomPosition3 = generateRandomWithExcusion(3, numRandomMainPosition, numRandomPosition1, numRandomPosition2)
 
             /** Save value */
             val optionList = mutableListOf("", "", "", "")
@@ -131,10 +131,10 @@ class GameViewModel(private val getPrideById: GetPrideById,
         else _navigation.value = Navigation.Result
     }
 
-    private fun generateRandomWithExcusion(start: Int, end: Int, vararg exclude: Int): Int {
-        var numRandom = (start..end).random()
+    private fun generateRandomWithExcusion(end: Int, vararg exclude: Int): Int {
+        var numRandom = (0..end).random()
         while(exclude.contains(numRandom)){
-            numRandom = (start..end).random()
+            numRandom = (0..end).random()
         }
         return numRandom
     }

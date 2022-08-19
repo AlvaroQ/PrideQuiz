@@ -62,12 +62,11 @@ class SelectFragment : Fragment() {
         selectViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
     }
 
-    private fun navigate(navigation: SelectViewModel.Navigation?) {
+    private fun navigate(navigation: SelectViewModel.Navigation) {
         when (navigation) {
             SelectViewModel.Navigation.Game -> activity?.startActivity<GameActivity> {}
             SelectViewModel.Navigation.Settings -> activity?.startActivity<SettingsActivity> {}
             SelectViewModel.Navigation.Info -> activity?.startActivity<InfoActivity> {}
-            else -> {}
         }
     }
 }

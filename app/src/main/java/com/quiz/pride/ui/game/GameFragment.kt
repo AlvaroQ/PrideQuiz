@@ -26,7 +26,6 @@ import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import kotlinx.android.synthetic.main.dialog_extra_life.*
-import kotlinx.android.synthetic.main.dialog_save_record.*
 import kotlinx.coroutines.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -111,14 +110,12 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun navigate(navigation: GameViewModel.Navigation?) {
+    private fun navigate(navigation: GameViewModel.Navigation) {
         when (navigation) {
             is GameViewModel.Navigation.Result -> {
                 activity?.startActivity<ResultActivity> { putExtra(POINTS, points) }
             }
-            is GameViewModel.Navigation.ExtraLifeDialog -> {
-                showExtraLifeDialog()
-            }
+            is GameViewModel.Navigation.ExtraLifeDialog -> showExtraLifeDialog()
         }
     }
 

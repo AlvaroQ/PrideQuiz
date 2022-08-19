@@ -124,7 +124,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/other_apps"
-        android:textAppearance="@style/Regular.TextColor.VeryVeryLarge"
+        android:textAppearance="@style/Regular.TextColor.VeryLarge"
         android:fontFamily="@font/rock_salt_regular"
         app:layout_constraintBottom_toTopOf="@+id/recyclerviewOtherApps"
         android:layout_marginStart="@dimen/activity_horizontal_margin"
@@ -133,7 +133,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerviewOtherApps"
         android:layout_width="wrap_content"
-        android:layout_height="130dp"
+        android:layout_height="140dp"
         android:orientation="horizontal"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"

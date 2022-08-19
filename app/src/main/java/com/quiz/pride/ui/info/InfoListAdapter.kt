@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.inflate
-import com.quiz.pride.utils.glideLoadBase64
 import com.quiz.pride.utils.glideLoadURL
 
 class InfoListAdapter(

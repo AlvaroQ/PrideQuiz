@@ -6,11 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.quiz.domain.User
-import com.quiz.pride.R
 import com.quiz.pride.databinding.RankingFragmentBinding
 import com.quiz.pride.utils.glideLoadingGif
 import org.koin.android.scope.lifecycleScope
@@ -18,7 +14,6 @@ import org.koin.android.viewmodel.scope.viewModel
 
 
 class RankingFragment : Fragment() {
-    private lateinit var adViewRanking: AdView
     private lateinit var binding: RankingFragmentBinding
     private val rankingViewModel: RankingViewModel by lifecycleScope.viewModel(this)
 
@@ -31,50 +26,42 @@ class RankingFragment : Fragment() {
                               savedInstanceState: Bundle?): View {
 
         binding = RankingFragmentBinding.inflate(inflater)
-        val root = binding.root
-
-        adViewRanking = root.findViewById(R.id.adViewRanking)
-
-        return root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         rankingViewModel.rankingList.observe(viewLifecycleOwner, Observer(::fillRanking))
         rankingViewModel.navigation.observe(viewLifecycleOwner, Observer(::navigate))
-        rankingViewModel.progress.observe(viewLifecycleOwner, Observer(::updateProgress))
-        rankingViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAd))
+        rankingViewModel.progress.observe(viewLifecycleOwner, Observer(::loadAdAndProgress))
+        rankingViewModel.showingAds.observe(viewLifecycleOwner, Observer(::loadAdAndProgress))
     }
 
     private fun fillRanking(userList: MutableList<User>) {
         binding.recyclerviewRanking.adapter = RankingListAdapter(requireContext(), userList)
     }
 
-    private fun updateProgress(model: RankingViewModel.UiModel?) {
-        if (model is RankingViewModel.UiModel.Loading && model.show) {
+    private fun navigate(navigation: RankingViewModel.Navigation) {
+        when (navigation) {
+            RankingViewModel.Navigation.Result -> activity?.finish()
+        }
+    }
+
+    private fun loadAdAndProgress(model: RankingViewModel.UiModel) {
+        when(model) {
+            is RankingViewModel.UiModel.ShowReewardAd -> {
+                (activity as RankingActivity).showRewardedAd(model.show)
+            }
+            is RankingViewModel.UiModel.Loading -> updateProgress(model.show)
+        }
+    }
+
+    private fun updateProgress(isShowing: Boolean) {
+        if (isShowing) {
             glideLoadingGif(activity as RankingActivity, binding.imagenLoading)
             binding.imagenLoading.visibility = View.VISIBLE
         } else {
             binding.imagenLoading.visibility = View.GONE
-        }
-    }
-
-    private fun navigate(navigation: RankingViewModel.Navigation?) {
-        when (navigation) {
-            RankingViewModel.Navigation.Result -> {
-                activity?.finish()
-            }
-            else -> {}
-        }
-    }
-
-    private fun loadAd(model: RankingViewModel.UiModel) {
-        if (model is RankingViewModel.UiModel.ShowAd && model.show) {
-            MobileAds.initialize(activity)
-            val adRequest = AdRequest.Builder().build()
-            adViewRanking.loadAd(adRequest)
-        } else {
-            adViewRanking.visibility = View.GONE
         }
     }
 }

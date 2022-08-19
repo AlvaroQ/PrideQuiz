@@ -8,7 +8,9 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
+import com.quiz.pride.utils.loadBonificado
 import com.quiz.pride.utils.setSafeOnClickListener
+import com.quiz.pride.utils.showBanner
 import kotlinx.android.synthetic.main.app_bar_layout.*
 import kotlinx.android.synthetic.main.settings_activity.*
 
@@ -24,6 +26,7 @@ class SettingsActivity : BaseActivity() {
                 .replace(R.id.settings, SettingsFragment())
                 .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        MobileAds.initialize(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -45,12 +48,6 @@ class SettingsActivity : BaseActivity() {
 
     @RequiresPermission("android.permission.INTERNET")
     fun showAd(show: Boolean){
-        if(show) {
-            MobileAds.initialize(this)
-            val adRequest = AdRequest.Builder().build()
-            adViewSettings.loadAd(adRequest)
-        } else {
-            adViewSettings.visibility = View.GONE
-        }
+        showBanner(show, adViewSettings)
     }
 }

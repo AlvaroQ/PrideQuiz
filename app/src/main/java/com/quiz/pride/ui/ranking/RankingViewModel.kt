@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.User
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.game.GameViewModel
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetRankingScore
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class RankingViewModel(private val getRankingScore: GetRankingScore,
         launch {
             _progress.value = UiModel.Loading(true)
             _rankingList.value = getRanking()
-            _showingAds.value = UiModel.ShowAd(!getPaymentDone())
+            _showingAds.value = UiModel.ShowReewardAd(!getPaymentDone())
             _progress.value = UiModel.Loading(false)
         }
     }
@@ -44,6 +45,6 @@ class RankingViewModel(private val getRankingScore: GetRankingScore,
 
     sealed class UiModel {
         data class Loading(val show: Boolean) : UiModel()
-        data class ShowAd(val show: Boolean) : UiModel()
+        data class ShowReewardAd(val show: Boolean) : UiModel()
     }
 }
