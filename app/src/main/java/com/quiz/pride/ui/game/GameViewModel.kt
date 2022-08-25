@@ -22,8 +22,8 @@ class GameViewModel(private val getPrideById: GetPrideById,
     private val _question = MutableLiveData<Pride>()
     val question: LiveData<Pride> = _question
 
-    private val _responseOptions = MutableLiveData<MutableList<String>>()
-    val responseOptions: LiveData<MutableList<String>> = _responseOptions
+    private val _responseOptions = MutableLiveData<MutableList<Pride>>()
+    val responseOptions: LiveData<MutableList<Pride>> = _responseOptions
 
     private val _progress = MutableLiveData<UiModel>()
     val progress: LiveData<UiModel> = _progress
@@ -70,42 +70,11 @@ class GameViewModel(private val getPrideById: GetPrideById,
             val numRandomPosition3 = generateRandomWithExcusion(3, numRandomMainPosition, numRandomPosition1, numRandomPosition2)
 
             /** Save value */
-            val optionList = mutableListOf("", "", "", "")
-            optionList[numRandomMainPosition] = when {
-                resourceProvider.getString(R.string.locale) == "es" -> pride.name?.ES!!
-                resourceProvider.getString(R.string.locale) == "fr" -> pride.name?.FR!!
-                resourceProvider.getString(R.string.locale) == "pt" -> pride.name?.PT!!
-                resourceProvider.getString(R.string.locale) == "de" -> pride.name?.DE!!
-                resourceProvider.getString(R.string.locale) == "it" -> pride.name?.IT!!
-                else -> pride.name?.EN!!
-            }
-
-            optionList[numRandomPosition1] = when {
-                resourceProvider.getString(R.string.locale) == "es" -> option1.name?.ES!!
-                resourceProvider.getString(R.string.locale) == "fr" -> option1.name?.FR!!
-                resourceProvider.getString(R.string.locale) == "pt" -> option1.name?.PT!!
-                resourceProvider.getString(R.string.locale) == "de" -> option1.name?.DE!!
-                resourceProvider.getString(R.string.locale) == "it" -> option1.name?.IT!!
-                else -> option1.name?.EN!!
-            }
-
-            optionList[numRandomPosition2] = when {
-                resourceProvider.getString(R.string.locale) == "es" -> option2.name?.ES!!
-                resourceProvider.getString(R.string.locale) == "fr" -> option2.name?.FR!!
-                resourceProvider.getString(R.string.locale) == "pt" -> option2.name?.PT!!
-                resourceProvider.getString(R.string.locale) == "de" -> option2.name?.DE!!
-                resourceProvider.getString(R.string.locale) == "it" -> option2.name?.IT!!
-                else -> option2.name?.EN!!
-            }
-
-            optionList[numRandomPosition3] = when {
-                resourceProvider.getString(R.string.locale) == "es" -> option3.name?.ES!!
-                resourceProvider.getString(R.string.locale) == "fr" -> option3.name?.FR!!
-                resourceProvider.getString(R.string.locale) == "pt" -> option3.name?.PT!!
-                resourceProvider.getString(R.string.locale) == "de" -> option3.name?.DE!!
-                resourceProvider.getString(R.string.locale) == "it" -> option3.name?.IT!!
-                else -> option3.name?.EN!!
-            }
+            val optionList = mutableListOf(Pride(), Pride(), Pride(), Pride())
+            optionList[numRandomMainPosition] = pride
+            optionList[numRandomPosition1] = option1
+            optionList[numRandomPosition2] = option2
+            optionList[numRandomPosition3] = option3
 
             _responseOptions.value = optionList
             _question.value = pride

@@ -70,7 +70,7 @@ fun glideCircleLoadBase64(context: Context, imageBytes: String?, where: ImageVie
 }
 
 fun convertImageToByteArray(imageBytes: String?): ByteArray {
-    return if(imageBytes == null || imageBytes == Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER) {
+    return if(imageBytes.isNullOrEmpty() || imageBytes == Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER) {
         Base64.decode(Constants.DEFAULT_IMAGE_TO_SHOW, Base64.DEFAULT)
     } else {
         try {

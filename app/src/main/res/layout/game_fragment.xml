@@ -31,6 +31,21 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
+                <TextView
+                    android:id="@+id/textQuiz"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_marginEnd="@dimen/activity_horizontal_margin"
+                    android:layout_marginTop="@dimen/activity_horizontal_margin"
+                    android:gravity="center"
+                    android:textAppearance="@style/Regular.TextColorDark.Small"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
                 <ImageView
                     android:id="@+id/imageQuiz"
                     android:layout_width="match_parent"
@@ -99,56 +114,158 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" >
 
-                <Button
-                    android:id="@+id/btnOptionOne"
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutOptionOne"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_marginStart="4dp"
-                    android:maxLines="5"
-                    android:padding="@dimen/padding_game_buttons"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="12dp"
+                    app:cardBackgroundColor="@color/white"
                     app:layout_constraintWidth_percent="0.49"
                     app:layout_constraintHeight_percent="0.45"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Alaskan malute" />
+                    app:layout_constraintTop_toTopOf="parent" >
 
-                <Button
-                    android:id="@+id/btnOptionTwo"
+                    <Button
+                        android:id="@+id/btnOptionOne"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:maxLines="5"
+                        android:padding="@dimen/padding_game_buttons"
+                        android:tag="false"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Alaskan malute" />
+                    <ImageView
+                        android:id="@+id/imageOptionOne"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="30dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.cardview.widget.CardView>
+
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutOptionTwo"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:maxLines="5"
-                    android:padding="@dimen/padding_game_buttons"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="12dp"
+                    app:cardBackgroundColor="@color/white"
                     app:layout_constraintWidth_percent="0.49"
                     app:layout_constraintHeight_percent="0.45"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="Braco de pelo largo" />
+                    app:layout_constraintEnd_toEndOf="parent"  >
 
-                <Button
-                    android:id="@+id/btnOptionThree"
+                    <Button
+                        android:id="@+id/btnOptionTwo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:maxLines="5"
+                        android:padding="@dimen/padding_game_buttons"
+                        android:tag="false"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="Braco de pelo largo" />
+                    <ImageView
+                        android:id="@+id/imageOptionTwo"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="30dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutOptionThree"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:padding="@dimen/padding_game_buttons"
-                    android:maxLines="5"
+                    android:layout_marginTop="@dimen/margin_top_game_buttons"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="12dp"
+                    app:cardBackgroundColor="@color/white"
                     app:layout_constraintWidth_percent="0.49"
                     app:layout_constraintHeight_percent="0.45"
-                    android:layout_marginTop="@dimen/margin_top_game_buttons"
-                    app:layout_constraintTop_toBottomOf="@+id/btnOptionOne"
-                    app:layout_constraintStart_toStartOf="parent"
-                    tools:text="Yorkshire Terrier toy" />
+                    app:layout_constraintTop_toBottomOf="@+id/layoutOptionOne"
+                    app:layout_constraintStart_toStartOf="parent" >
 
-                <Button
-                    android:id="@+id/btnOptionFour"
+                    <Button
+                        android:id="@+id/btnOptionThree"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/padding_game_buttons"
+                        android:maxLines="5"
+                        android:tag="false"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="Yorkshire Terrier toy" />
+                    <ImageView
+                        android:id="@+id/imageOptionThree"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="30dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </androidx.cardview.widget.CardView>
+
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/layoutOptionFour"
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    tools:text="Braco aleman"
-                    android:padding="@dimen/padding_game_buttons"
-                    android:maxLines="5"
+                    android:layout_marginTop="@dimen/margin_top_game_buttons"
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="12dp"
+                    app:cardBackgroundColor="@color/white"
                     app:layout_constraintWidth_percent="0.49"
                     app:layout_constraintHeight_percent="0.45"
-                    android:layout_marginTop="@dimen/margin_top_game_buttons"
-                    app:layout_constraintTop_toBottomOf="@+id/btnOptionOne"
-                    app:layout_constraintEnd_toEndOf="parent"/>
+                    app:layout_constraintTop_toBottomOf="@+id/layoutOptionOne"
+                    app:layout_constraintEnd_toEndOf="parent" >
+
+                    <Button
+                        android:id="@+id/btnOptionFour"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        tools:text="Braco aleman"
+                        android:padding="@dimen/padding_game_buttons"
+                        android:maxLines="5"
+                        android:tag="false"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                    <ImageView
+                        android:id="@+id/imageOptionFour"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layout_constraintWidth_percent="0.49"
+                        app:layout_constraintHeight_percent="0.45"
+                        android:layout_margin="30dp"
+                        android:scaleType="fitCenter"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                </androidx.cardview.widget.CardView>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
