@@ -11,9 +11,9 @@
     <string name="settings_description">Delete sound or ads</string>
 
     <!-- Select screen -->
-    <string name="normal" translatable="false">Normal</string>
-    <string name="advance" translatable="false">Advance</string>
-    <string name="expert" translatable="false">Expert</string>
+    <string name="normal">Normal</string>
+    <string name="advance">Advance</string>
+    <string name="expert">Expert</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
