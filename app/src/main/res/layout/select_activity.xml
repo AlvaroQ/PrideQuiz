@@ -9,6 +9,15 @@
     android:background="@drawable/background_flag"
     tools:context=".ui.select.SelectActivity">
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/christmas_top"
+        android:scaleType="fitStart"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <FrameLayout
         android:id="@+id/containerSelect"
         android:layout_width="0dp"
@@ -27,4 +36,13 @@
             app:navGraph="@navigation/selection_navigation"
             app:defaultNavHost="true" />
     </FrameLayout>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/christmas_bottom"
+        android:scaleType="fitEnd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
