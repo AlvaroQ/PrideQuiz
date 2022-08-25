@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
@@ -103,6 +104,7 @@ class GameFragment : Fragment() {
         textQuiz.movementMethod = ScrollingMovementMethod()
 
         btnOptionOne.setSafeOnClickListener {
+            layoutOptionOne.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
             btnOptionOne.isSelected = !btnOptionOne.isSelected
             checkResponse()
         }
@@ -113,6 +115,7 @@ class GameFragment : Fragment() {
         }
 
         btnOptionTwo.setSafeOnClickListener {
+            layoutOptionTwo.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
             btnOptionTwo.isSelected = !btnOptionTwo.isSelected
             checkResponse()
         }
@@ -123,6 +126,7 @@ class GameFragment : Fragment() {
         }
 
         btnOptionThree.setSafeOnClickListener {
+            layoutOptionThree.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
             btnOptionThree.isSelected = !btnOptionThree.isSelected
             checkResponse()
         }
@@ -133,6 +137,7 @@ class GameFragment : Fragment() {
         }
 
         btnOptionFour.setSafeOnClickListener {
+            layoutOptionFour.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
             btnOptionFour.isSelected = !btnOptionFour.isSelected
             checkResponse()
         }
