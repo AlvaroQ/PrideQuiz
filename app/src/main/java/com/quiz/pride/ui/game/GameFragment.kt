@@ -432,6 +432,7 @@ class GameFragment : Fragment() {
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setContentView(R.layout.dialog_extra_life)
+            setCancelable(false)
             btnNo.setSafeOnClickListener {
                 dismiss()
                 gameViewModel.navigateToResult(points.toString())
