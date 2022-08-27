@@ -11,7 +11,7 @@ buildscript {
             'compileSdk'            : 31,
             'minSdk'                : 24,
             'targetSdk'             : 31,
-            'name'                  : '2.0.0',
+            'name'                  : '2.2.0',
             'code'                  : 18,
             'buildtoolsVersion'     : '30.0.2',
     ]
