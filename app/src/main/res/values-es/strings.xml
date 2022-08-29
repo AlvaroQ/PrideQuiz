@@ -10,6 +10,11 @@
     <string name="settings">Ajustes</string>
     <string name="settings_description">Quitar sonido o borrar publicidad</string>
 
+    <!-- Select screen -->
+    <string name="normal">Normal</string>
+    <string name="advance">Avanzado</string>
+    <string name="expert">Experto</string>
+
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
     <string name="settings_delete_ads">Quitar anuncios</string>

@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         mavenLocal()
         google()
     }
@@ -11,8 +11,8 @@ buildscript {
             'compileSdk'            : 31,
             'minSdk'                : 24,
             'targetSdk'             : 31,
-            'name'                  : '2.1.1',
-            'code'                  : 17,
+            'name'                  : '2.2.0',
+            'code'                  : 18,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
@@ -21,7 +21,7 @@ buildscript {
             'koin_version'           : '2.1.5',
             'preference_version'     : '1.1.1',
             'google_services_version': '4.3.4',
-            'billing_version'        : "3.0.0"
+            'billing_version'        : "5.0.0"
     ]
 
     dependencies {
@@ -36,10 +36,6 @@ buildscript {
                 coroutinesCore      : 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3',
                 coroutines          : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.5',
                 constraintMotion    : 'androidx.constraintlayout:constraintlayout:2.0.0-beta6',
-
-                // Koin
-                koinAndroid         : "org.koin:koin-android:${libsversions.koin_version}",
-                koinViewModel       : "org.koin:koin-android-viewmodel:${libsversions.koin_version}",
 
                 // androidX preferences
                 androidxPreference : "androidx.preference:preference-ktx:${libsversions.preference_version}",
@@ -109,8 +105,7 @@ buildscript {
                 mockitoKotlin : "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0",
                 mockitoInline : "org.mockito:mockito-inline:3.3.3",
                 koinTest      : "org.koin:koin-test:2.1.5",
-                kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:1.3.71",
-                coroutinesTest: "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.5"
+                kotlinTest    : "org.jetbrains.kotlin:kotlin-test-junit:1.3.71"
         ]
 
         androidxTestLibs = [

@@ -12,9 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -23,15 +20,13 @@ import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
+import com.quiz.pride.databinding.DialogExtraLifeBinding
 import com.quiz.pride.databinding.GameFragmentBinding
 import com.quiz.pride.ui.result.ResultActivity
 import com.quiz.pride.utils.*
+import com.quiz.pride.utils.Constants.GameType.*
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
-import com.quiz.pride.utils.Constants.GameType.NORMAL
-import com.quiz.pride.utils.Constants.GameType.ADVANCE
-import com.quiz.pride.utils.Constants.GameType.EXPERT
-import kotlinx.android.synthetic.main.dialog_extra_life.*
 import kotlinx.coroutines.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
@@ -43,22 +38,6 @@ class GameFragment : Fragment() {
     private val gameViewModel: GameViewModel by lifecycleScope.viewModel(this)
     private lateinit var binding: GameFragmentBinding
     private lateinit var question: Pride
-
-    private lateinit var imageLoading: ImageView
-    private lateinit var imageQuiz: ImageView
-    private lateinit var textQuiz: TextView
-    private lateinit var imageOptionOne: ImageView
-    private lateinit var imageOptionTwo: ImageView
-    private lateinit var imageOptionThree: ImageView
-    private lateinit var imageOptionFour: ImageView
-    private lateinit var btnOptionOne: TextView
-    private lateinit var btnOptionTwo: TextView
-    private lateinit var btnOptionThree: TextView
-    private lateinit var btnOptionFour: TextView
-    private lateinit var layoutOptionOne: CardView
-    private lateinit var layoutOptionTwo: CardView
-    private lateinit var layoutOptionThree: CardView
-    private lateinit var layoutOptionFour: CardView
     private lateinit var gameType: Constants.GameType
 
     private var life: Int = 2
@@ -80,71 +59,77 @@ class GameFragment : Fragment() {
         gameType = activity?.intent?.extras?.get(Constants.GAME_TYPE) as Constants.GameType
         Log.d("GameActivity", "gameType: $gameType")
 
-        initLayout(root)
+        initLayout()
         return root
     }
 
-    private fun initLayout(root: View) {
-        imageLoading = root.findViewById(R.id.imagenLoading)
-        imageQuiz = root.findViewById(R.id.imageQuiz)
-        textQuiz = root.findViewById(R.id.textQuiz)
-        imageOptionOne = root.findViewById(R.id.imageOptionOne)
-        imageOptionTwo = root.findViewById(R.id.imageOptionTwo)
-        imageOptionThree = root.findViewById(R.id.imageOptionThree)
-        imageOptionFour = root.findViewById(R.id.imageOptionFour)
-        btnOptionOne = root.findViewById(R.id.btnOptionOne)
-        btnOptionTwo = root.findViewById(R.id.btnOptionTwo)
-        btnOptionThree = root.findViewById(R.id.btnOptionThree)
-        btnOptionFour = root.findViewById(R.id.btnOptionFour)
-        layoutOptionOne = root.findViewById(R.id.layoutOptionOne)
-        layoutOptionTwo = root.findViewById(R.id.layoutOptionTwo)
-        layoutOptionThree = root.findViewById(R.id.layoutOptionThree)
-        layoutOptionFour = root.findViewById(R.id.layoutOptionFour)
+    private fun initLayout() {
+        with(binding) {
+            textQuiz.movementMethod = ScrollingMovementMethod()
 
-        textQuiz.movementMethod = ScrollingMovementMethod()
+            btnOptionOne.setSafeOnClickListener {
+                layoutOptionOne.startAnimation(
+                    AnimationUtils.loadAnimation(
+                        context,
+                        R.anim.scale_xy_collapse
+                    )
+                )
+                btnOptionOne.isSelected = !btnOptionOne.isSelected
+                checkResponse()
+            }
 
-        btnOptionOne.setSafeOnClickListener {
-            layoutOptionOne.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
-            btnOptionOne.isSelected = !btnOptionOne.isSelected
-            checkResponse()
-        }
+            layoutOptionOne.setSafeOnClickListener {
+                btnOptionOne.isSelected = !layoutOptionOne.isSelected
+                checkResponse()
+            }
 
-        layoutOptionOne.setSafeOnClickListener {
-            btnOptionOne.isSelected = !layoutOptionOne.isSelected
-            checkResponse()
-        }
+            btnOptionTwo.setSafeOnClickListener {
+                layoutOptionTwo.startAnimation(
+                    AnimationUtils.loadAnimation(
+                        context,
+                        R.anim.scale_xy_collapse
+                    )
+                )
+                btnOptionTwo.isSelected = !btnOptionTwo.isSelected
+                checkResponse()
+            }
 
-        btnOptionTwo.setSafeOnClickListener {
-            layoutOptionTwo.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
-            btnOptionTwo.isSelected = !btnOptionTwo.isSelected
-            checkResponse()
-        }
+            layoutOptionTwo.setSafeOnClickListener {
+                btnOptionTwo.isSelected = !btnOptionTwo.isSelected
+                checkResponse()
+            }
 
-        layoutOptionTwo.setSafeOnClickListener {
-            btnOptionTwo.isSelected = !btnOptionTwo.isSelected
-            checkResponse()
-        }
+            btnOptionThree.setSafeOnClickListener {
+                layoutOptionThree.startAnimation(
+                    AnimationUtils.loadAnimation(
+                        context,
+                        R.anim.scale_xy_collapse
+                    )
+                )
+                btnOptionThree.isSelected = !btnOptionThree.isSelected
+                checkResponse()
+            }
 
-        btnOptionThree.setSafeOnClickListener {
-            layoutOptionThree.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
-            btnOptionThree.isSelected = !btnOptionThree.isSelected
-            checkResponse()
-        }
+            layoutOptionThree.setSafeOnClickListener {
+                btnOptionThree.isSelected = !btnOptionThree.isSelected
+                checkResponse()
+            }
 
-        layoutOptionThree.setSafeOnClickListener {
-            btnOptionThree.isSelected = !btnOptionThree.isSelected
-            checkResponse()
-        }
+            btnOptionFour.setSafeOnClickListener {
+                layoutOptionFour.startAnimation(
+                    AnimationUtils.loadAnimation(
+                        context,
+                        R.anim.scale_xy_collapse
+                    )
+                )
+                btnOptionFour.isSelected = !btnOptionFour.isSelected
+                checkResponse()
+            }
 
-        btnOptionFour.setSafeOnClickListener {
-            layoutOptionFour.startAnimation(AnimationUtils.loadAnimation(context, R.anim.scale_xy_collapse))
-            btnOptionFour.isSelected = !btnOptionFour.isSelected
-            checkResponse()
-        }
-
-        layoutOptionFour.setSafeOnClickListener {
-            btnOptionFour.isSelected = !btnOptionFour.isSelected
-            checkResponse()
+            layoutOptionFour.setSafeOnClickListener {
+                btnOptionFour.isSelected = !btnOptionFour.isSelected
+                checkResponse()
+            }
         }
     }
 
@@ -179,56 +164,62 @@ class GameFragment : Fragment() {
     }
 
     private fun updateProgress(isShowing: Boolean) {
-        if (isShowing) {
-            glideLoadingGif(activity as GameActivity, imageLoading)
-            imageLoading.visibility = View.VISIBLE
-            imageQuiz.visibility = View.GONE
-            textQuiz.text = ""
-            imageOptionOne.setImageResource(0)
-            imageOptionTwo.setImageResource(0)
-            imageOptionThree.setImageResource(0)
-            imageOptionFour.setImageResource(0)
+        with(binding) {
+            if (isShowing) {
+                glideLoadingGif(activity as GameActivity, imagenLoading)
+                imagenLoading.visibility = View.VISIBLE
+                imageQuiz.visibility = View.GONE
+                textQuiz.text = ""
+                imageOptionOne.setImageResource(0)
+                imageOptionTwo.setImageResource(0)
+                imageOptionThree.setImageResource(0)
+                imageOptionFour.setImageResource(0)
 
-            btnOptionOne.isSelected = false
-            btnOptionTwo.isSelected = false
-            btnOptionThree.isSelected = false
-            btnOptionFour.isSelected = false
+                btnOptionOne.isSelected = false
+                btnOptionTwo.isSelected = false
+                btnOptionThree.isSelected = false
+                btnOptionFour.isSelected = false
 
-            enableBtn(false)
+                enableBtn(false)
 
-            imageOptionOne.tag = "false"
-            imageOptionTwo.tag = "false"
-            imageOptionThree.tag = "false"
-            imageOptionFour.tag = "false"
-        } else {
-            imageLoading.visibility = View.GONE
-            imageQuiz.visibility = View.VISIBLE
-            textQuiz.visibility = View.VISIBLE
+                imageOptionOne.tag = "false"
+                imageOptionTwo.tag = "false"
+                imageOptionThree.tag = "false"
+                imageOptionFour.tag = "false"
+            } else {
+                imagenLoading.visibility = View.GONE
+                imageQuiz.visibility = View.VISIBLE
+                textQuiz.visibility = View.VISIBLE
 
-            enableBtn(true)
+                enableBtn(true)
+            }
         }
     }
 
     private fun drawQuestionQuiz(pride: Pride) {
         question = pride
-        when (gameType) {
-            NORMAL -> glideLoadURL(activity as GameActivity, pride.flag, imageQuiz)
-            ADVANCE -> textQuiz.text = getLocalizeName(pride.description!!)
-            EXPERT -> textQuiz.text = getLocalizeName(pride.name!!)
+        with(binding) {
+            when (gameType) {
+                NORMAL -> glideLoadURL(activity as GameActivity, pride.flag, imageQuiz)
+                ADVANCE -> textQuiz.text = getLocalizeName(pride.description!!)
+                EXPERT -> textQuiz.text = getLocalizeName(pride.name!!)
+            }
         }
     }
 
     private fun marckTagButtonAsCorrect(optionsListByPos: MutableList<Pride>) {
-        btnOptionOne.tag = "false"
-        btnOptionTwo.tag = "false"
-        btnOptionThree.tag = "false"
-        btnOptionFour.tag = "false"
+        with(binding) {
+            btnOptionOne.tag = "false"
+            btnOptionTwo.tag = "false"
+            btnOptionThree.tag = "false"
+            btnOptionFour.tag = "false"
 
-        when(question.name) {
-            optionsListByPos[0].name -> btnOptionOne.tag = "true"
-            optionsListByPos[1].name -> btnOptionTwo.tag = "true"
-            optionsListByPos[2].name -> btnOptionThree.tag = "true"
-            optionsListByPos[3].name -> btnOptionFour.tag = "true"
+            when (question.name) {
+                optionsListByPos[0].name -> btnOptionOne.tag = "true"
+                optionsListByPos[1].name -> btnOptionTwo.tag = "true"
+                optionsListByPos[2].name -> btnOptionThree.tag = "true"
+                optionsListByPos[3].name -> btnOptionFour.tag = "true"
+            }
         }
     }
 
@@ -243,39 +234,60 @@ class GameFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 when (gameType) {
                     NORMAL -> {
-                        btnOptionOne.text = getLocalizeName(optionsListByPos[0].name!!)
-                        imageOptionOne.visibility = View.GONE
-                        layoutOptionOne.background = ColorDrawable(Color.TRANSPARENT)
 
-                        btnOptionTwo.text = getLocalizeName(optionsListByPos[1].name!!)
-                        imageOptionTwo.visibility = View.GONE
-                        layoutOptionTwo.background = ColorDrawable(Color.TRANSPARENT)
+                        with(binding) {
+                            btnOptionOne.text = getLocalizeName(optionsListByPos[0].name!!)
+                            imageOptionOne.visibility = View.GONE
+                            layoutOptionOne.background = ColorDrawable(Color.TRANSPARENT)
 
-                        btnOptionThree.text = getLocalizeName(optionsListByPos[2].name!!)
-                        imageOptionThree.visibility = View.GONE
-                        layoutOptionThree.background = ColorDrawable(Color.TRANSPARENT)
+                            btnOptionTwo.text = getLocalizeName(optionsListByPos[1].name!!)
+                            imageOptionTwo.visibility = View.GONE
+                            layoutOptionTwo.background = ColorDrawable(Color.TRANSPARENT)
 
-                        btnOptionFour.text = getLocalizeName(optionsListByPos[3].name!!)
-                        imageOptionFour.visibility = View.GONE
-                        layoutOptionFour.background = ColorDrawable(Color.TRANSPARENT)
+                            btnOptionThree.text = getLocalizeName(optionsListByPos[2].name!!)
+                            imageOptionThree.visibility = View.GONE
+                            layoutOptionThree.background = ColorDrawable(Color.TRANSPARENT)
 
+                            btnOptionFour.text = getLocalizeName(optionsListByPos[3].name!!)
+                            imageOptionFour.visibility = View.GONE
+                            layoutOptionFour.background = ColorDrawable(Color.TRANSPARENT)
+                        }
 
                         marckTagButtonAsCorrect(optionsListByPos)
                     }
                     else -> {
-                        glideLoadURL(activity as GameActivity, optionsListByPos[0].flag, imageOptionOne)
-                        btnOptionOne.visibility = View.GONE
 
-                        glideLoadURL(activity as GameActivity, optionsListByPos[1].flag, imageOptionTwo)
-                        btnOptionTwo.visibility = View.GONE
+                        with(binding) {
+                            glideLoadURL(
+                                activity as GameActivity,
+                                optionsListByPos[0].flag,
+                                imageOptionOne
+                            )
+                            btnOptionOne.visibility = View.GONE
 
-                        glideLoadURL(activity as GameActivity, optionsListByPos[2].flag, imageOptionThree)
-                        btnOptionThree.visibility = View.GONE
+                            glideLoadURL(
+                                activity as GameActivity,
+                                optionsListByPos[1].flag,
+                                imageOptionTwo
+                            )
+                            btnOptionTwo.visibility = View.GONE
 
-                        glideLoadURL(activity as GameActivity, optionsListByPos[3].flag, imageOptionFour)
-                        btnOptionFour.visibility = View.GONE
+                            glideLoadURL(
+                                activity as GameActivity,
+                                optionsListByPos[2].flag,
+                                imageOptionThree
+                            )
+                            btnOptionThree.visibility = View.GONE
 
-                        marckTagButtonAsCorrect(optionsListByPos)
+                            glideLoadURL(
+                                activity as GameActivity,
+                                optionsListByPos[3].flag,
+                                imageOptionFour
+                            )
+                            btnOptionFour.visibility = View.GONE
+
+                            marckTagButtonAsCorrect(optionsListByPos)
+                        }
                     }
                 }
             }
@@ -315,96 +327,125 @@ class GameFragment : Fragment() {
     private fun failOptionOne(){
         soundFail()
         deleteLife()
-        btnOptionOne.setBackground(requireContext(), isCorrect = false)
-        layoutOptionOne.setBackground(requireContext(), isCorrect = false)
+
+        with(binding) {
+            btnOptionOne.setBackground(requireContext(), isCorrect = false)
+            layoutOptionOne.setBackground(requireContext(), isCorrect = false)
+        }
     }
     private fun failOptionTwo(){
         soundFail()
         deleteLife()
-        btnOptionTwo.setBackground(requireContext(), isCorrect = false)
-        layoutOptionTwo.setBackground(requireContext(), isCorrect = false)
+        with(binding) {
+            btnOptionTwo.setBackground(requireContext(), isCorrect = false)
+            layoutOptionTwo.setBackground(requireContext(), isCorrect = false)
+        }
     }
     private fun failOptionThree(){
         soundFail()
         deleteLife()
-        btnOptionThree.setBackground(requireContext(), isCorrect = false)
-        layoutOptionThree.setBackground(requireContext(), isCorrect = false)
+        with(binding) {
+            btnOptionThree.setBackground(requireContext(), isCorrect = false)
+            layoutOptionThree.setBackground(requireContext(), isCorrect = false)
+        }
     }
     private fun failOptionFour(){
         soundFail()
         deleteLife()
-        btnOptionFour.setBackground(requireContext(), isCorrect = false)
-        layoutOptionFour.setBackground(requireContext(), isCorrect = false)
+        with(binding) {
+            btnOptionFour.setBackground(requireContext(), isCorrect = false)
+            layoutOptionFour.setBackground(requireContext(), isCorrect = false)
+        }
     }
 
     private fun drawCorrectResponse() {
-        when {
-            btnOptionOne.tag == "true" -> {
-                btnOptionOne.setBackground(requireContext(), isCorrect = true)
-                layoutOptionOne.setBackground(requireContext(), isCorrect = true)
-                when {
-                    btnOptionOne.isSelected -> successOption()
-                    btnOptionTwo.isSelected -> failOptionTwo()
-                    btnOptionThree.isSelected -> failOptionThree()
-                    btnOptionFour.isSelected -> failOptionFour()
+        with(binding) {
+            when {
+                btnOptionOne.tag == "true" -> {
+                    btnOptionOne.setBackground(requireContext(), isCorrect = true)
+                    layoutOptionOne.setBackground(requireContext(), isCorrect = true)
+                    when {
+                        btnOptionOne.isSelected -> successOption()
+                        btnOptionTwo.isSelected -> failOptionTwo()
+                        btnOptionThree.isSelected -> failOptionThree()
+                        btnOptionFour.isSelected -> failOptionFour()
+                    }
                 }
-            }
-            btnOptionTwo.tag == "true" -> {
-                btnOptionTwo.setBackground(requireContext(), isCorrect = true)
-                layoutOptionTwo.setBackground(requireContext(), isCorrect = true)
-                when {
-                    btnOptionOne.isSelected -> failOptionOne()
-                    btnOptionTwo.isSelected -> successOption()
-                    btnOptionThree.isSelected -> failOptionThree()
-                    btnOptionFour.isSelected -> failOptionFour()
+                btnOptionTwo.tag == "true" -> {
+                    btnOptionTwo.setBackground(requireContext(), isCorrect = true)
+                    layoutOptionTwo.setBackground(requireContext(), isCorrect = true)
+                    when {
+                        btnOptionOne.isSelected -> failOptionOne()
+                        btnOptionTwo.isSelected -> successOption()
+                        btnOptionThree.isSelected -> failOptionThree()
+                        btnOptionFour.isSelected -> failOptionFour()
+                    }
                 }
-            }
-            btnOptionThree.tag == "true" -> {
-                btnOptionThree.setBackground(requireContext(), isCorrect = true)
-                layoutOptionThree.setBackground(requireContext(), isCorrect = true)
-                when {
-                    btnOptionOne.isSelected -> failOptionOne()
-                    btnOptionTwo.isSelected -> failOptionTwo()
-                    btnOptionThree.isSelected -> successOption()
-                    btnOptionFour.isSelected -> failOptionFour()
+                btnOptionThree.tag == "true" -> {
+                    btnOptionThree.setBackground(requireContext(), isCorrect = true)
+                    layoutOptionThree.setBackground(requireContext(), isCorrect = true)
+                    when {
+                        btnOptionOne.isSelected -> failOptionOne()
+                        btnOptionTwo.isSelected -> failOptionTwo()
+                        btnOptionThree.isSelected -> successOption()
+                        btnOptionFour.isSelected -> failOptionFour()
+                    }
                 }
-            }
-            btnOptionFour.tag == "true" -> {
-                btnOptionFour.setBackground(requireContext(), isCorrect = true)
-                layoutOptionFour.setBackground(requireContext(), isCorrect = true)
-                when {
-                    btnOptionOne.isSelected -> failOptionOne()
-                    btnOptionTwo.isSelected -> failOptionTwo()
-                    btnOptionThree.isSelected -> failOptionThree()
-                    btnOptionFour.isSelected -> successOption()
+                btnOptionFour.tag == "true" -> {
+                    btnOptionFour.setBackground(requireContext(), isCorrect = true)
+                    layoutOptionFour.setBackground(requireContext(), isCorrect = true)
+                    when {
+                        btnOptionOne.isSelected -> failOptionOne()
+                        btnOptionTwo.isSelected -> failOptionTwo()
+                        btnOptionThree.isSelected -> failOptionThree()
+                        btnOptionFour.isSelected -> successOption()
+                    }
                 }
             }
         }
     }
 
     private fun enableBtn(isEnable: Boolean) {
-        btnOptionOne.isClickable = isEnable
-        btnOptionTwo.isClickable = isEnable
-        btnOptionThree.isClickable = isEnable
-        btnOptionFour.isClickable = isEnable
-        layoutOptionOne.isClickable = isEnable
-        layoutOptionTwo.isClickable = isEnable
-        layoutOptionThree.isClickable = isEnable
-        layoutOptionFour.isClickable = isEnable
+        with(binding) {
+            btnOptionOne.isClickable = isEnable
+            btnOptionTwo.isClickable = isEnable
+            btnOptionThree.isClickable = isEnable
+            btnOptionFour.isClickable = isEnable
+            layoutOptionOne.isClickable = isEnable
+            layoutOptionTwo.isClickable = isEnable
+            layoutOptionThree.isClickable = isEnable
+            layoutOptionFour.isClickable = isEnable
 
-        if(isEnable) {
-            when (gameType) {
-                NORMAL -> {
-                    btnOptionOne.background = ContextCompat.getDrawable(requireContext(), R.drawable.selector_with_radius_button)
-                    btnOptionTwo.background = ContextCompat.getDrawable(requireContext(), R.drawable.selector_with_radius_button)
-                    btnOptionThree.background = ContextCompat.getDrawable(requireContext(), R.drawable.selector_with_radius_button)
-                    btnOptionFour.background = ContextCompat.getDrawable(requireContext(), R.drawable.selector_with_radius_button)
-                }
-                else -> {
-                    layoutOptionOne.background = ContextCompat.getDrawable(requireContext(), R.color.white)
-                    layoutOptionTwo.background = ContextCompat.getDrawable(requireContext(), R.color.white)
-                    layoutOptionThree.background = ContextCompat.getDrawable(requireContext(), R.color.white)
-                    layoutOptionFour.background = ContextCompat.getDrawable(requireContext(), R.color.white)
+            if (isEnable) {
+                when (gameType) {
+                    NORMAL -> {
+                        btnOptionOne.background = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.selector_with_radius_button
+                        )
+                        btnOptionTwo.background = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.selector_with_radius_button
+                        )
+                        btnOptionThree.background = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.selector_with_radius_button
+                        )
+                        btnOptionFour.background = ContextCompat.getDrawable(
+                            requireContext(),
+                            R.drawable.selector_with_radius_button
+                        )
+                    }
+                    else -> {
+                        layoutOptionOne.background =
+                            ContextCompat.getDrawable(requireContext(), R.color.white)
+                        layoutOptionTwo.background =
+                            ContextCompat.getDrawable(requireContext(), R.color.white)
+                        layoutOptionThree.background =
+                            ContextCompat.getDrawable(requireContext(), R.color.white)
+                        layoutOptionFour.background =
+                            ContextCompat.getDrawable(requireContext(), R.color.white)
+                    }
                 }
             }
         }
@@ -421,7 +462,7 @@ class GameFragment : Fragment() {
                     gameViewModel.navigateToResult(points.toString())
                 } else {
                     gameViewModel.generateNewStage()
-                    if(stage != 0 && stage % 10 == 0) gameViewModel.showRewardedAd()
+                    if(stage != 0 && stage % 9 == 0) gameViewModel.showRewardedAd()
                 }
             }
         }
@@ -429,14 +470,16 @@ class GameFragment : Fragment() {
 
     private fun showExtraLifeDialog() {
         Dialog(requireContext()).apply {
+            val binding = DialogExtraLifeBinding.inflate(layoutInflater)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(binding.root)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setContentView(R.layout.dialog_extra_life)
-            btnNo.setSafeOnClickListener {
+            setCancelable(false)
+            binding.btnNo.setSafeOnClickListener {
                 dismiss()
                 gameViewModel.navigateToResult(points.toString())
             }
-            btnYes.setSafeOnClickListener {
+            binding.btnYes.setSafeOnClickListener {
                 dismiss()
                 gameViewModel.showRewardedAd()
                 addExtraLife()

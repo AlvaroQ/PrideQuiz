@@ -23,11 +23,11 @@ import com.quiz.domain.App
 import com.quiz.domain.User
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
+import com.quiz.pride.databinding.DialogSaveRecordBinding
 import com.quiz.pride.databinding.ResultFragmentBinding
 import com.quiz.pride.ui.ranking.RankingActivity
 import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
-import kotlinx.android.synthetic.main.dialog_save_record.*
 import org.koin.android.scope.lifecycleScope
 import org.koin.android.viewmodel.scope.viewModel
 
@@ -131,14 +131,15 @@ class ResultFragment : Fragment() {
 
     private fun showEnterNameDialog() {
         Dialog(requireContext()).apply {
+            val binding = DialogSaveRecordBinding.inflate(layoutInflater)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(binding.root)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-            setContentView(R.layout.dialog_save_record)
-            btnCancel.setSafeOnClickListener { dismiss() }
-            btnSubmit.setSafeOnClickListener {
+            binding.btnCancel.setSafeOnClickListener { dismiss() }
+            binding.btnSubmit.setSafeOnClickListener {
                 val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER else resultViewModel.photoUrl.value!!
                 resultViewModel.saveTopScore(User(
-                    name = editTextWorldRecord.text.toString(),
+                    name = binding.editTextWorldRecord.text.toString(),
                     points = gamePoints.toString(),
                     score = gamePoints,
                     userImage = userImage,
@@ -147,7 +148,7 @@ class ResultFragment : Fragment() {
                 dismiss()
             }
 
-            imageViewPickup = imageUserPickup
+            imageViewPickup = binding.imageUserPickup
             imageViewPickup.setSafeOnClickListener { resultViewModel.clickOnPicker() }
             show()
         }

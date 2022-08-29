@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'// Added Firebase Crashlytics plugin.
@@ -90,6 +89,10 @@ dependencies {
     implementation project(":data")
     implementation project(":domain")
     implementation project(":usecases")
+
+    // Koin
+    implementation "org.koin:koin-android:${libsversions.koin_version}"
+    implementation "org.koin:koin-android-viewmodel:${libsversions.koin_version}"
 
     implementation androidLibs.values()
     implementation androidKtxLibs.values()

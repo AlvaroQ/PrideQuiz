@@ -11,7 +11,6 @@ import com.quiz.pride.R
 import com.quiz.pride.common.inflate
 import com.quiz.pride.utils.getRelationTime
 import com.quiz.pride.utils.glideCircleLoadBase64
-import kotlinx.android.synthetic.main.item_ranking_user.view.*
 
 class RankingListAdapter(
     val context: Context,
