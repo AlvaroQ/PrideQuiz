@@ -3,28 +3,26 @@ package com.quiz.pride.ui.settings
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.annotation.RequiresPermission
-import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
-import com.quiz.pride.utils.loadBonificado
+import com.quiz.pride.common.viewBinding
+import com.quiz.pride.databinding.SettingsActivityBinding
 import com.quiz.pride.utils.setSafeOnClickListener
 import com.quiz.pride.utils.showBanner
-import kotlinx.android.synthetic.main.app_bar_layout.*
-import kotlinx.android.synthetic.main.settings_activity.*
 
 
 class SettingsActivity : BaseActivity() {
+    private val binding by viewBinding(SettingsActivityBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        setContentView(binding.root)
         setupToolbar()
         supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
-                .commit()
+            .beginTransaction()
+            .replace(R.id.settings, SettingsFragment())
+            .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         MobileAds.initialize(this)
     }
@@ -40,14 +38,15 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun setupToolbar() {
-        toolbarTitle.text = getString(R.string.settings)
-        layoutLife.visibility = View.GONE
-        layoutExtendedTitle.background = null
-        btnBack.setSafeOnClickListener { finishAfterTransition() }
+        with(binding.appBar) {
+            toolbarTitle.text = getString(R.string.settings)
+            layoutLife.visibility = View.GONE
+            layoutExtendedTitle.background = null
+            btnBack.setSafeOnClickListener { finishAfterTransition() }
+        }
     }
 
-    @RequiresPermission("android.permission.INTERNET")
     fun showAd(show: Boolean){
-        showBanner(show, adViewSettings)
+        showBanner(show, binding.adViewSettings)
     }
 }

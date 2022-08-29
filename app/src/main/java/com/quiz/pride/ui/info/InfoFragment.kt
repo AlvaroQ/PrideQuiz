@@ -11,9 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.gms.ads.rewarded.RewardedAd
 import com.quiz.domain.Pride
-import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.InfoFragmentBinding
 import com.quiz.pride.ui.select.SelectActivity

@@ -1,16 +1,11 @@
 package com.quiz.pride.ui.select
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
-import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.SelectGameFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
@@ -35,18 +30,15 @@ class SelectGameFragment : Fragment() {
         binding = SelectGameFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        val cardNormal: CardView = root.findViewById(R.id.cardNormal)
-        cardNormal.setSafeOnClickListener {
+        binding.cardNormal.setSafeOnClickListener {
             selectGameViewModel.navigateToGame(Constants.GameType.NORMAL)
         }
 
-        val cardAdvance: CardView = root.findViewById(R.id.cardAdvance)
-        cardAdvance.setSafeOnClickListener {
+        binding.cardAdvance.setSafeOnClickListener {
             selectGameViewModel.navigateToGame(Constants.GameType.ADVANCE)
         }
 
-        val cardExpert: CardView = root.findViewById(R.id.cardExpert)
-        cardExpert.setSafeOnClickListener {
+        binding.cardExpert.setSafeOnClickListener {
             selectGameViewModel.navigateToGame(Constants.GameType.EXPERT)
         }
 
