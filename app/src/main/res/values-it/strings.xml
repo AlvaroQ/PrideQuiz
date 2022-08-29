@@ -25,6 +25,11 @@
     <string name="sounds_on">suono su</string>
     <string name="sounds_off">suono spento</string>
 
+    <!-- Select screen -->
+    <string name="normal">Normale</string>
+    <string name="advance">Avanzamento</string>
+    <string name="expert">Esperto</string>
+
     <!-- Result screen -->
     <string name="resultado_screen_title">Risultato finale</string>
     <string name="share_message">\nIl mio punteggio è %d, puoi superarmi?\n\n</string>

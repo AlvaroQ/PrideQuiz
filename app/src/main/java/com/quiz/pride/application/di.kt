@@ -26,6 +26,8 @@ import com.quiz.pride.ui.ranking.RankingViewModel
 import com.quiz.pride.ui.result.ResultFragment
 import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectFragment
+import com.quiz.pride.ui.select.SelectGameFragment
+import com.quiz.pride.ui.select.SelectGameViewModel
 import com.quiz.pride.ui.select.SelectViewModel
 import com.quiz.pride.ui.settings.SettingsFragment
 import com.quiz.pride.ui.settings.SettingsViewModel
@@ -70,8 +72,10 @@ val dataModule = module {
 
 private val scopesModule = module {
     scope(named<SelectFragment>()) {
-        viewModel { SelectViewModel(get()) }
-        scoped { GetPaymentDone(get()) }
+        viewModel { SelectViewModel() }
+    }
+    scope(named<SelectGameFragment>()) {
+        viewModel { SelectGameViewModel() }
     }
     scope(named<GameFragment>()) {
         viewModel { GameViewModel(get(), get(), get()) }

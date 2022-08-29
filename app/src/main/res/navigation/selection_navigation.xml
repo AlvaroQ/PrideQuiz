@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_select">
+
+    <fragment
+        android:id="@+id/navigation_select"
+        android:name="com.quiz.pride.ui.select.SelectFragment"
+        tools:layout="@layout/select_fragment" >
+        <action
+            android:id="@+id/action_navigation_select_to_select_game"
+            app:destination="@id/navigation_select_game"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_right"  />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_select_game"
+        android:name="com.quiz.pride.ui.select.SelectGameFragment"
+        tools:layout="@layout/select_game_fragment" >
+        <action
+            android:id="@+id/action_navigation_select_game_to_select"
+            app:destination="@id/navigation_select"
+            app:popUpTo="@id/navigation_select"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"  />
+    </fragment>
+
+</navigation>

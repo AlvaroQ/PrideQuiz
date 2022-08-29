@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import kotlin.properties.Delegates
 
 
@@ -42,29 +44,8 @@ inline fun <reified T : Activity> Context.intentFor(body: Intent.() -> Unit): In
 inline fun <reified T : Activity> Context.startActivity(body: Intent.() -> Unit) {
     startActivity(intentFor<T>(body))
 }
-
-fun View.traslationAnimation() {
-    // center to left
-    ObjectAnimator.ofFloat(this, "translationX", -width.toFloat()).apply {
-        duration = 200
-        start()
+inline fun <T : ViewBinding> AppCompatActivity.viewBinding(
+    crossinline bindingInflater: (LayoutInflater) -> T) =
+    lazy(LazyThreadSafetyMode.NONE) {
+        bindingInflater.invoke(layoutInflater)
     }
-
-    // (HIDDEN) left to right
-    ObjectAnimator.ofFloat(this, "translationX", width.toFloat()).apply {
-        duration = 0
-        startDelay = 200
-        start()
-    }
-
-    // Right to center
-    ObjectAnimator.ofFloat(this, "translationX", 0f).apply {
-        duration = 200
-        startDelay = 200
-        start()
-    }
-}
-
-fun View.traslationAnimationFadeIn() {
-    this.animate().alpha(1f).setInterpolator(AccelerateDecelerateInterpolator()).duration = 100
-}

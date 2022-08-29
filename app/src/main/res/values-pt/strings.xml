@@ -25,6 +25,11 @@
     <string name="sounds_on">Som em</string>
     <string name="sounds_off">Som desligado</string>
 
+    <!-- Select screen -->
+    <string name="normal">Normal</string>
+    <string name="advance">Avançar</string>
+    <string name="expert">Perito</string>
+
     <!-- Result screen -->
     <string name="resultado_screen_title">Resultado final</string>
     <string name="share_message">\nA minha pontuação é %d, consegues superar-me?\n\n</string>
