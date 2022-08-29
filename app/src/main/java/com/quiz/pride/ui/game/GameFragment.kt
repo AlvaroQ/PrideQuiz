@@ -471,8 +471,8 @@ class GameFragment : Fragment() {
     private fun showExtraLifeDialog() {
         Dialog(requireContext()).apply {
             val binding = DialogExtraLifeBinding.inflate(layoutInflater)
-            setContentView(binding.root)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(binding.root)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             setCancelable(false)
             binding.btnNo.setSafeOnClickListener {

@@ -132,8 +132,8 @@ class ResultFragment : Fragment() {
     private fun showEnterNameDialog() {
         Dialog(requireContext()).apply {
             val binding = DialogSaveRecordBinding.inflate(layoutInflater)
-            setContentView(binding.root)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
+            setContentView(binding.root)
             window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             binding.btnCancel.setSafeOnClickListener { dismiss() }
             binding.btnSubmit.setSafeOnClickListener {
