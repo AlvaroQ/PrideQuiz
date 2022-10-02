@@ -9,7 +9,7 @@ import com.quiz.usecases.SetPaymentDone
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(private val setPaymentDone: SetPaymentDone,
-                        private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
+                        getPaymentDone: GetPaymentDone) : ScopedViewModel() {
 
     private val _showingAds = MutableLiveData<UiModel>()
     val showingAds: LiveData<UiModel> = _showingAds

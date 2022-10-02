@@ -11,13 +11,12 @@ import com.quiz.pride.databinding.SelectGameFragmentBinding
 import com.quiz.pride.ui.game.GameActivity
 import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.setSafeOnClickListener
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class SelectGameFragment : Fragment() {
     private lateinit var binding: SelectGameFragmentBinding
-    private val selectGameViewModel: SelectGameViewModel by lifecycleScope.viewModel(this)
+    private val selectGameViewModel: SelectGameViewModel by viewModel()
 
     companion object {
         fun newInstance() = SelectGameFragment()

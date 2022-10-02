@@ -9,13 +9,12 @@ import androidx.lifecycle.Observer
 import com.quiz.domain.App
 import com.quiz.pride.databinding.MoreAppsFragmentBinding
 import com.quiz.pride.utils.glideLoadingGif
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MoreAppsFragment : Fragment() {
+    private val moreAppsViewModel: MoreAppsViewModel by viewModel()
     private lateinit var binding: MoreAppsFragmentBinding
-    private val moreAppsViewModel: MoreAppsViewModel by lifecycleScope.viewModel(this)
 
     companion object {
         fun newInstance() = MoreAppsFragment()

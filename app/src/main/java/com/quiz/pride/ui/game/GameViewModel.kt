@@ -3,8 +3,6 @@ package com.quiz.pride.ui.game
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.quiz.domain.Pride
-import com.quiz.pride.R
-import com.quiz.pride.common.ResourceProvider
 import com.quiz.pride.common.ScopedViewModel
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
@@ -13,7 +11,6 @@ import com.quiz.usecases.GetPrideById
 import kotlinx.coroutines.launch
 
 class GameViewModel(private val getPrideById: GetPrideById,
-                    private val resourceProvider: ResourceProvider,
                     private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
 
     private var randomCountries = mutableListOf<Int>()

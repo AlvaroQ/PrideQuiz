@@ -28,13 +28,13 @@ import com.quiz.pride.databinding.ResultFragmentBinding
 import com.quiz.pride.ui.ranking.RankingActivity
 import com.quiz.pride.utils.*
 import com.quiz.pride.utils.Constants.POINTS
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class ResultFragment : Fragment() {
+    private val resultViewModel: ResultViewModel by viewModel()
     private lateinit var binding: ResultFragmentBinding
-    private val resultViewModel: ResultViewModel by lifecycleScope.viewModel(this)
+
     private var gamePoints = 0
     private lateinit var imageViewPickup: ImageView
 

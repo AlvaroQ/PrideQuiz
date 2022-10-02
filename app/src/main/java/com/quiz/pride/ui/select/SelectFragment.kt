@@ -12,12 +12,11 @@ import com.quiz.pride.databinding.SelectFragmentBinding
 import com.quiz.pride.ui.info.InfoActivity
 import com.quiz.pride.ui.settings.SettingsActivity
 import com.quiz.pride.utils.setSafeOnClickListener
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SelectFragment : Fragment() {
+    private val selectViewModel: SelectViewModel by viewModel()
     private lateinit var binding: SelectFragmentBinding
-    private val selectViewModel: SelectViewModel by lifecycleScope.viewModel(this)
 
     companion object {
         fun newInstance() = SelectFragment()
