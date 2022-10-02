@@ -18,13 +18,13 @@ import com.quiz.pride.ui.select.SelectActivity
 import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.pride.utils.glideLoadingGif
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class InfoFragment : Fragment() {
+    private val infoViewModel: InfoViewModel by viewModel()
     private lateinit var binding: InfoFragmentBinding
-    private val infoViewModel: InfoViewModel by lifecycleScope.viewModel(this)
+
     private var currentPage = 0
     private lateinit var scrollListener: RecyclerView.OnScrollListener
     lateinit var adapter: InfoListAdapter

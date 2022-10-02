@@ -28,15 +28,15 @@ import com.quiz.pride.utils.Constants.GameType.*
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import kotlinx.coroutines.*
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
 
 
 class GameFragment : Fragment() {
-    private var extraLife = false
-    private val gameViewModel: GameViewModel by lifecycleScope.viewModel(this)
+    private val gameViewModel: GameViewModel by viewModel()
     private lateinit var binding: GameFragmentBinding
+
+    private var extraLife = false
     private lateinit var question: Pride
     private lateinit var gameType: Constants.GameType
 
@@ -462,7 +462,7 @@ class GameFragment : Fragment() {
                     gameViewModel.navigateToResult(points.toString())
                 } else {
                     gameViewModel.generateNewStage()
-                    if(stage != 0 && stage % 9 == 0) gameViewModel.showRewardedAd()
+                    if(stage != 0 && stage % 6 == 0) gameViewModel.showRewardedAd()
                 }
             }
         }

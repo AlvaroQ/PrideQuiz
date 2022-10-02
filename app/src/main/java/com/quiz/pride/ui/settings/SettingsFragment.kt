@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.android.billingclient.api.*
+import com.google.common.collect.ImmutableList
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
@@ -14,15 +15,11 @@ import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.moreApps.MoreAppsActivity
 import com.quiz.pride.utils.rateApp
 import com.quiz.pride.utils.shareApp
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
-
+    private val settingsViewModel: SettingsViewModel by viewModel()
     private lateinit var billingClient: BillingClient
-    private val skuList = listOf("remove_ad")
-
-    private val settingsViewModel: SettingsViewModel by lifecycleScope.viewModel(this)
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.settings_preferences, rootKey)
@@ -59,7 +56,7 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
 
         val deleteAds: Preference? = findPreference("delete_ads")
         deleteAds?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            loadAllSKUs()
+            loadProductParams()
             false
         }
     }
@@ -93,23 +90,33 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
         })
     }
 
-    private fun loadAllSKUs() = if (billingClient.isReady) {
-        val params = SkuDetailsParams
-            .newBuilder()
-            .setSkusList(skuList)
-            .setType(BillingClient.SkuType.INAPP)
-            .build()
+    private fun loadProductParams() = if (billingClient.isReady) {
+        val queryProductDetailsParams =
+            QueryProductDetailsParams.newBuilder()
+                .setProductList(
+                    ImmutableList.of(
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(REMOVE_AD)
+                            .setProductType(BillingClient.ProductType.INAPP)
+                            .build()))
+                .build()
 
-        billingClient.querySkuDetailsAsync(params) { billingResult, skuDetailsList ->
-            // Process the result.
-            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && skuDetailsList!!.isNotEmpty()) {
-                for (skuDetails in skuDetailsList) {
-                    if (skuDetails.sku == "remove_ad") {
-                        val billingFlowParams = BillingFlowParams
+        billingClient.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsList ->
+
+            if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
+                for (productDetails in productDetailsList) {
+                    if (productDetails.productId == REMOVE_AD) {
+                        val productDetailsParamsList = listOf(
+                            BillingFlowParams.ProductDetailsParams.newBuilder()
+                                .setProductDetails(productDetails)
+                                .build()
+                        )
+
+                        val productDetailsParams = BillingFlowParams
                             .newBuilder()
-                            .setSkuDetails(skuDetails)
+                            .setProductDetailsParamsList(productDetailsParamsList)
                             .build()
-                        billingClient.launchBillingFlow(requireActivity(), billingFlowParams)
+                        billingClient.launchBillingFlow(requireActivity(), productDetailsParams)
                     }
                 }
             }
@@ -132,6 +139,7 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
 
         } else if(billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
+            AnalyticsManager.analyticsScreenViewed("billing_already_purchase")
             settingsViewModel.savePaymentDone()
         } else {
             // Handle any other error codes.
@@ -153,5 +161,9 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             AnalyticsManager.analyticsScreenViewed("acknowledgePurchase responseCode=$responseCode")
             AnalyticsManager.analyticsScreenViewed("acknowledgePurchase debugMessage=$debugMessage")
         }
+    }
+
+    companion object {
+        const val REMOVE_AD = "remove_ad"
     }
 }

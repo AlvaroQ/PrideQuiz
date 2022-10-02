@@ -9,13 +9,12 @@ import androidx.lifecycle.Observer
 import com.quiz.domain.User
 import com.quiz.pride.databinding.RankingFragmentBinding
 import com.quiz.pride.utils.glideLoadingGif
-import org.koin.android.scope.lifecycleScope
-import org.koin.android.viewmodel.scope.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class RankingFragment : Fragment() {
+    private val rankingViewModel: RankingViewModel by viewModel()
     private lateinit var binding: RankingFragmentBinding
-    private val rankingViewModel: RankingViewModel by lifecycleScope.viewModel(this)
 
     companion object {
         fun newInstance() = RankingFragment()

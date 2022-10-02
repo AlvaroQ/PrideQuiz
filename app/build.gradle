@@ -91,8 +91,7 @@ dependencies {
     implementation project(":usecases")
 
     // Koin
-    implementation "org.koin:koin-android:${libsversions.koin_version}"
-    implementation "org.koin:koin-android-viewmodel:${libsversions.koin_version}"
+    implementation "io.insert-koin:koin-android:${libsversions.koin_version}"
 
     implementation androidLibs.values()
     implementation androidKtxLibs.values()
