@@ -31,7 +31,7 @@
                 android:layout_height="wrap_content"
                 tools:text="Resultado: 0"
                 android:fontFamily="@font/blackboard"
-                android:paddingTop="30dp"
+                android:paddingTop="16dp"
                 android:textAppearance="@style/Regular.TextColor.VeryVeryLarge"
                 android:gravity="center"
                 app:layout_constraintTop_toTopOf="parent"
@@ -44,7 +44,6 @@
                 android:layout_height="wrap_content"
                 tools:text="Récord personal: 0"
                 android:fontFamily="@font/blackboard"
-                android:layout_marginTop="10dp"
                 android:textAppearance="@style/Regular.TextColor.VeryVeryLarge"
                 android:gravity="center"
                 app:layout_constraintTop_toBottomOf="@+id/textResult"
@@ -54,40 +53,15 @@
             <TextView
                 android:id="@+id/textWorldRecord"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 tools:text="Récord mundial: 0"
                 android:fontFamily="@font/blackboard"
                 android:textAppearance="@style/Regular.TextColor.VeryVeryLarge"
-                android:gravity="center"
+                android:gravity="center_horizontal"
                 app:layout_constraintTop_toBottomOf="@+id/textPersonalRecord"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" />
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scaleType="fitStart"
-                android:src="@drawable/snow"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <ImageView
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/campana_simple"
-            android:scaleType="fitStart"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:layout_width="110dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/campana_simple"
-            android:scaleType="fitStart"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/btnContinue"
