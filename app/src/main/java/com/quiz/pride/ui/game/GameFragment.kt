@@ -1,6 +1,5 @@
 package com.quiz.pride.ui.game
 
-import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -10,7 +9,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,7 +18,6 @@ import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
-import com.quiz.pride.databinding.DialogExtraLifeBinding
 import com.quiz.pride.databinding.GameFragmentBinding
 import com.quiz.pride.ui.result.ResultActivity
 import com.quiz.pride.utils.*
@@ -159,7 +156,10 @@ class GameFragment : Fragment() {
             is GameViewModel.Navigation.Result -> {
                 activity?.startActivity<ResultActivity> { putExtra(POINTS, points) }
             }
-            is GameViewModel.Navigation.ExtraLifeDialog -> showExtraLifeDialog()
+            is GameViewModel.Navigation.ExtraLifeDialog -> {
+                //showExtraLifeDialog()
+                gameViewModel.navigateToResult(points.toString())
+            }
         }
     }
 
@@ -467,7 +467,7 @@ class GameFragment : Fragment() {
             }
         }
     }
-
+/*
     private fun showExtraLifeDialog() {
         Dialog(requireContext()).apply {
             val binding = DialogExtraLifeBinding.inflate(layoutInflater)
@@ -487,7 +487,7 @@ class GameFragment : Fragment() {
             show()
         }
     }
-
+*/
     private fun soundFail() {
         if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
             MediaPlayer.create(context, R.raw.fail).start()

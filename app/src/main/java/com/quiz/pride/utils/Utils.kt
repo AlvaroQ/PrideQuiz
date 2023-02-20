@@ -13,14 +13,10 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import androidx.annotation.RequiresPermission
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import java.io.File
@@ -35,18 +31,15 @@ fun showBanner(show: Boolean, adView: AdView){
         adView.visibility = View.GONE
     }
 }
-fun loadBonificado(activity: Activity, show: Boolean, rewardedAd: RewardedAd) {
+fun showBonificado(activity: Activity, show: Boolean, rewardedAd: RewardedAd?) {
     if(show) {
-        val adLoadCallback: RewardedAdLoadCallback = object : RewardedAdLoadCallback() {
-            override fun onRewardedAdLoaded() {
-                rewardedAd.show(activity, null)
+        rewardedAd?.let { ad ->
+            ad.show(activity) { rewardItem ->
+                Log.d("loadBonificado", "User earned the reward. rewardAmount=$rewardItem.amount, rewardType=$rewardItem.type")
             }
-
-            override fun onRewardedAdFailedToLoad(adError: LoadAdError) {
-                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
-            }
+        } ?: run {
+            Log.d("loadBonificado", "The rewarded ad wasn't ready yet.")
         }
-        rewardedAd.loadAd(AdRequest.Builder().build(), adLoadCallback)
     }
 }
 fun File.toBase64(): String {

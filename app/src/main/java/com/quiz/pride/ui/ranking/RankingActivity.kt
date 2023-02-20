@@ -1,17 +1,23 @@
 package com.quiz.pride.ui.ranking
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
 import com.quiz.pride.common.viewBinding
 import com.quiz.pride.databinding.RankingActivityBinding
-import com.quiz.pride.utils.loadBonificado
 import com.quiz.pride.utils.setSafeOnClickListener
+import com.quiz.pride.utils.showBonificado
 
 class RankingActivity : BaseActivity() {
-    private lateinit var rewardedAd: RewardedAd
+    private var rewardedAd: RewardedAd? = null
 
     private val binding by viewBinding(RankingActivityBinding::inflate)
 
@@ -24,7 +30,19 @@ class RankingActivity : BaseActivity() {
                 .commitNow()
         }
 
-        rewardedAd = RewardedAd(this, getString(R.string.BONIFICADO_GAME_OVER))
+        MobileAds.initialize(this)
+        RewardedAd.load(this, getString(R.string.BONIFICADO_GAME_OVER), AdRequest.Builder().build(), object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d("GameActivity", adError.toString())
+                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                rewardedAd = null
+            }
+
+            override fun onAdLoaded(ad: RewardedAd) {
+                Log.d("GameActivity", "Ad was loaded.")
+                rewardedAd = ad
+            }
+        })
 
         with(binding.appBar) {
             btnBack.setSafeOnClickListener { finish() }
@@ -34,6 +52,6 @@ class RankingActivity : BaseActivity() {
     }
 
     fun showRewardedAd(show: Boolean){
-        loadBonificado(this, show, rewardedAd)
+        showBonificado(this, show, rewardedAd)
     }
 }

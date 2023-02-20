@@ -85,7 +85,7 @@ abstract class BaseActivity(var uiContext: CoroutineContext = Dispatchers.Main) 
         }
     }
 
-    fun getUID(): String {
+    private fun getUID(): String {
         return if (auth.currentUser == null) {
             ""
         } else {

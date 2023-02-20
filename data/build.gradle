@@ -6,7 +6,6 @@ dependencies {
 
     implementation androidLibs.values()
     implementation kotlinLibs.values()
-    implementation testLibs.values()
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

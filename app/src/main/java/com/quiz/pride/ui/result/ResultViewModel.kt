@@ -116,7 +116,7 @@ class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
     }
 
     fun setImage(image: String?) {
-        _photoUrl.value = image
+        if(image != null) _photoUrl.value = image!!
     }
 
     sealed class Navigation {

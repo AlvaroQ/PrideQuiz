@@ -1,19 +1,24 @@
 package com.quiz.pride.ui.info
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.rewarded.RewardedAd
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.pride.R
 import com.quiz.pride.base.BaseActivity
 import com.quiz.pride.common.viewBinding
 import com.quiz.pride.databinding.InfoActivityBinding
-import com.quiz.pride.utils.loadBonificado
 import com.quiz.pride.utils.setSafeOnClickListener
 import com.quiz.pride.utils.showBanner
+import com.quiz.pride.utils.showBonificado
 
 class InfoActivity : BaseActivity() {
-    private lateinit var rewardedAd: RewardedAd
+    private var rewardedAd: RewardedAd? = null
     private val binding by viewBinding(InfoActivityBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,9 +32,18 @@ class InfoActivity : BaseActivity() {
         }
 
         MobileAds.initialize(this)
-        rewardedAd = RewardedAd(this, getString(R.string.BONIFICADO_SHOW_INFO))
+        RewardedAd.load(this, getString(R.string.BONIFICADO_SHOW_INFO), AdRequest.Builder().build(), object : RewardedAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                Log.d("GameActivity", adError.toString())
+                FirebaseCrashlytics.getInstance().recordException(Throwable(adError.message))
+                rewardedAd = null
+            }
 
-        MobileAds.initialize(this)
+            override fun onAdLoaded(ad: RewardedAd) {
+                Log.d("GameActivity", "Ad was loaded.")
+                rewardedAd = ad
+            }
+        })
 
         with(binding.appBar) {
             btnBack.setSafeOnClickListener { finishAfterTransition() }
@@ -42,6 +56,6 @@ class InfoActivity : BaseActivity() {
         showBanner(show, binding.adViewInfo)
     }
     fun loadRewardedAd(show: Boolean) {
-        loadBonificado(this, show, rewardedAd)
+        showBonificado(this, show, rewardedAd)
     }
 }
