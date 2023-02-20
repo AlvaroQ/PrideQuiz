@@ -12,7 +12,7 @@ buildscript {
             'minSdk'                : 24,
             'targetSdk'             : 31,
             'name'                  : '2.2.2',
-            'code'                  : 20,
+            'code'                  : 21,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
@@ -20,7 +20,7 @@ buildscript {
             'gradle_version'         : '7.4.0',
             'koin_version'           : '3.2.2',
             'preference_version'     : '1.1.1',
-            'google_services_version': '4.3.10',
+            'google_services_version': '4.3.14',
             'billing_version'        : "5.0.0"
     ]
 
