@@ -99,7 +99,10 @@ dependencies {
     implementation kotlinLibs.values()
     implementation libs.values()
 }
-
+// delete waring store com.google.android.gms:play-services-safetynet:17.0.0
+configurations.all {
+    exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
+}
 // KEYS ADMOB TEST
 def getAdmobBannerTestId() {
     try {
