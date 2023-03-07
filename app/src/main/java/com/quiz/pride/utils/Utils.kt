@@ -138,7 +138,14 @@ fun shareApp(points: Int, context: Context) {
                 ${shareMessage}https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}
                 """.trimIndent()
         shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage)
-        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.choose_one)))
+
+        // Create intent to show the chooser dialog
+        val chooser: Intent = Intent.createChooser(shareIntent, context.getString(R.string.choose_one))
+
+        // Verify the original intent will resolve to at least one activity
+        if (shareIntent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(chooser)
+        }
     } catch (e: Exception) {
         log(context.getString(R.string.share), e.toString())
     }
