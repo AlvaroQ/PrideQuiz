@@ -2,7 +2,6 @@ package com.quiz.pride.ui.settings
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -123,7 +122,7 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
         }
 
     } else {
-        Toast.makeText(requireContext(), "Billing Client not ready", Toast.LENGTH_SHORT).show()
+        AnalyticsManager.analyticsScreenViewed("Billing Client not ready")
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
@@ -135,7 +134,6 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             // Handle an error caused by a user cancelling the purchase flow.
-            Toast.makeText(requireContext(), "Billing USER_CANCELED", Toast.LENGTH_SHORT).show()
             AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
 
         } else if(billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
@@ -143,11 +141,9 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
             settingsViewModel.savePaymentDone()
         } else {
             // Handle any other error codes.
-            Toast.makeText(requireContext(), "Billing errors", Toast.LENGTH_SHORT).show()
             AnalyticsManager.analyticsScreenViewed("billing_purchase_error")
         }
     }
-
 
     private fun acknowledgePurchase(purchaseToken: String) {
         val params = AcknowledgePurchaseParams.newBuilder()

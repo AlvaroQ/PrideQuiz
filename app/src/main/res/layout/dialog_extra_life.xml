@@ -11,6 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:padding="@dimen/activity_horizontal_margin"
         android:background="@drawable/gradient_position">
 
         <TextView
@@ -19,7 +20,6 @@
             android:layout_height="wrap_content"
             android:text="@string/dialog_extra_life_title"
             android:textAppearance="@style/Bold.TextColor.VeryLarge"
-            android:layout_margin="@dimen/activity_horizontal_margin"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -29,7 +29,6 @@
             android:layout_height="wrap_content"
             android:text="@string/dialog_extra_life_description"
             android:textAppearance="@style/Regular.TextColor.Medium"
-            android:layout_margin="@dimen/activity_horizontal_margin"
             app:layout_constraintTop_toBottomOf="@+id/textTitle"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -39,7 +38,6 @@
             android:layout_width="120dp"
             android:layout_height="50dp"
             android:text="@string/dialog_extra_life_btn_yes"
-            android:layout_marginTop="12dp"
             style="@style/Widget.AppCompat.Button.Borderless"
             app:layout_constraintTop_toBottomOf="@+id/textDescription"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -49,7 +47,6 @@
             android:layout_width="120dp"
             android:layout_height="50dp"
             android:text="@string/dialog_extra_life_btn_no"
-            android:layout_marginTop="12dp"
             style="@style/Widget.AppCompat.Button.Borderless"
             app:layout_constraintTop_toBottomOf="@+id/textDescription"
             app:layout_constraintEnd_toStartOf="@+id/btnYes"/>

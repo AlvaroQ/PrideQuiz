@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.game
 
+import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
@@ -9,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.animation.AnimationUtils
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -18,13 +20,26 @@ import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.common.startActivity
+import com.quiz.pride.databinding.DialogExtraLifeBinding
 import com.quiz.pride.databinding.GameFragmentBinding
 import com.quiz.pride.ui.result.ResultActivity
-import com.quiz.pride.utils.*
-import com.quiz.pride.utils.Constants.GameType.*
+import com.quiz.pride.utils.Constants
+import com.quiz.pride.utils.Constants.GameType.ADVANCE
+import com.quiz.pride.utils.Constants.GameType.EXPERT
+import com.quiz.pride.utils.Constants.GameType.NORMAL
 import com.quiz.pride.utils.Constants.POINTS
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
-import kotlinx.coroutines.*
+import com.quiz.pride.utils.glideLoadURL
+import com.quiz.pride.utils.glideLoadingGif
+import com.quiz.pride.utils.setBackground
+import com.quiz.pride.utils.setSafeOnClickListener
+import com.quiz.pride.utils.traslationAnimation
+import com.quiz.pride.utils.traslationAnimationFadeIn
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
 
@@ -157,8 +172,8 @@ class GameFragment : Fragment() {
                 activity?.startActivity<ResultActivity> { putExtra(POINTS, points) }
             }
             is GameViewModel.Navigation.ExtraLifeDialog -> {
-                //showExtraLifeDialog()
-                gameViewModel.navigateToResult(points.toString())
+                showExtraLifeDialog()
+                //gameViewModel.navigateToResult(points.toString())
             }
         }
     }
@@ -166,7 +181,7 @@ class GameFragment : Fragment() {
     private fun updateProgress(isShowing: Boolean) {
         with(binding) {
             if (isShowing) {
-                glideLoadingGif(activity as GameActivity, imagenLoading)
+                glideLoadingGif(requireContext(), imagenLoading)
                 imagenLoading.visibility = View.VISIBLE
                 imageQuiz.visibility = View.GONE
                 textQuiz.text = ""
@@ -200,7 +215,7 @@ class GameFragment : Fragment() {
         question = pride
         with(binding) {
             when (gameType) {
-                NORMAL -> glideLoadURL(activity as GameActivity, pride.flag, imageQuiz)
+                NORMAL -> glideLoadURL(requireContext(), pride.flag, imageQuiz)
                 ADVANCE -> textQuiz.text = getLocalizeName(pride.description!!)
                 EXPERT -> textQuiz.text = getLocalizeName(pride.name!!)
             }
@@ -234,7 +249,6 @@ class GameFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 when (gameType) {
                     NORMAL -> {
-
                         with(binding) {
                             btnOptionOne.text = getLocalizeName(optionsListByPos[0].name!!)
                             imageOptionOne.visibility = View.GONE
@@ -256,31 +270,30 @@ class GameFragment : Fragment() {
                         marckTagButtonAsCorrect(optionsListByPos)
                     }
                     else -> {
-
                         with(binding) {
                             glideLoadURL(
-                                activity as GameActivity,
+                                requireContext(),
                                 optionsListByPos[0].flag,
                                 imageOptionOne
                             )
                             btnOptionOne.visibility = View.GONE
 
                             glideLoadURL(
-                                activity as GameActivity,
+                                requireContext(),
                                 optionsListByPos[1].flag,
                                 imageOptionTwo
                             )
                             btnOptionTwo.visibility = View.GONE
 
                             glideLoadURL(
-                                activity as GameActivity,
+                                requireContext(),
                                 optionsListByPos[2].flag,
                                 imageOptionThree
                             )
                             btnOptionThree.visibility = View.GONE
 
                             glideLoadURL(
-                                activity as GameActivity,
+                                requireContext(),
                                 optionsListByPos[3].flag,
                                 imageOptionFour
                             )
@@ -467,7 +480,7 @@ class GameFragment : Fragment() {
             }
         }
     }
-/*
+
     private fun showExtraLifeDialog() {
         Dialog(requireContext()).apply {
             val binding = DialogExtraLifeBinding.inflate(layoutInflater)
@@ -487,7 +500,7 @@ class GameFragment : Fragment() {
             show()
         }
     }
-*/
+
     private fun soundFail() {
         if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
             MediaPlayer.create(context, R.raw.fail).start()

@@ -7,12 +7,12 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AdivinaApp : Application() {
+class PrideApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
         startKoin {
-            androidContext(this@AdivinaApp)
+            androidContext(this@PrideApp)
             androidLogger()
             modules(appModule + dataModule + scopesModule)
         }

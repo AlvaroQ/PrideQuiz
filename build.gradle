@@ -8,11 +8,11 @@ buildscript {
             'applicationId': "com.quiz.pride"
     ]
     ext.versions = [
-            'compileSdk'            : 31,
+            'compileSdk'            : 33,
             'minSdk'                : 24,
-            'targetSdk'             : 31,
-            'name'                  : '2.2.3',
-            'code'                  : 28,
+            'targetSdk'             : 33,
+            'name'                  : '2.2.4',
+            'code'                  : 29,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
