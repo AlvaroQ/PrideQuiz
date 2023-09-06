@@ -8,20 +8,20 @@ buildscript {
             'applicationId': "com.quiz.pride"
     ]
     ext.versions = [
-            'compileSdk'            : 33,
+            'compileSdk'            : 34,
             'minSdk'                : 24,
-            'targetSdk'             : 33,
-            'name'                  : '2.2.4',
-            'code'                  : 29,
+            'targetSdk'             : 34,
+            'name'                  : '2.2.5',
+            'code'                  : 33,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
             'kotlin_version'         : '1.7.21',
             'gradle_version'         : '7.4.0',
-            'koin_version'           : '3.2.2',
+            'koin_version'           : '3.4.3',
             'preference_version'     : '1.1.1',
             'google_services_version': '4.3.15',
-            'billing_version'        : "5.1.0"
+            'billing_version'        : "5.2.1"
     ]
 
     dependencies {
@@ -93,6 +93,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

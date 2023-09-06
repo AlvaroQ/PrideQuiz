@@ -82,6 +82,7 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace 'com.quiz.pride'
 }
 
 dependencies {
@@ -91,7 +92,7 @@ dependencies {
 
     // Koin
     implementation "io.insert-koin:koin-android:${libsversions.koin_version}"
-    implementation "com.google.android.gms:play-services-ads:21.5.0"
+    implementation "com.google.android.gms:play-services-ads:22.3.0"
 
     implementation androidLibs.values()
     implementation androidKtxLibs.values()
@@ -100,7 +101,7 @@ dependencies {
     implementation libs.values()
 }
 // delete waring store com.google.android.gms:play-services-safetynet:17.0.0
-configurations.all {
+configurations.configureEach {
     exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
 }
 // KEYS ADMOB TEST

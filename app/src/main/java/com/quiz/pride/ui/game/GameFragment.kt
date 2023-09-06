@@ -475,7 +475,7 @@ class GameFragment : Fragment() {
                     gameViewModel.navigateToResult(points.toString())
                 } else {
                     gameViewModel.generateNewStage()
-                    if(stage != 0 && stage % 5 == 0) gameViewModel.showRewardedAd()
+                    if(stage != 0 && stage % 8 == 0) gameViewModel.showRewardedAd()
                 }
             }
         }
