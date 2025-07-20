@@ -72,15 +72,20 @@ android {
             resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoShowInfoId()
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+
+    kotlin {
+        jvmToolchain(17)
     }
     buildFeatures {
         viewBinding true
+    }
+    buildFeatures {
+        buildConfig = true
     }
     namespace 'com.quiz.pride'
 }
@@ -92,9 +97,9 @@ dependencies {
 
     // Koin
     implementation "io.insert-koin:koin-android:${libsversions.koin_version}"
-    implementation "com.google.android.gms:play-services-ads:22.3.0"
+    implementation "com.google.android.gms:play-services-ads:24.4.0"
 
-    implementation "androidx.activity:activity:1.6.0-alpha05"
+    implementation "androidx.activity:activity-ktx:1.10.1"
     implementation androidLibs.values()
     implementation androidKtxLibs.values()
     implementation firebaseLibs.values()

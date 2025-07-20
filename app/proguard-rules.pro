@@ -25,6 +25,9 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
+-keepattributes RuntimeVisibleAnnotations
+-keep class * extends androidx.navigation.Navigator
+
 # For using GSON @Expose annotation
 -keepattributes *Annotation*
 -dontwarn sun.misc.**

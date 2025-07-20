@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     repositories {
         mavenCentral()
@@ -12,16 +14,16 @@ buildscript {
             'minSdk'                : 24,
             'targetSdk'             : 36,
             'name'                  : '2.3.4',
-            'code'                  : 40,
+            'code'                  : 41,
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
-            'kotlin_version'         : '1.7.21',
+            'kotlin_version'         : '2.1.21',
             'gradle_version'         : '8.11.1',
-            'koin_version'           : '3.4.3',
+            'koin_version'           : '4.1.0',
             'preference_version'     : '1.1.1',
             'google_services_version': '4.4.3',
-            'billing_version'        : "5.2.1"
+            'billing_version'        : "6.0.1"
     ]
 
     dependencies {
@@ -95,4 +97,10 @@ allprojects {
 
 tasks.register('clean', Delete) {
     delete rootProject.buildDir
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
 }
