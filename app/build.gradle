@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'// Added Firebase Crashlytics plugin.
+apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion versions.compileSdk

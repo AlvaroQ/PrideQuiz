@@ -20,7 +20,7 @@ buildscript {
             'gradle_version'         : '8.11.1',
             'koin_version'           : '3.4.3',
             'preference_version'     : '1.1.1',
-            'google_services_version': '4.3.15',
+            'google_services_version': '4.4.3',
             'billing_version'        : "5.2.1"
     ]
 
