@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,10 +14,13 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.preference.PreferenceManager
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import com.quiz.domain.App
 import com.quiz.domain.User
 import com.quiz.pride.R
@@ -26,8 +28,15 @@ import com.quiz.pride.common.startActivity
 import com.quiz.pride.databinding.DialogSaveRecordBinding
 import com.quiz.pride.databinding.ResultFragmentBinding
 import com.quiz.pride.ui.ranking.RankingActivity
-import com.quiz.pride.utils.*
+import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.POINTS
+import com.quiz.pride.utils.glideLoadBase64
+import com.quiz.pride.utils.glideLoadingGif
+import com.quiz.pride.utils.openAppOnPlayStore
+import com.quiz.pride.utils.rateApp
+import com.quiz.pride.utils.setSafeOnClickListener
+import com.quiz.pride.utils.shareApp
+import com.quiz.pride.utils.toBase64
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
@@ -120,10 +129,10 @@ class ResultFragment : Fragment() {
             is ResultViewModel.Navigation.DialogRecordScore -> showEnterNameDialog()
             ResultViewModel.Navigation.PickerImage -> {
                 ImagePicker.with(this)
-                        .crop()
-                        .compress(maxSize = 64)
-                        .maxResultSize(width = 100, height = 200)
-                        .start()
+                    .crop()
+                    .compress(maxSize = 64)
+                    .maxResultSize(width = 100, height = 200)
+                    .start()
             }
             else -> {}
         }
@@ -134,18 +143,21 @@ class ResultFragment : Fragment() {
             val binding = DialogSaveRecordBinding.inflate(layoutInflater)
             requestWindowFeature(Window.FEATURE_NO_TITLE)
             setContentView(binding.root)
-            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
             binding.btnCancel.setSafeOnClickListener { dismiss() }
             binding.btnSubmit.setSafeOnClickListener {
-                val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER else resultViewModel.photoUrl.value!!
-                resultViewModel.saveTopScore(User(
-                    name = binding.editTextWorldRecord.text.toString(),
-                    points = gamePoints.toString(),
-                    score = gamePoints,
-                    userImage = userImage,
-                    timestamp = System.currentTimeMillis())
-                )
-                dismiss()
+                val auth = Firebase.auth
+                if(auth.currentUser != null) {
+                    val userImage: String = if(resultViewModel.photoUrl.value.isNullOrEmpty()) Constants.DEFAULT_IMAGE_UPLOAD_TO_SERVER else resultViewModel.photoUrl.value!!
+                    resultViewModel.saveTopScore(User(
+                        name = binding.editTextWorldRecord.text.toString(),
+                        points = gamePoints.toString(),
+                        score = gamePoints,
+                        userImage = userImage,
+                        timestamp = System.currentTimeMillis())
+                    )
+                    dismiss()
+                }
             }
 
             imageViewPickup = binding.imageUserPickup

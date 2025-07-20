@@ -77,9 +77,7 @@ abstract class BaseActivity(var uiContext: CoroutineContext = Dispatchers.Main) 
         log(tag, "updateUI, isSignedON = $isSignedIn")
 
 
-        if (!isSignedIn) {
-            signInAnonymously()
-        } else {
+        if (isSignedIn) {
             FirebaseCrashlytics.getInstance().setUserId(user?.uid!!)
             log(tag, "updateUI, you are login in")
         }
