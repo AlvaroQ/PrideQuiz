@@ -16,6 +16,7 @@ import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
+import javax.annotation.Nonnull
 
 @ExperimentalCoroutinesApi
 class DataBaseSourceImpl : DataBaseSource {
@@ -70,10 +71,17 @@ class DataBaseSourceImpl : DataBaseSource {
             FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_APPS)
                 .addValueEventListener(object : ValueEventListener {
 
-                    override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        var value = dataSnapshot.getValue<MutableList<App>>()
-                        if(value == null) value = mutableListOf()
-                        continuation.resume(value
+                    override fun onDataChange(@Nonnull dataSnapshot: DataSnapshot) {
+                        val appList = mutableListOf<App>()
+                        if (dataSnapshot.hasChildren()) {
+                            for (snapshot in dataSnapshot.children) {
+                                val app = snapshot.getValue(App::class.java)
+                                if (app != null) {
+                                    appList.add(app)
+                                }
+                            }
+                        }
+                        continuation.resume(appList
                             .sortedBy { it.priority }
                             .filter { it.url != BuildConfig.APPLICATION_ID }
                             .toMutableList()){}

@@ -25,6 +25,10 @@
 -keepattributes EnclosingMethod
 -keepattributes InnerClasses
 
+-keepclassmembers class com.google.firebase.database.GenericTypeIndicator { *; }
+-keep class com.google.firebase.database.GenericTypeIndicator { *; }
+-keepattributes Signature
+
 -keepattributes RuntimeVisibleAnnotations
 -keep class * extends androidx.navigation.Navigator
 
