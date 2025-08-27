@@ -35,7 +35,6 @@ android {
         debug {
             signingConfig signingConfigs.debug
             jniDebuggable true
-            testCoverageEnabled true
             debuggable true
             minifyEnabled false
             firebaseCrashlytics {
@@ -51,6 +50,8 @@ android {
             resValue 'string', 'BONIFICADO_GAME', getAdmobBonificadoTestId()
             resValue 'string', 'BONIFICADO_GAME_OVER', getAdmobBonificadoTestId()
             resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoTestId()
+            enableUnitTestCoverage true
+            enableAndroidTestCoverage true
         }
         release {
             signingConfig signingConfigs.config
@@ -97,9 +98,8 @@ dependencies {
 
     // Koin
     implementation "io.insert-koin:koin-android:${libsversions.koin_version}"
-    implementation "com.google.android.gms:play-services-ads:24.4.0"
+    implementation "com.google.android.gms:play-services-ads:24.5.0"
 
-    implementation "androidx.activity:activity-ktx:1.10.1"
     implementation androidLibs.values()
     implementation androidKtxLibs.values()
     implementation firebaseLibs.values()

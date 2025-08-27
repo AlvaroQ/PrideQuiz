@@ -3,7 +3,7 @@ apply plugin: 'kotlin'
 
 dependencies {
     implementation project(":domain")
-
+    implementation("com.android.billingclient:billing-ktx:${libsversions.billing_version}")
     implementation androidLibs.values()
     implementation kotlinLibs.values()
 }

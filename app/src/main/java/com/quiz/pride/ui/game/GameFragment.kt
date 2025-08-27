@@ -321,7 +321,7 @@ class GameFragment : Fragment() {
 
     private fun addExtraLife() {
         CoroutineScope(Dispatchers.IO).launch {
-            if(life == 0) {
+            if(activity != null && life == 0) {
                 delay(TimeUnit.MILLISECONDS.toMillis(2500))
                 life = 1
                 (activity as GameActivity).writeLife(1)
