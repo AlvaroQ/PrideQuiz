@@ -10,6 +10,7 @@ import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.PendingPurchasesParams
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
@@ -79,7 +80,11 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
 
     private fun setupBillingClient() {
         billingClient = BillingClient.newBuilder(requireContext())
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                    .enableOneTimeProducts()
+                    .build()
+            )
             .setListener(this)
             .build()
 
@@ -107,8 +112,8 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
                             .build()))
                 .build()
 
-        billingClient.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsList ->
-
+        billingClient.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsResponse ->
+            val productDetailsList = productDetailsResponse.productDetailsList
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && productDetailsList.isNotEmpty()) {
                 for (productDetails in productDetailsList) {
                     if (productDetails.productId == REMOVE_AD) {
@@ -117,7 +122,6 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
                                 .setProductDetails(productDetails)
                                 .build()
                         )
-
                         val productDetailsParams = BillingFlowParams
                             .newBuilder()
                             .setProductDetailsParamsList(productDetailsParamsList)
@@ -127,27 +131,35 @@ class SettingsFragment : PreferenceFragmentCompat(), PurchasesUpdatedListener {
                 }
             }
         }
-
     } else {
         AnalyticsManager.analyticsScreenViewed("Billing Client not ready")
     }
 
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?) {
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null) {
-            AnalyticsManager.analyticsScreenViewed("billing_purchase_ok")
-            settingsViewModel.savePaymentDone()
             for (purchase in purchases) {
-                acknowledgePurchase(purchase.purchaseToken)
+                when (purchase.purchaseState) {
+                    Purchase.PurchaseState.PENDING -> {
+                        // Compra pendiente, informar al usuario
+                        AnalyticsManager.analyticsScreenViewed("billing_purchase_pending")
+                        // Aquí podrías mostrar un mensaje al usuario indicando que la compra está en proceso
+                    }
+                    Purchase.PurchaseState.PURCHASED -> {
+                        AnalyticsManager.analyticsScreenViewed("billing_purchase_ok")
+                        settingsViewModel.savePaymentDone()
+                        acknowledgePurchase(purchase.purchaseToken)
+                    }
+                    Purchase.PurchaseState.UNSPECIFIED_STATE -> {
+                        AnalyticsManager.analyticsScreenViewed("billing_purchase_unspecified")
+                    }
+                }
             }
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
-            // Handle an error caused by a user cancelling the purchase flow.
             AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
-
-        } else if(billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED) {
             AnalyticsManager.analyticsScreenViewed("billing_already_purchase")
             settingsViewModel.savePaymentDone()
         } else {
-            // Handle any other error codes.
             AnalyticsManager.analyticsScreenViewed("billing_purchase_error")
         }
     }

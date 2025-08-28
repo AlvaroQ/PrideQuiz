@@ -22,7 +22,7 @@ private fun initUrlGlide(context: Context, url: String?) =
             override fun onLoadFailed(
                 e: GlideException?,
                 model: Any?,
-                target: Target<Drawable>?,
+                target: Target<Drawable?>,
                 isFirstResource: Boolean
             ): Boolean {
                 log("Glide", "onLoadFailed", e)
@@ -31,10 +31,10 @@ private fun initUrlGlide(context: Context, url: String?) =
             }
 
             override fun onResourceReady(
-                resource: Drawable?,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
+                resource: Drawable,
+                model: Any,
+                target: Target<Drawable?>?,
+                dataSource: DataSource,
                 isFirstResource: Boolean
             ): Boolean {
                 log("Glide", "onResourceReady")

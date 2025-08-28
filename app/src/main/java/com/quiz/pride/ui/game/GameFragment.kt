@@ -502,14 +502,14 @@ class GameFragment : Fragment() {
     }
 
     private fun soundFail() {
-        if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
-            MediaPlayer.create(context, R.raw.fail).start()
+        if(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("sound", true)) {
+            MediaPlayer.create(requireContext(), R.raw.fail).start()
         }
     }
 
     private fun soundSuccess() {
-        if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
-            MediaPlayer.create(context, R.raw.success).start()
+        if(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("sound", true)) {
+            MediaPlayer.create(requireContext(), R.raw.success).start()
         }
     }
 

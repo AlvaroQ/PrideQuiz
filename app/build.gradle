@@ -96,9 +96,23 @@ dependencies {
     implementation project(":domain")
     implementation project(":usecases")
 
-    // Koin
     implementation "io.insert-koin:koin-android:${libsversions.koin_version}"
     implementation "com.google.android.gms:play-services-ads:24.5.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.2.1"
+    implementation "androidx.navigation:navigation-fragment-ktx:2.9.3"
+    implementation "androidx.navigation:navigation-ui-ktx:2.9.3"
+    implementation "com.github.dhaval2404:imagepicker:1.6"
+    implementation "androidx.appcompat:appcompat:1.7.1"
+    implementation "androidx.recyclerview:recyclerview:1.4.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.9.3"
+
+    // androidX preferences
+    implementation "androidx.preference:preference-ktx:${libsversions.preference_version}"
+
+    // In-app purchase remove ads
+    implementation "com.android.billingclient:billing-ktx:${libsversions.billing_version}"
 
     implementation androidLibs.values()
     implementation androidKtxLibs.values()

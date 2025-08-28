@@ -58,7 +58,7 @@ class ResultFragment : Fragment() {
         binding = ResultFragmentBinding.inflate(inflater)
         val root = binding.root
 
-        if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean("sound", true)) {
+        if(PreferenceManager.getDefaultSharedPreferences(requireContext()).getBoolean("sound", true)) {
             MediaPlayer.create(context, R.raw.game_over).start()
         }
         gamePoints = activity?.intent?.extras?.getInt(POINTS)!!
