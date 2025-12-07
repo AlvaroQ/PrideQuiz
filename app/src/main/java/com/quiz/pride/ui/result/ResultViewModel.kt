@@ -1,135 +1,117 @@
 package com.quiz.pride.ui.result
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.lifecycle.viewModelScope
 import com.quiz.domain.App
 import com.quiz.domain.User
-import com.quiz.pride.common.ScopedViewModel
+import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
-import com.quiz.usecases.*
+import com.quiz.usecases.GetAppsRecommended
+import com.quiz.usecases.GetPaymentDone
+import com.quiz.usecases.GetPersonalRecord
+import com.quiz.usecases.GetRecordScore
+import com.quiz.usecases.SaveTopScore
+import com.quiz.usecases.SetPersonalRecord
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ResultViewModel(private val getAppsRecommended: GetAppsRecommended,
-                      private val saveTopScore: SaveTopScore,
-                      private val getRecordScore: GetRecordScore,
-                      private val getPersonalRecord: GetPersonalRecord,
-                      private val setPersonalRecord: SetPersonalRecord,
-                      private val getPaymentDone: GetPaymentDone
-) : ScopedViewModel() {
+data class ResultUiState(
+    val isLoading: Boolean = true,
+    val appsList: List<App> = emptyList(),
+    val personalRecord: String = "0",
+    val worldRecord: String = "0",
+    val photoUrl: String = ""
+)
 
-    private val _progress = MutableLiveData<UiModel>()
-    val progress: LiveData<UiModel> = _progress
+sealed class ResultEvent {
+    object ShowWorldRecordDialog : ResultEvent()
+}
 
-    private val _navigation = MutableLiveData<Navigation>()
-    val navigation: LiveData<Navigation> = _navigation
+class ResultViewModel(
+    private val getAppsRecommended: GetAppsRecommended,
+    private val saveTopScore: SaveTopScore,
+    private val getRecordScore: GetRecordScore,
+    private val getPersonalRecord: GetPersonalRecord,
+    private val setPersonalRecord: SetPersonalRecord,
+    private val getPaymentDone: GetPaymentDone
+) : ComposeViewModel() {
 
-    private val _list = MutableLiveData<MutableList<App>>()
-    val list: LiveData<MutableList<App>> = _list
+    private val _uiState = MutableStateFlow(ResultUiState())
+    val uiState: StateFlow<ResultUiState> = _uiState.asStateFlow()
 
-    private val _personalRecord = MutableLiveData<String>()
-    val personalRecord: LiveData<String> = _personalRecord
-
-    private val _worldRecord = MutableLiveData<String>()
-    val worldRecord: LiveData<String> = _worldRecord
-
-    private val _photoUrl = MutableLiveData<String>()
-    val photoUrl: LiveData<String> = _photoUrl
+    private val _events = MutableSharedFlow<ResultEvent>()
+    val events = _events.asSharedFlow()
 
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
-        launch {
-            _progress.value = UiModel.Loading(true)
-            _list.value = appsRecommended()
-            _worldRecord.value = getPointsWorldRecord()
-            _progress.value = UiModel.Loading(false)
-        }
+        loadData()
     }
 
-    private suspend fun appsRecommended(): MutableList<App> {
-        return getAppsRecommended.invoke()
-    }
+    private fun loadData() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
 
-    private suspend fun getPointsWorldRecord(): String {
-        return getRecordScore.invoke(1)
-    }
+            val apps = getAppsRecommended.invoke()
+            val worldRecord = getRecordScore.invoke(1)
 
-    fun setPersonalRecordOnServer(gamePoints: Int) {
-        launch {
-            val pointsLastClassified = getRecordScore.invoke(50)
-            if(pointsLastClassified.isNotEmpty() && gamePoints > pointsLastClassified.toInt()) {
-                showDialogToSaveGame()
+            _uiState.update { state ->
+                state.copy(
+                    isLoading = false,
+                    appsList = apps,
+                    worldRecord = worldRecord
+                )
             }
         }
     }
 
-    fun getPersonalRecord(points: Int) {
-        val personalRecordPoints = getPersonalRecord.invoke()
-        if(points > personalRecordPoints) {
-            savePersonalRecord(points)
-            _personalRecord.value = points.toString()
+    fun checkPersonalRecord(points: Int) {
+        val currentRecord = getPersonalRecord.invoke()
+        if (points > currentRecord) {
+            setPersonalRecord.invoke(points)
+            _uiState.update { it.copy(personalRecord = points.toString()) }
         } else {
-            _personalRecord.value = personalRecordPoints.toString()
+            _uiState.update { it.copy(personalRecord = currentRecord.toString()) }
         }
     }
 
-    private fun savePersonalRecord(record: Int) {
-        setPersonalRecord.invoke(record)
+    fun checkWorldRecord(gamePoints: Int) {
+        viewModelScope.launch {
+            val pointsLastClassified = getRecordScore.invoke(50)
+            if (pointsLastClassified.isNotEmpty() && gamePoints > pointsLastClassified.toInt()) {
+                AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
+                _events.emit(ResultEvent.ShowWorldRecordDialog)
+            }
+        }
     }
 
-    private fun showDialogToSaveGame() {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
-        _navigation.value = Navigation.DialogRecordScore
-    }
-
-    fun onAppClicked(url: String) {
-        AnalyticsManager.analyticsAppRecommendedOpen(url)
-        _navigation.value = Navigation.Open(url)
-    }
-
-    fun navigateToGame() {
-        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_PLAY_AGAIN)
-        _navigation.value = Navigation.Game
-    }
-
-    fun navigateToRate() {
-        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
-        _navigation.value = Navigation.Rate
-    }
-
-    fun navigateToRanking() {
-        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RANKING)
-        _navigation.value = Navigation.Ranking
-    }
-
-    fun navigateToShare(points: Int) {
-        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
-        _navigation.value = Navigation.Share(points)
-    }
-    fun saveTopScore(user: User) {
-        launch {
+    fun saveScore(user: User) {
+        viewModelScope.launch {
             saveTopScore.invoke(user)
         }
     }
 
-    fun clickOnPicker() {
-        _navigation.value = Navigation.PickerImage
+    fun setPhotoUrl(url: String) {
+        _uiState.update { it.copy(photoUrl = url) }
     }
 
-    fun setImage(image: String?) {
-        if(image != null) _photoUrl.value = image!!
-    }
-
-    sealed class Navigation {
-        data class Share(val points: Int) : Navigation()
-        object Rate : Navigation()
-        object Game : Navigation()
-        object Ranking : Navigation()
-        object DialogRecordScore: Navigation()
-        data class Open(val url : String): Navigation()
-        object PickerImage : Navigation()
-    }
-
-    sealed class UiModel {
-        data class Loading(val show: Boolean) : UiModel()
+    fun rateApp(context: Context) {
+        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
+        try {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("market://details?id=${context.packageName}")
+            }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                data = Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
+            }
+            context.startActivity(intent)
+        }
     }
 }

@@ -1,118 +1,149 @@
 package com.quiz.pride.ui.game
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
-import com.quiz.pride.common.ScopedViewModel
+import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class GameViewModel(private val getPrideById: GetPrideById,
-                    private val getPaymentDone: GetPaymentDone) : ScopedViewModel() {
+/**
+ * Consolidated UI State for Game Screen
+ */
+data class GameUiState(
+    val isLoading: Boolean = true,
+    val question: Pride? = null,
+    val options: List<Pride> = emptyList(),
+    val correctOptionIndex: Int = -1,
+    val showBannerAd: Boolean = true,
+    val showRewardedAd: Boolean = false
+)
+
+/**
+ * One-time events for Game Screen
+ */
+sealed class GameEvent {
+    object NavigateToResult : GameEvent()
+    object ShowExtraLifeDialog : GameEvent()
+    object PlaySuccessSound : GameEvent()
+    object PlayFailSound : GameEvent()
+}
+
+class GameViewModel(
+    private val getPrideById: GetPrideById,
+    private val getPaymentDone: GetPaymentDone
+) : ComposeViewModel() {
 
     private var randomCountries = mutableListOf<Int>()
-    private lateinit var pride: Pride
+    private lateinit var currentPride: Pride
 
-    private val _question = MutableLiveData<Pride>()
-    val question: LiveData<Pride> = _question
+    // Consolidated UI State
+    private val _uiState = MutableStateFlow(GameUiState())
+    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    private val _responseOptions = MutableLiveData<MutableList<Pride>>()
-    val responseOptions: LiveData<MutableList<Pride>> = _responseOptions
-
-    private val _progress = MutableLiveData<UiModel>()
-    val progress: LiveData<UiModel> = _progress
-
-    private val _navigation = MutableLiveData<Navigation>()
-    val navigation: LiveData<Navigation> = _navigation
-
-    private val _showingAds = MutableLiveData<UiModel>()
-    val showingAds: LiveData<UiModel> = _showingAds
+    // One-time events
+    private val _events = MutableSharedFlow<GameEvent>()
+    val events = _events.asSharedFlow()
 
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
+        _uiState.value = _uiState.value.copy(
+            showBannerAd = !getPaymentDone()
+        )
         generateNewStage()
-        _showingAds.value = UiModel.ShowBannerAd(!getPaymentDone())
-    }
-
-    fun showRewardedAd() {
-        _showingAds.value = UiModel.ShowReewardAd(!getPaymentDone())
     }
 
     fun generateNewStage() {
-        launch {
-            _progress.value = UiModel.Loading(true)
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
 
-            /** Generate question */
-            val numRandomMain = generateRandomWithExcusion(TOTAL_PRIDES, *randomCountries.toIntArray())
+            // Generate question
+            val numRandomMain = generateRandomWithExclusion(TOTAL_PRIDES, randomCountries)
             randomCountries.add(numRandomMain)
 
-            pride = getPride(numRandomMain)
+            currentPride = getPrideById.invoke(numRandomMain)
 
-            /** Generate responses */
-            val numRandomMainPosition = generateRandomWithExcusion(3)
+            // Generate response options
+            val correctPosition = (0..3).random()
+            val usedIds = mutableListOf(numRandomMain)
+            val optionList = mutableListOf<Pride>()
 
-            val numRandomOption1 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain)
-            val option1: Pride = getPride(numRandomOption1)
-            val numRandomPosition1 = generateRandomWithExcusion( 3, numRandomMainPosition)
+            for (i in 0..3) {
+                if (i == correctPosition) {
+                    optionList.add(currentPride)
+                } else {
+                    val randomId = generateRandomWithExclusion(TOTAL_PRIDES, usedIds)
+                    usedIds.add(randomId)
+                    optionList.add(getPrideById.invoke(randomId))
+                }
+            }
 
-            val numRandomOption2 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain, numRandomOption1)
-            val option2: Pride = getPride(numRandomOption2)
-            val numRandomPosition2 = generateRandomWithExcusion(3, numRandomMainPosition, numRandomPosition1)
-
-            val numRandomOption3 = generateRandomWithExcusion(TOTAL_PRIDES, numRandomMain, numRandomOption1, numRandomOption2)
-            val option3: Pride = getPride(numRandomOption3)
-            val numRandomPosition3 = generateRandomWithExcusion(3, numRandomMainPosition, numRandomPosition1, numRandomPosition2)
-
-            /** Save value */
-            val optionList = mutableListOf(Pride(), Pride(), Pride(), Pride())
-            optionList[numRandomMainPosition] = pride
-            optionList[numRandomPosition1] = option1
-            optionList[numRandomPosition2] = option2
-            optionList[numRandomPosition3] = option3
-
-            _responseOptions.value = optionList
-            _question.value = pride
-            _progress.value = UiModel.Loading(false)
+            _uiState.update { state ->
+                state.copy(
+                    isLoading = false,
+                    question = currentPride,
+                    options = optionList,
+                    correctOptionIndex = correctPosition
+                )
+            }
         }
     }
 
-    private suspend fun getPride(id: Int): Pride {
-        return getPrideById.invoke(id)
+    fun showRewardedAd() {
+        if (!getPaymentDone()) {
+            _uiState.update { it.copy(showRewardedAd = true) }
+        }
+    }
+
+    fun onRewardedAdShown() {
+        _uiState.update { it.copy(showRewardedAd = false) }
     }
 
     fun navigateToResult(points: String) {
         AnalyticsManager.analyticsGameFinished(points)
-        _navigation.value = Navigation.Result
-    }
-
-    fun getPride() : Pride {
-        return pride
+        viewModelScope.launch {
+            _events.emit(GameEvent.NavigateToResult)
+        }
     }
 
     fun navigateToExtraLifeDialog() {
-        if(!getPaymentDone()) _navigation.value = Navigation.ExtraLifeDialog
-        else _navigation.value = Navigation.Result
-    }
-
-    private fun generateRandomWithExcusion(end: Int, vararg exclude: Int): Int {
-        var numRandom = (0..end).random()
-        while(exclude.contains(numRandom)){
-            numRandom = (0..end).random()
+        viewModelScope.launch {
+            if (!getPaymentDone()) {
+                _events.emit(GameEvent.ShowExtraLifeDialog)
+            } else {
+                _events.emit(GameEvent.NavigateToResult)
+            }
         }
-        return numRandom
     }
 
-    sealed class UiModel {
-        data class Loading(val show: Boolean) : UiModel()
-        data class ShowBannerAd(val show: Boolean) : UiModel()
-        data class ShowReewardAd(val show: Boolean) : UiModel()
+    fun playSuccessSound() {
+        viewModelScope.launch {
+            _events.emit(GameEvent.PlaySuccessSound)
+        }
     }
 
-    sealed class Navigation {
-        object Result : Navigation()
-        object ExtraLifeDialog : Navigation()
+    fun playFailSound() {
+        viewModelScope.launch {
+            _events.emit(GameEvent.PlayFailSound)
+        }
+    }
+
+    fun getCurrentPride(): Pride = currentPride
+
+    fun getCorrectOptionIndex(): Int = _uiState.value.correctOptionIndex
+
+    private fun generateRandomWithExclusion(max: Int, exclude: List<Int>): Int {
+        var num = (0..max).random()
+        while (exclude.contains(num)) {
+            num = (0..max).random()
+        }
+        return num
     }
 }

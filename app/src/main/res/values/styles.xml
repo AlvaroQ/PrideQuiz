@@ -1,4 +1,5 @@
 <resources>
+    <!-- Legacy theme for old XML views (kept for compatibility) -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -9,6 +10,13 @@
         <item name="android:windowBackground">@drawable/background</item>
         <item name="android:buttonStyle">@style/prideButton</item>
         <item name="android:colorControlActivated">@color/light_purple</item>
+    </style>
+
+    <!-- New Compose theme - Material 3 -->
+    <style name="Theme.PrideQuiz" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
     <style name="prideButton" parent="Bold.TextColor.Medium" >

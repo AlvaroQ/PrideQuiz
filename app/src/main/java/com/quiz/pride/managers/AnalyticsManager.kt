@@ -63,6 +63,7 @@ object AnalyticsManager {
     }
 
     //screen
+    const val SCREEN_SELECT = "screen_select"
     const val SCREEN_GAME = "screen_game"
     const val SCREEN_RESULT = "screen_result"
     const val SCREEN_RANKING = "screen_ranking"

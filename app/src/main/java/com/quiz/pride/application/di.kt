@@ -12,6 +12,7 @@ import com.quiz.data.repository.SharedPreferencesRepository
 import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
 import com.quiz.pride.managers.SharedPrefsDataSource
+import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.ui.game.GameViewModel
 import com.quiz.pride.ui.info.InfoViewModel
 import com.quiz.pride.ui.moreApps.MoreAppsViewModel
@@ -24,6 +25,7 @@ import com.quiz.usecases.*
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -35,6 +37,9 @@ val appModule = module {
     factory<DataBaseSource> { DataBaseSourceImpl() }
     factory<FirestoreDataSource> { FirestoreDataSourceImpl(get()) }
     factory<SharedPreferencesLocalDataSource> { SharedPrefsDataSource(get()) }
+
+    // Theme Manager (DataStore based)
+    single { ThemeManager(androidContext()) }
 }
 
 val dataModule = module {
@@ -52,7 +57,7 @@ val scopesModule = module {
     viewModel { RankingViewModel(get(), get()) }
     viewModel { InfoViewModel(get(), get()) }
     viewModel { MoreAppsViewModel(get(), get()) }
-    viewModel { SettingsViewModel(get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get()) }
 
     factory { GetPaymentDone(get()) }
     factory { SetPaymentDone(get()) }
