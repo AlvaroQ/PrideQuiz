@@ -11,6 +11,7 @@ import com.quiz.data.repository.RankingRepository
 import com.quiz.data.repository.SharedPreferencesRepository
 import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
+import com.quiz.pride.managers.NetworkManager
 import com.quiz.pride.managers.SharedPrefsDataSource
 import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.ui.game.GameViewModel
@@ -40,6 +41,9 @@ val appModule = module {
 
     // Theme Manager (DataStore based)
     single { ThemeManager(androidContext()) }
+
+    // Network Manager for offline support
+    single { NetworkManager(androidContext()) }
 }
 
 val dataModule = module {

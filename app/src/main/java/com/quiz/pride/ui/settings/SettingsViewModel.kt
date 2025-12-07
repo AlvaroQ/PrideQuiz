@@ -48,6 +48,13 @@ class SettingsViewModel(
     val isDynamicColorsEnabled: StateFlow<Boolean> = themeManager.isDynamicColorsEnabled
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
 
+    // Accessibility settings
+    val isHighContrastEnabled: StateFlow<Boolean> = themeManager.isHighContrastEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    val isLargeTextEnabled: StateFlow<Boolean> = themeManager.isLargeTextEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     init {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SETTINGS)
         loadPaymentStatus()
@@ -99,6 +106,18 @@ class SettingsViewModel(
     fun setDynamicColorsEnabled(enabled: Boolean) {
         viewModelScope.launch {
             themeManager.setDynamicColorsEnabled(enabled)
+        }
+    }
+
+    fun setHighContrastEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            themeManager.setHighContrastEnabled(enabled)
+        }
+    }
+
+    fun setLargeTextEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            themeManager.setLargeTextEnabled(enabled)
         }
     }
 }

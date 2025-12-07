@@ -22,7 +22,9 @@ import androidx.compose.material.icons.filled.MoreHoriz
 import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -76,6 +78,8 @@ fun SettingsScreen(
     val isDarkMode by viewModel.isDarkMode.collectAsState()
     val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
     val isDynamicColorsEnabled by viewModel.isDynamicColorsEnabled.collectAsState()
+    val isHighContrastEnabled by viewModel.isHighContrastEnabled.collectAsState()
+    val isLargeTextEnabled by viewModel.isLargeTextEnabled.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
 
@@ -220,6 +224,29 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_sound_effects_desc),
                     checked = isSoundEnabled,
                     onCheckedChange = { viewModel.setSoundEnabled(it) }
+                )
+            }
+
+            // Accessibility Section
+            SettingsSectionHeader(title = stringResource(R.string.settings_accessibility))
+
+            SettingsCard {
+                SettingsSwitchItem(
+                    icon = Icons.Default.Contrast,
+                    title = stringResource(R.string.settings_high_contrast),
+                    subtitle = stringResource(R.string.settings_high_contrast_desc),
+                    checked = isHighContrastEnabled,
+                    onCheckedChange = { viewModel.setHighContrastEnabled(it) }
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                SettingsSwitchItem(
+                    icon = Icons.Default.TextFields,
+                    title = stringResource(R.string.settings_large_text),
+                    subtitle = stringResource(R.string.settings_large_text_desc),
+                    checked = isLargeTextEnabled,
+                    onCheckedChange = { viewModel.setLargeTextEnabled(it) }
                 )
             }
 
@@ -449,7 +476,8 @@ private fun SettingsClickableItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = subtitle,

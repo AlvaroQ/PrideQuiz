@@ -112,6 +112,58 @@
     <string name="info_title">General info</string>
     <string name="locale">en</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to Pride Quiz!</string>
+    <string name="onboarding_welcome_desc">Test your knowledge about LGBTQ+ pride flags and learn about the beautiful diversity of our community.</string>
+    <string name="onboarding_learn_title">Learn While Playing</string>
+    <string name="onboarding_learn_desc">Discover the meaning and history behind each pride flag. Knowledge is power!</string>
+    <string name="onboarding_play_title">Challenge Yourself</string>
+    <string name="onboarding_play_desc">Start with Normal mode and work your way up to Expert. How many flags can you recognize?</string>
+    <string name="onboarding_modes_title">Three Game Modes</string>
+    <string name="onboarding_modes_desc">Normal: Match flags to names\nAdvance: Guess by description\nExpert: Ultimate challenge!</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+
+    <!-- Exit confirmation -->
+    <string name="exit_game_title">Leave Game?</string>
+    <string name="exit_game_message">Your progress will be lost. Are you sure you want to exit?</string>
+    <string name="exit_game_stay">Stay</string>
+    <string name="exit_game_leave">Leave</string>
+
+    <!-- Streak system -->
+    <string name="streak_combo">%d Combo!</string>
+    <string name="streak_on_fire">On Fire!</string>
+    <string name="streak_unstoppable">Unstoppable!</string>
+    <string name="streak_legendary">Legendary!</string>
+
+    <!-- Result screen improvements -->
+    <string name="result_title">Game Over</string>
+    <string name="result_new_record">New Record!</string>
+    <string name="result_accuracy">Accuracy</string>
+    <string name="result_best_streak">Best Streak</string>
+    <string name="result_time_played">Time Played</string>
+    <string name="result_comparison_better">%d points better than your record!</string>
+    <string name="result_comparison_close">%d points away from your record</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_answer_button">Answer option %d</string>
+    <string name="accessibility_correct_answer">Correct answer</string>
+    <string name="accessibility_wrong_answer">Wrong answer</string>
+    <string name="accessibility_lives_remaining">%d lives remaining</string>
+    <string name="accessibility_current_score">Current score: %d points</string>
+    <string name="accessibility_progress">Question %1$d of %2$d</string>
+    <string name="settings_accessibility">Accessibility</string>
+    <string name="settings_high_contrast">High contrast</string>
+    <string name="settings_high_contrast_desc">Increase color contrast for better visibility</string>
+    <string name="settings_large_text">Large text</string>
+    <string name="settings_large_text_desc">Increase text size throughout the app</string>
+
+    <!-- Offline mode -->
+    <string name="offline_mode">Offline Mode</string>
+    <string name="offline_mode_message">You are playing offline. Ranking will sync when connected.</string>
+    <string name="connection_restored">Connection restored</string>
+
     <!-- content description image -->
     <string name="game_title" translatable="false">game title</string>
     <string name="loading_image" translatable="false">loading</string>

@@ -124,7 +124,8 @@ private fun AppItem(
             ) {
                 Text(
                     text = app.localeName?.EN ?: "",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = app.localeDescription?.EN ?: "",
