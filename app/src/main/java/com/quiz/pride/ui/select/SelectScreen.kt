@@ -18,15 +18,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -67,12 +75,16 @@ import com.quiz.pride.ui.theme.SettingsGradientBottom
 import com.quiz.pride.ui.theme.SettingsGradientTop
 import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
+import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.GradientPointsTop
+import com.quiz.pride.ui.theme.GradientPointsBottom
 
 @Composable
 fun SelectScreen(
     onNavigateToSelectGame: () -> Unit,
     onNavigateToInfo: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToProfile: () -> Unit = {}
 ) {
     // Analytics
     LaunchedEffect(Unit) {
@@ -163,6 +175,34 @@ fun SelectScreen(
                     )
                 )
         )
+
+        // Profile button in top right
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(16.dp),
+            contentAlignment = Alignment.TopEnd
+        ) {
+            IconButton(
+                onClick = onNavigateToProfile,
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(GradientPointsTop, GradientPointsBottom)
+                        ),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = stringResource(R.string.profile_title),
+                    tint = Color.Black,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
 
         Column(
             modifier = Modifier

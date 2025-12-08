@@ -64,8 +64,11 @@ import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NormalGradientBottom
 import com.quiz.pride.ui.theme.NormalGradientTop
+import com.quiz.pride.ui.theme.TimedGradientBottom
+import com.quiz.pride.ui.theme.TimedGradientTop
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.utils.Constants
 
@@ -225,6 +228,18 @@ fun SelectGameScreen(
                     gradientColors = listOf(ExpertGradientTop, ExpertGradientBottom),
                     glowColor = NeonPink.copy(alpha = 0.5f),
                     onClick = { onNavigateToGame(Constants.GameType.EXPERT) }
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Timed mode - Cyan
+                VibrantDifficultyCard(
+                    title = stringResource(R.string.timed_mode),
+                    description = stringResource(R.string.timed_mode_description),
+                    imageRes = R.drawable.normal, // TODO: Add timed mode icon
+                    gradientColors = listOf(TimedGradientTop, TimedGradientBottom),
+                    glowColor = NeonBlue.copy(alpha = 0.5f),
+                    onClick = { onNavigateToGame(Constants.GameType.TIMED) }
                 )
             }
         }

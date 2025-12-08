@@ -14,6 +14,7 @@ import com.quiz.pride.ui.game.GameScreen
 import com.quiz.pride.ui.info.InfoScreen
 import com.quiz.pride.ui.moreApps.MoreAppsScreen
 import com.quiz.pride.ui.onboarding.OnboardingScreen
+import com.quiz.pride.ui.profile.ProfileScreen
 import com.quiz.pride.ui.ranking.RankingScreen
 import com.quiz.pride.ui.result.ResultScreen
 import com.quiz.pride.ui.select.SelectGameScreen
@@ -47,6 +48,7 @@ sealed class Screen(val route: String) {
     object Info : Screen("info")
     object Settings : Screen("settings")
     object MoreApps : Screen("more_apps")
+    object Profile : Screen("profile")
 }
 
 private const val TRANSITION_DURATION = 300
@@ -115,6 +117,9 @@ fun PrideNavGraph(
                 },
                 onNavigateToSettings = {
                     navController.navigate(Screen.Settings.route)
+                },
+                onNavigateToProfile = {
+                    navController.navigate(Screen.Profile.route)
                 }
             )
         }
@@ -227,6 +232,15 @@ fun PrideNavGraph(
         // More Apps Screen
         composable(Screen.MoreApps.route) {
             MoreAppsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // Profile Screen
+        composable(Screen.Profile.route) {
+            ProfileScreen(
                 onNavigateBack = {
                     navController.popBackStack()
                 }

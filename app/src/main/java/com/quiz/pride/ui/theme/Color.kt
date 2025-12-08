@@ -72,6 +72,9 @@ val AdvanceGradientBottom = Color(0xFFF59E0B) // Amber
 val ExpertGradientTop = Color(0xFFF87171)     // Red
 val ExpertGradientBottom = Color(0xFFEF4444)
 
+val TimedGradientTop = Color(0xFF06B6D4)      // Cyan
+val TimedGradientBottom = Color(0xFF0891B2)   // Dark Cyan
+
 // Game Screen Gradient
 val GradientGameTop = Color(0xFF1E1B4B)       // Deep Indigo
 val GradientGameBottom = Color(0xFF312E81)    // Indigo

@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.result
 
+import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -12,6 +13,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,8 +44,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -86,8 +90,18 @@ import com.quiz.pride.ui.theme.SettingsGradientTop
 import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
 import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.NeonBlue
+import com.quiz.pride.ui.components.SaveScoreDialog
+import com.quiz.pride.ui.components.findActivity
+import com.quiz.pride.ui.components.rememberInterstitialAdState
+import com.quiz.pride.ui.components.rememberRewardedAdState
+import com.quiz.pride.managers.AdFrequencyManager
+import com.quiz.pride.managers.GameMode
+import com.quiz.pride.utils.Constants
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun ResultScreen(
@@ -96,6 +110,7 @@ fun ResultScreen(
     correctAnswers: Int = 0,
     bestStreak: Int = 0,
     timePlayed: Long = 0,
+    gameType: Constants.GameType = Constants.GameType.NORMAL,
     onNavigateToGame: () -> Unit,
     onNavigateToRanking: () -> Unit,
     onNavigateBack: () -> Unit,
@@ -103,6 +118,8 @@ fun ResultScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val adFrequencyManager: AdFrequencyManager = koinInject()
+    val coroutineScope = rememberCoroutineScope()
 
     // Animation states
     var showScore by remember { mutableStateOf(false) }
@@ -110,12 +127,70 @@ fun ResultScreen(
     var showButtons by remember { mutableStateOf(false) }
     var showNewRecord by remember { mutableStateOf(false) }
 
-    // Check if new record
-    val isNewRecord = points > (uiState.personalRecord.toIntOrNull() ?: 0)
-    val recordDifference = points - (uiState.personalRecord.toIntOrNull() ?: 0)
+    // Ad states
+    val interstitialAdState = rememberInterstitialAdState()
+    val rewardedAdState = rememberRewardedAdState(
+        adUnitId = context.getString(R.string.BONIFICADO_GAME_OVER)
+    )
+    var hasShownInterstitial by remember { mutableStateOf(false) }
+    var displayedPoints by remember { mutableIntStateOf(points) }
+    var hasDoubledPoints by remember { mutableStateOf(false) }
+    var isShowingAd by remember { mutableStateOf(false) }
+    var hasRecordedResult by remember { mutableStateOf(false) }
+    var showXpGain by remember { mutableStateOf(false) }
 
+    // Check if new record
+    val isNewRecord = displayedPoints > (uiState.personalRecord.toIntOrNull() ?: 0)
+    val recordDifference = displayedPoints - (uiState.personalRecord.toIntOrNull() ?: 0)
+
+    // Show interstitial ad based on frequency and record game result
     LaunchedEffect(Unit) {
         AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
+
+        // Record game completed for ad frequency tracking
+        adFrequencyManager.recordGameCompleted()
+
+        // Record game result for XP and achievements
+        if (!hasRecordedResult) {
+            hasRecordedResult = true
+            val gameMode = when (gameType) {
+                Constants.GameType.NORMAL -> GameMode.NORMAL
+                Constants.GameType.ADVANCE -> GameMode.ADVANCE
+                Constants.GameType.EXPERT -> GameMode.EXPERT
+                Constants.GameType.TIMED -> GameMode.TIMED
+            }
+            viewModel.recordGameResult(
+                gameMode = gameMode,
+                correctAnswers = correctAnswers,
+                totalQuestions = totalQuestions,
+                bestStreak = bestStreak,
+                timePlayedMs = timePlayed,
+                completedAllQuestions = totalQuestions >= Constants.TOTAL_PRIDES
+            )
+        }
+
+        // Check if we should show interstitial
+        val shouldShow = adFrequencyManager.shouldShowInterstitial()
+        if (shouldShow && interstitialAdState.isReady && !hasShownInterstitial) {
+            val activity = context.findActivity()
+            if (activity != null) {
+                hasShownInterstitial = true
+                isShowingAd = true
+                interstitialAdState.showAd(
+                    activity = activity,
+                    onAdDismissed = {
+                        isShowingAd = false
+                        coroutineScope.launch {
+                            adFrequencyManager.recordInterstitialShown()
+                        }
+                    },
+                    onAdFailed = {
+                        isShowingAd = false
+                    }
+                )
+            }
+        }
+
         delay(300)
         showScore = true
         delay(500)
@@ -126,6 +201,13 @@ fun ResultScreen(
         }
         delay(400)
         showButtons = true
+        delay(300)
+        showXpGain = true
+
+        // Check if TIMED mode score qualifies for top 20
+        if (gameType == Constants.GameType.TIMED) {
+            viewModel.checkTimedRanking(points)
+        }
     }
 
     // Floating animation
@@ -229,7 +311,7 @@ fun ResultScreen(
                     enter = scaleIn() + fadeIn()
                 ) {
                     ScoreDisplay(
-                        points = points,
+                        points = displayedPoints,
                         pulseScale = pulseScale,
                         personalRecord = uiState.personalRecord,
                         worldRecord = uiState.worldRecord,
@@ -253,6 +335,20 @@ fun ResultScreen(
                     )
                 }
 
+                // XP Gained indicator
+                AnimatedVisibility(
+                    visible = showXpGain && uiState.xpGainResult != null,
+                    enter = scaleIn() + fadeIn()
+                ) {
+                    uiState.xpGainResult?.let { xpResult ->
+                        Spacer(modifier = Modifier.height(16.dp))
+                        XpGainedBadge(
+                            xpGained = xpResult.xpGained,
+                            newLevel = if (xpResult.leveledUp) xpResult.newLevel else null
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Action buttons
@@ -261,7 +357,29 @@ fun ResultScreen(
                     enter = fadeIn(animationSpec = tween(500))
                 ) {
                     ActionButtons(
-                        points = points,
+                        points = displayedPoints,
+                        hasDoubledPoints = hasDoubledPoints,
+                        isRewardedAdReady = rewardedAdState.isReady,
+                        isRewardedAdLoading = rewardedAdState.isLoading,
+                        onDoublePoints = {
+                            val activity = context.findActivity()
+                            if (activity != null && rewardedAdState.isReady) {
+                                isShowingAd = true
+                                rewardedAdState.showAd(
+                                    activity = activity,
+                                    onRewardEarned = {
+                                        displayedPoints = displayedPoints * 2
+                                        hasDoubledPoints = true
+                                    },
+                                    onAdDismissed = {
+                                        isShowingAd = false
+                                    },
+                                    onAdFailed = {
+                                        isShowingAd = false
+                                    }
+                                )
+                            }
+                        },
                         onNavigateToGame = onNavigateToGame,
                         onNavigateToRanking = onNavigateToRanking,
                         onShare = {
@@ -270,7 +388,7 @@ fun ResultScreen(
                                 putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
                                 putExtra(
                                     Intent.EXTRA_TEXT,
-                                    context.getString(R.string.share_message, points)
+                                    context.getString(R.string.share_message, displayedPoints)
                                 )
                             }
                             context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share)))
@@ -280,6 +398,22 @@ fun ResultScreen(
                 }
             }
         }
+    }
+
+    // Timed Ranking Save Dialog
+    if (uiState.showTimedRankingDialog) {
+        SaveScoreDialog(
+            score = uiState.timedScore,
+            initialNickname = uiState.userProfile.nickname,
+            initialImageBase64 = uiState.userProfile.imageBase64,
+            isSaving = uiState.isSavingTimedScore,
+            onSave = { nickname, imageBase64 ->
+                viewModel.saveTimedScore(nickname, imageBase64)
+            },
+            onDismiss = {
+                viewModel.dismissTimedRankingDialog()
+            }
+        )
     }
 }
 
@@ -582,6 +716,10 @@ private fun StatCard(
 @Composable
 private fun ActionButtons(
     points: Int,
+    hasDoubledPoints: Boolean,
+    isRewardedAdReady: Boolean,
+    isRewardedAdLoading: Boolean,
+    onDoublePoints: () -> Unit,
     onNavigateToGame: () -> Unit,
     onNavigateToRanking: () -> Unit,
     onShare: () -> Unit,
@@ -591,6 +729,15 @@ private fun ActionButtons(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Double Points Button (only show if not already doubled)
+        if (!hasDoubledPoints && points > 0) {
+            DoublePointsButton(
+                isAdReady = isRewardedAdReady,
+                isAdLoading = isRewardedAdLoading,
+                onClick = onDoublePoints
+            )
+        }
+
         PrideButton(
             text = stringResource(R.string.play_again),
             onClick = onNavigateToGame,
@@ -625,6 +772,105 @@ private fun ActionButtons(
                 gradientColors = listOf(GradientPointsTop, GradientPointsBottom),
                 glowColor = GradientPointsTop.copy(alpha = 0.4f),
                 modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DoublePointsButton(
+    isAdReady: Boolean,
+    isAdLoading: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "double_points")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.4f,
+        targetValue = 0.8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_alpha"
+    )
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        NeonBlue.copy(alpha = 0.15f),
+                        NeonPurple.copy(alpha = 0.15f)
+                    )
+                )
+            )
+            .border(
+                width = 2.dp,
+                brush = Brush.horizontalGradient(
+                    listOf(
+                        NeonBlue.copy(alpha = glowAlpha),
+                        NeonPurple.copy(alpha = glowAlpha)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clickable(enabled = isAdReady || !isAdLoading) { onClick() }
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            if (isAdLoading) {
+                androidx.compose.material3.CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    strokeWidth = 2.dp,
+                    color = NeonBlue
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = null,
+                    tint = GradientPointsBottom,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.double_points_title),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        shadow = Shadow(
+                            color = NeonBlue.copy(alpha = 0.5f),
+                            offset = Offset(0f, 0f),
+                            blurRadius = 8f
+                        )
+                    ),
+                    color = White
+                )
+                Text(
+                    text = stringResource(R.string.double_points_subtitle),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = White.copy(alpha = 0.7f)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Icon(
+                imageVector = Icons.Default.Star,
+                contentDescription = null,
+                tint = GradientPointsBottom,
+                modifier = Modifier.size(24.dp)
             )
         }
     }
@@ -707,4 +953,89 @@ private fun formatTime(millis: Long): String {
     val seconds = (millis / 1000) % 60
     val minutes = (millis / (1000 * 60)) % 60
     return String.format("%d:%02d", minutes, seconds)
+}
+
+@Composable
+private fun XpGainedBadge(
+    xpGained: Long,
+    newLevel: Int? = null
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "xp_glow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_alpha"
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.horizontalGradient(
+                    listOf(
+                        GradientPointsTop.copy(alpha = 0.15f),
+                        GradientPointsBottom.copy(alpha = 0.15f)
+                    )
+                )
+            )
+            .border(
+                width = 2.dp,
+                brush = Brush.horizontalGradient(
+                    listOf(
+                        GradientPointsTop.copy(alpha = glowAlpha),
+                        GradientPointsBottom.copy(alpha = glowAlpha)
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Star,
+            contentDescription = null,
+            tint = GradientPointsBottom,
+            modifier = Modifier.size(28.dp)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column {
+            Text(
+                text = "+$xpGained XP",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    shadow = Shadow(
+                        color = GradientPointsTop.copy(alpha = 0.5f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 8f
+                    )
+                ),
+                color = GradientPointsBottom
+            )
+
+            if (newLevel != null) {
+                Text(
+                    text = "Level Up! Level $newLevel",
+                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                    color = NeonGreen
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Icon(
+            imageVector = Icons.Default.Star,
+            contentDescription = null,
+            tint = GradientPointsBottom,
+            modifier = Modifier.size(28.dp)
+        )
+    }
 }

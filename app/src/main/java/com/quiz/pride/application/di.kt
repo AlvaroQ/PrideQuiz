@@ -5,18 +5,26 @@ import com.google.firebase.ktx.Firebase
 import com.quiz.data.datasource.DataBaseSource
 import com.quiz.data.datasource.FirestoreDataSource
 import com.quiz.data.datasource.SharedPreferencesLocalDataSource
+import com.quiz.data.datasource.XpLeaderboardDataSource
 import com.quiz.data.repository.AppsRecommendedRepository
 import com.quiz.data.repository.PrideByIdRepository
 import com.quiz.data.repository.RankingRepository
 import com.quiz.data.repository.SharedPreferencesRepository
+import com.quiz.data.repository.XpLeaderboardRepository
 import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
+import com.quiz.pride.datasource.XpLeaderboardDataSourceImpl
+import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.NetworkManager
+import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.SharedPrefsDataSource
 import com.quiz.pride.managers.ThemeManager
+import com.quiz.pride.managers.XpSyncManager
+import com.quiz.pride.ui.leaderboard.XpLeaderboardViewModel
 import com.quiz.pride.ui.game.GameViewModel
 import com.quiz.pride.ui.info.InfoViewModel
 import com.quiz.pride.ui.moreApps.MoreAppsViewModel
+import com.quiz.pride.ui.profile.ProfileViewModel
 import com.quiz.pride.ui.ranking.RankingViewModel
 import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectGameViewModel
@@ -38,12 +46,22 @@ val appModule = module {
     factory<DataBaseSource> { DataBaseSourceImpl() }
     factory<FirestoreDataSource> { FirestoreDataSourceImpl(get()) }
     factory<SharedPreferencesLocalDataSource> { SharedPrefsDataSource(get()) }
+    factory<XpLeaderboardDataSource> { XpLeaderboardDataSourceImpl(get()) }
 
     // Theme Manager (DataStore based)
     single { ThemeManager(androidContext()) }
 
     // Network Manager for offline support
     single { NetworkManager(androidContext()) }
+
+    // Ad Frequency Manager for controlling ad display frequency
+    single { AdFrequencyManager(androidContext()) }
+
+    // Progression Manager for XP, levels, and achievements
+    single { ProgressionManager(androidContext()) }
+
+    // XP Sync Manager for Firestore leaderboard synchronization
+    single { XpSyncManager(androidContext(), get(), get(), get()) }
 }
 
 val dataModule = module {
@@ -51,17 +69,20 @@ val dataModule = module {
     factoryOf(::AppsRecommendedRepository)
     factoryOf(::RankingRepository)
     factoryOf(::SharedPreferencesRepository)
+    factoryOf(::XpLeaderboardRepository)
 }
 
 val scopesModule = module {
     viewModel { SelectViewModel() }
     viewModel { SelectGameViewModel() }
     viewModel { GameViewModel(get(), get()) }
-    viewModel { ResultViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { RankingViewModel(get(), get()) }
+    viewModel { ResultViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { RankingViewModel(get(), get(), get(), get()) }
     viewModel { InfoViewModel(get(), get()) }
     viewModel { MoreAppsViewModel(get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get()) }
+    viewModel { XpLeaderboardViewModel(get(), get(), get()) }
 
     factory { GetPaymentDone(get()) }
     factory { SetPaymentDone(get()) }
@@ -73,4 +94,15 @@ val scopesModule = module {
     factory { SetPersonalRecord(get()) }
     factory { GetRankingScore(get()) }
     factory { GetPrideList(get()) }
+
+    // Timed ranking use cases
+    factory { GetTimedRankingScore(get()) }
+    factory { GetTimedRecordScore(get()) }
+    factory { SaveTimedTopScore(get()) }
+
+    // XP Leaderboard use cases
+    factory { SyncUserXp(get()) }
+    factory { GetXpLeaderboard(get()) }
+    factory { GetUserGlobalRank(get()) }
+    factory { GetUserXpEntry(get()) }
 }

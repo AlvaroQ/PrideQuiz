@@ -35,42 +35,128 @@ buildscript {
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.9.3"
     }
     ext {
+        // ==========================================
+        // KOTLIN & COROUTINES
+        // ==========================================
         kotlinLibs = [
-                stdlib: "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libsversions.kotlin_version}"
+                stdlib        : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libsversions.kotlin_version}",
+                coroutinesCore: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0',
+                coroutines    : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0',
         ]
 
-        androidLibs = [
-                coroutinesCore      : 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0',
-                coroutines          : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0',
-                arrow               : "io.arrow-kt:arrow-core:1.2.4",
+        // ==========================================
+        // ANDROIDX CORE
+        // ==========================================
+        androidxCoreLibs = [
+                core              : "androidx.core:core-ktx:1.15.0",
+                appcompat         : "androidx.appcompat:appcompat:1.7.1",
+                fragment          : "androidx.fragment:fragment-ktx:1.8.5",
+                constraintlayout  : "androidx.constraintlayout:constraintlayout:2.2.1",
+                recyclerview      : "androidx.recyclerview:recyclerview:1.4.0",
+                swiperefreshlayout: "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0",
+                preference        : "androidx.preference:preference-ktx:${libsversions.preference_version}",
+                datastore         : "androidx.datastore:datastore-preferences:1.1.1",
         ]
+
+        // ==========================================
+        // LIFECYCLE
+        // ==========================================
+        lifecycleLibs = [
+                viewmodel     : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7",
+                runtime       : "androidx.lifecycle:lifecycle-runtime-ktx:2.9.0",
+                viewmodelCompose: "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7",
+                runtimeCompose: "androidx.lifecycle:lifecycle-runtime-compose:2.8.7",
+        ]
+
+        // ==========================================
+        // NAVIGATION
+        // ==========================================
+        navigationLibs = [
+                fragmentKtx: "androidx.navigation:navigation-fragment-ktx:2.9.3",
+                uiKtx      : "androidx.navigation:navigation-ui-ktx:2.9.3",
+                compose    : "androidx.navigation:navigation-compose:2.8.4",
+        ]
+
+        // ==========================================
+        // COMPOSE (BOM separado para platform())
+        // ==========================================
+        composeBom = 'androidx.compose:compose-bom:2024.11.00'
+
+        composeLibs = [
+                ui            : 'androidx.compose.ui:ui',
+                uiGraphics    : 'androidx.compose.ui:ui-graphics',
+                uiTooling     : 'androidx.compose.ui:ui-tooling-preview',
+                material3     : 'androidx.compose.material3:material3',
+                iconsExtended : 'androidx.compose.material:material-icons-extended',
+                activityCompose: 'androidx.activity:activity-compose:1.9.3',
+        ]
+
+        composeDebugLibs = [
+                uiTooling    : 'androidx.compose.ui:ui-tooling',
+                uiTestManifest: 'androidx.compose.ui:ui-test-manifest',
+        ]
+
+        // ==========================================
+        // DEPENDENCY INJECTION (KOIN)
+        // ==========================================
+        koinLibs = [
+                android : "io.insert-koin:koin-android:${libsversions.koin_version}",
+                compose : "io.insert-koin:koin-androidx-compose:${libsversions.koin_version}",
+        ]
+
+        // ==========================================
+        // FIREBASE (BOM separado para platform())
+        // ==========================================
+        firebaseBom = "com.google.firebase:firebase-bom:33.6.0"
 
         firebaseLibs = [
-                BoMFirebasePlatform : "com.google.firebase:firebase-bom:33.6.0",
-                firebaseDatabase    : "com.google.firebase:firebase-database",
-                firestore           : 'com.google.firebase:firebase-firestore',
-                firebaseAnalytics   : "com.google.firebase:firebase-analytics",
-                firebaseAuthKtx     : "com.google.firebase:firebase-auth",
-                crashlytics         : "com.google.firebase:firebase-crashlytics",
-                listenablefuture    : "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
+                database        : "com.google.firebase:firebase-database",
+                firestore       : "com.google.firebase:firebase-firestore",
+                analytics       : "com.google.firebase:firebase-analytics",
+                auth            : "com.google.firebase:firebase-auth",
+                crashlytics     : "com.google.firebase:firebase-crashlytics",
+                listenablefuture: "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
         ]
 
+        // ==========================================
+        // ADS & BILLING
+        // ==========================================
+        monetizationLibs = [
+                admob  : "com.google.android.gms:play-services-ads:24.5.0",
+                billing: "com.android.billingclient:billing-ktx:${libsversions.billing_version}",
+        ]
+
+        // ==========================================
+        // IMAGE LOADING
+        // ==========================================
+        imageLibs = [
+                coilCompose: "io.coil-kt:coil-compose:2.7.0",
+                glide      : "com.github.bumptech.glide:glide:4.16.0",
+                imagePicker: "com.github.dhaval2404:imagepicker:1.6",
+        ]
+
+        // ==========================================
+        // NETWORKING
+        // ==========================================
+        networkLibs = [
+                okhttpLogging        : "com.squareup.okhttp3:logging-interceptor:4.12.0",
+                retrofit             : "com.squareup.retrofit2:retrofit:2.9.0",
+                retrofitGson         : "com.squareup.retrofit2:converter-gson:2.9.0",
+                retrofitCoroutines   : "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2",
+        ]
+
+        // ==========================================
+        // UTILITIES
+        // ==========================================
+        utilityLibs = [
+                arrow: "io.arrow-kt:arrow-core:1.2.4",
+        ]
+
+        // ==========================================
+        // QUALITY TOOLS
+        // ==========================================
         detektPlugin = [
-                detektPlugins: "io.gitlab.arturbosch.detekt:detekt-formatting:1.2.1"
-        ]
-
-        androidKtxLibs = [
-                androidxCore      : "androidx.core:core-ktx:1.15.0",
-                fragment          : "androidx.fragment:fragment-ktx:1.8.5",
-                lifecycleViewModel: "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7",
-        ]
-
-        libs = [
-                okhttpLoginInterceptor   : "com.squareup.okhttp3:logging-interceptor:4.12.0",
-                glide                    : "com.github.bumptech.glide:glide:4.16.0",
-                retrofit                 : "com.squareup.retrofit2:retrofit:2.9.0",
-                retrofitGsonConverter    : "com.squareup.retrofit2:converter-gson:2.9.0",
-                retrofitCoroutinesAdapter: "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2",
+                formatting: "io.gitlab.arturbosch.detekt:detekt-formatting:1.2.1"
         ]
     }
 }

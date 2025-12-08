@@ -8,4 +8,9 @@ interface FirestoreDataSource {
     suspend fun addRecord(user: User): Either<RepositoryException, User>
     suspend fun getRanking(): MutableList<User>
     suspend fun getWorldRecords(limit: Long): String
+
+    // Timed ranking methods
+    suspend fun addTimedRecord(user: User): Either<RepositoryException, User>
+    suspend fun getTimedRanking(): MutableList<User>
+    suspend fun getTimedWorldRecords(limit: Long): String
 }

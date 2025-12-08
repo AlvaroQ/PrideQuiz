@@ -78,6 +78,10 @@
     <!-- Ranking screen -->
     <string name="ranking_screen_title">Ranking</string>
     <string name="best_points">Best scores</string>
+    <string name="ranking_tab_classic">Classic</string>
+    <string name="ranking_tab_timed">Time Attack</string>
+    <string name="ranking_tab_xp_global">XP Global</string>
+    <string name="ranking_empty">No scores yet. Be the first!</string>
     <plurals name="weeks_ago">
         <item quantity="one">%d week ago</item>
         <item quantity="other">%d weeks ago</item>
@@ -94,14 +98,21 @@
     <!-- Dialog screen -->
     <string name="dialog_ranking_congratulation">Congratulations!</string>
     <string name="dialog_ranking_description">Your score has entered the world ranking!</string>
+    <string name="dialog_ranking_timed_description">Your time attack score is in the top 20!</string>
     <string name="dialog_name">Name</string>
     <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_change_photo">Change photo</string>
+    <string name="dialog_saving">Saving…</string>
 
     <!-- Dialog screen extra life -->
     <string name="dialog_extra_life_title">Extra life</string>
-    <string name="dialog_extra_life_description">Do you want an extra life watching an ad?</string>
+    <string name="dialog_extra_life_description">Watch a short video to get an extra life and keep playing!</string>
     <string name="dialog_extra_life_btn_yes">Yes</string>
-    <string name="dialog_extra_life_btn_no">No</string>
+    <string name="dialog_extra_life_btn_no">No, thanks</string>
+    <string name="extra_lives_remaining">%d remaining</string>
+    <string name="loading_ad">Loading…</string>
+    <string name="watch_ad">Watch Ad</string>
 
     <!-- Game screen -->
     <string name="life">life</string>
@@ -145,6 +156,8 @@
     <string name="result_time_played">Time Played</string>
     <string name="result_comparison_better">%d points better than your record!</string>
     <string name="result_comparison_close">%d points away from your record</string>
+    <string name="double_points_title">Double Your Points!</string>
+    <string name="double_points_subtitle">Watch a short video to 2x your score</string>
 
     <!-- Accessibility -->
     <string name="accessibility_answer_button">Answer option %d</string>
@@ -163,6 +176,39 @@
     <string name="offline_mode">Offline Mode</string>
     <string name="offline_mode_message">You are playing offline. Ranking will sync when connected.</string>
     <string name="connection_restored">Connection restored</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profile</string>
+    <string name="my_profile">My Profile</string>
+    <string name="enter_nickname">Enter nickname</string>
+    <string name="tap_to_set_nickname">Tap to set nickname</string>
+    <string name="edit_nickname">Edit nickname</string>
+    <string name="change_photo">Change photo</string>
+    <string name="save">Save</string>
+    <string name="total_xp">Total: %d XP</string>
+    <string name="statistics_title">Statistics</string>
+    <string name="games_played">Games Played</string>
+    <string name="games_won">Games Won</string>
+    <string name="best_streak">Best Streak</string>
+    <string name="accuracy_label">Accuracy</string>
+    <string name="perfect_games">Perfect Games</string>
+    <string name="time_played">Time Played</string>
+    <string name="games_by_mode">Games by Mode</string>
+    <string name="achievements_title">Achievements</string>
+    <string name="level_up_title">Level Up!</string>
+    <string name="level_up_message">You reached level %d!</string>
+    <string name="xp_gained">+%d XP</string>
+    <string name="global_rank">Global Rank</string>
+    <string name="global_rank_value">#%d</string>
+    <string name="view_leaderboard">View Leaderboard</string>
+    <string name="not_ranked">Not ranked yet</string>
+    <string name="play_to_rank">Play to enter the global ranking!</string>
+
+    <!-- Timed mode -->
+    <string name="timed_mode">Timed</string>
+    <string name="timed_mode_description">Race against the clock!</string>
+    <string name="time_remaining">Time: %d</string>
+    <string name="time_bonus">Time Bonus: +%d</string>
 
     <!-- content description image -->
     <string name="game_title" translatable="false">game title</string>

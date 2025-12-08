@@ -77,6 +77,9 @@ import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.ShimmerInfoCard
 import com.quiz.pride.ui.theme.GlowPurple
+import com.quiz.pride.ui.theme.GradientBackgroundEnd
+import com.quiz.pride.ui.theme.GradientBackgroundMid
+import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonBlue
@@ -93,7 +96,7 @@ fun InfoScreen(
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
 
-    // Use MaterialTheme colors (respects app's theme setting, not system)
+    // Detect theme
     val colorScheme = MaterialTheme.colorScheme
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
 
@@ -123,56 +126,26 @@ fun InfoScreen(
         label = "float_offset"
     )
 
-    // Theme-aware background colors using MaterialTheme
-    val backgroundGradient = if (isDarkTheme) {
-        Brush.verticalGradient(
-            listOf(
-                colorScheme.background,
-                colorScheme.surface,
-                colorScheme.surfaceVariant
-            )
+    // Vibrant gradient background (same as ProfileScreen)
+    val backgroundGradient = Brush.verticalGradient(
+        listOf(
+            GradientBackgroundStart,
+            GradientBackgroundMid,
+            GradientBackgroundEnd
         )
-    } else {
-        // Colorful light gradient with pride-inspired pastel tones
-        Brush.verticalGradient(
-            listOf(
-                Color(0xFFE8F5E9), // Soft mint green
-                Color(0xFFF3E5F5), // Soft lavender
-                Color(0xFFFCE4EC), // Soft pink
-                Color(0xFFFFF8E1), // Soft yellow
-                Color(0xFFE3F2FD)  // Soft blue
-            )
-        )
-    }
+    )
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundGradient)
     ) {
-        // Decorative glow orbs (softer in light mode)
-        val orbAlpha = if (isDarkTheme) 0.2f else 0.15f
+        // Decorative glow orbs (same style as ProfileScreen)
         Box(
             modifier = Modifier
-                .size(200.dp)
-                .offset(x = (-70).dp, y = 120.dp + floatOffset.dp)
-                .alpha(orbAlpha)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPink, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 60.dp, y = 250.dp - floatOffset.dp)
-                .alpha(orbAlpha * 0.75f)
+                .size(180.dp)
+                .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
+                .alpha(0.25f)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
@@ -186,13 +159,13 @@ fun InfoScreen(
         Box(
             modifier = Modifier
                 .size(120.dp)
-                .align(Alignment.BottomStart)
-                .offset(x = 30.dp, y = (-100).dp + floatOffset.dp)
-                .alpha(orbAlpha * 0.75f)
+                .align(Alignment.TopEnd)
+                .offset(x = 40.dp, y = 200.dp - floatOffset.dp)
+                .alpha(0.2f)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
-                            colors = listOf(NeonBlue, Color.Transparent)
+                            colors = listOf(NeonPink, Color.Transparent)
                         ),
                         radius = size.minDimension / 2
                     )
@@ -205,8 +178,7 @@ fun InfoScreen(
             // Custom Top Bar
             LearnTopBar(
                 onBackClick = onNavigateBack,
-                itemCount = uiState.prideList.size,
-                isDarkTheme = isDarkTheme
+                itemCount = uiState.prideList.size
             )
 
             // Content
@@ -266,8 +238,7 @@ fun InfoScreen(
 @Composable
 private fun LearnTopBar(
     onBackClick: () -> Unit,
-    itemCount: Int,
-    isDarkTheme: Boolean
+    itemCount: Int
 ) {
     val topBarGradient = Brush.verticalGradient(
         colors = listOf(
@@ -389,17 +360,15 @@ private fun PrideInfoCard(
         else -> Color(0xFFFF6B9D) // Soft pink
     }
 
-    // Theme-aware colors using MaterialTheme
-    val colorScheme = MaterialTheme.colorScheme
-    // Card has subtle accent tint in light mode for more color
+    // Theme-aware card colors
     val cardBackground = if (isDarkTheme) {
-        colorScheme.surfaceVariant
+        Color(0xFF252542).copy(alpha = 0.9f) // Dark card
     } else {
-        Color.White.copy(alpha = 0.85f)
+        Color.White.copy(alpha = 0.95f) // Light card
     }
-    val titleColor = colorScheme.onSurface
-    val descriptionColor = colorScheme.onSurfaceVariant
-    val hintColor = accentColor.copy(alpha = if (isDarkTheme) 0.5f else 0.7f)
+    val titleColor = if (isDarkTheme) Color.White else Color(0xFF1F2937)
+    val descriptionColor = if (isDarkTheme) Color.White.copy(alpha = 0.8f) else Color(0xFF4B5563)
+    val hintColor = accentColor.copy(alpha = if (isDarkTheme) 0.6f else 0.8f)
 
     Box(
         modifier = modifier
@@ -441,7 +410,7 @@ private fun PrideInfoCard(
                         modifier = Modifier
                             .size(72.dp)
                             .clip(RoundedCornerShape(12.dp))
-                            .background(colorScheme.surface.copy(alpha = 0.5f))
+                            .background(Color.Black.copy(alpha = 0.2f))
                             .border(
                                 width = 2.dp,
                                 color = accentColor.copy(alpha = 0.4f),

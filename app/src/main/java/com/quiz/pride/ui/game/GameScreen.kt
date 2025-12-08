@@ -43,6 +43,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -95,6 +97,9 @@ import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.ui.components.LoadingIndicator
+import com.quiz.pride.ui.components.RewardedAdState
+import com.quiz.pride.ui.components.findActivity
+import com.quiz.pride.ui.components.rememberRewardedAdState
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GlassWhite
 import com.quiz.pride.ui.theme.GlowBlue
@@ -139,12 +144,20 @@ fun GameScreen(
 
     // Game state
     var points by remember { mutableIntStateOf(0) }
-    var lives by remember { mutableIntStateOf(2) }
+    var lives by remember { mutableIntStateOf(if (gameType == Constants.GameType.TIMED) Int.MAX_VALUE else 3) }
     var stage by remember { mutableIntStateOf(1) }
-    var extraLifeUsed by remember { mutableStateOf(false) }
+    var extraLivesUsed by remember { mutableIntStateOf(0) }
+    val maxExtraLives = 2
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     var showExtraLifeDialog by remember { mutableStateOf(false) }
     var showExitDialog by remember { mutableStateOf(false) }
+    var isShowingRewardedAd by remember { mutableStateOf(false) }
+
+    // Timed mode state - 3 minutes global timer
+    var timeRemaining by remember { mutableIntStateOf(Constants.TIMED_MODE_TOTAL_SECONDS) }
+
+    // Rewarded Ad state
+    val rewardedAdState = rememberRewardedAdState()
 
     // Stats for result screen
     var correctAnswers by remember { mutableIntStateOf(0) }
@@ -157,6 +170,23 @@ fun GameScreen(
     // Handle back button press
     BackHandler {
         showExitDialog = true
+    }
+
+    // Global timer for TIMED mode - 3 minutes countdown
+    LaunchedEffect(gameType) {
+        if (gameType == Constants.GameType.TIMED) {
+            while (timeRemaining > 0) {
+                delay(1000)
+                timeRemaining--
+            }
+            // Time's up - end game
+            if (timeRemaining <= 0) {
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                viewModel.playFailSound()
+                val timePlayed = System.currentTimeMillis() - startTime
+                onNavigateToResult(points, stage, correctAnswers, bestStreak, timePlayed)
+            }
+        }
     }
 
     // Handle one-time events
@@ -230,6 +260,8 @@ fun GameScreen(
                 stage = stage,
                 totalStages = Constants.TOTAL_PRIDES,
                 currentStreak = currentStreak,
+                isTimedMode = gameType == Constants.GameType.TIMED,
+                timeRemaining = timeRemaining,
                 onBackClick = { showExitDialog = true }
             )
         }
@@ -335,7 +367,10 @@ fun GameScreen(
                                 // Haptic feedback for wrong answer
                                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.playFailSound()
-                                lives--
+                                // In timed mode, wrong answers don't reduce lives (time is the challenge)
+                                if (gameType != Constants.GameType.TIMED) {
+                                    lives--
+                                }
                                 currentStreak = 0
                             }
 
@@ -346,11 +381,10 @@ fun GameScreen(
                                 showStreakEffect = false
 
                                 when {
-                                    lives < 1 && !extraLifeUsed && stage < Constants.TOTAL_PRIDES -> {
-                                        extraLifeUsed = true
+                                    gameType != Constants.GameType.TIMED && lives < 1 && extraLivesUsed < maxExtraLives && stage < Constants.TOTAL_PRIDES -> {
                                         viewModel.navigateToExtraLifeDialog()
                                     }
-                                    stage >= Constants.TOTAL_PRIDES || lives < 1 -> {
+                                    stage >= Constants.TOTAL_PRIDES || (gameType != Constants.GameType.TIMED && lives < 1) -> {
                                         viewModel.navigateToResult(points.toString())
                                     }
                                     else -> {
@@ -380,11 +414,41 @@ fun GameScreen(
     // Extra Life Dialog
     if (showExtraLifeDialog) {
         ExtraLifeDialog(
+            extraLivesRemaining = maxExtraLives - extraLivesUsed,
+            isAdReady = rewardedAdState.isReady,
+            isAdLoading = rewardedAdState.isLoading,
             onAccept = {
                 showExtraLifeDialog = false
-                lives = 1
-                if (points > 0) points--
-                viewModel.generateNewStage()
+                isShowingRewardedAd = true
+
+                val activity = context.findActivity()
+                if (activity != null && rewardedAdState.isReady) {
+                    rewardedAdState.showAd(
+                        activity = activity,
+                        onRewardEarned = {
+                            // User watched the ad, grant extra life
+                            lives = 1
+                            extraLivesUsed++
+                            viewModel.generateNewStage()
+                        },
+                        onAdDismissed = {
+                            isShowingRewardedAd = false
+                        },
+                        onAdFailed = { _ ->
+                            isShowingRewardedAd = false
+                            // If ad fails, grant life anyway as fallback
+                            lives = 1
+                            extraLivesUsed++
+                            viewModel.generateNewStage()
+                        }
+                    )
+                } else {
+                    // Ad not ready, grant life as fallback
+                    isShowingRewardedAd = false
+                    lives = 1
+                    extraLivesUsed++
+                    viewModel.generateNewStage()
+                }
             },
             onDecline = {
                 showExtraLifeDialog = false
@@ -402,6 +466,8 @@ private fun EnhancedGameTopBar(
     stage: Int,
     totalStages: Int,
     currentStreak: Int,
+    isTimedMode: Boolean = false,
+    timeRemaining: Int = 0,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -466,12 +532,16 @@ private fun EnhancedGameTopBar(
                 Spacer(modifier = Modifier.width(12.dp))
             }
 
-            // Animated Lives indicator
-            AnimatedLivesIndicator(
-                currentLives = lives,
-                maxLives = 2,
-                modifier = Modifier.semantics { contentDescription = livesDescription }
-            )
+            // Timer for timed mode OR Lives indicator for normal modes
+            if (isTimedMode) {
+                TimerIndicator(timeRemaining = timeRemaining)
+            } else {
+                AnimatedLivesIndicator(
+                    currentLives = lives,
+                    maxLives = 3,
+                    modifier = Modifier.semantics { contentDescription = livesDescription }
+                )
+            }
         }
 
         // Progress bar
@@ -498,6 +568,77 @@ private fun EnhancedGameTopBar(
                 .padding(horizontal = 16.dp, vertical = 4.dp),
             textAlign = TextAlign.End
         )
+    }
+}
+
+@Composable
+private fun TimerIndicator(
+    timeRemaining: Int,
+    modifier: Modifier = Modifier
+) {
+    val totalTime = Constants.TIMED_MODE_TOTAL_SECONDS
+    val progress = timeRemaining.toFloat() / totalTime.toFloat()
+
+    val infiniteTransition = rememberInfiniteTransition(label = "timer")
+    val scale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = if (timeRemaining <= 30) 1.1f else 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(500),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "timer_scale"
+    )
+
+    val color = when {
+        timeRemaining <= 30 -> PrideRed
+        timeRemaining <= 60 -> NeonOrange
+        else -> NeonBlue
+    }
+
+    // Format time as MM:SS
+    val minutes = timeRemaining / 60
+    val seconds = timeRemaining % 60
+    val timeText = String.format("%d:%02d", minutes, seconds)
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .background(
+                color = color.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Timer,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier
+                .size(20.dp)
+                .scale(scale)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Text(
+                text = timeText,
+                fontWeight = FontWeight.Bold,
+                color = color,
+                fontSize = 16.sp,
+                modifier = Modifier.scale(scale)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            LinearProgressIndicator(
+                progress = { progress },
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp)),
+                color = color,
+                trackColor = color.copy(alpha = 0.3f),
+                strokeCap = StrokeCap.Round
+            )
+        }
     }
 }
 
@@ -777,6 +918,31 @@ private fun GameContent(
                         textAlign = TextAlign.Center,
                         color = questionTextColor
                     )
+                }
+                Constants.GameType.TIMED -> {
+                    // Timed mode shows flag image like NORMAL mode
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .drawBehind {
+                                drawCircle(
+                                    brush = Brush.radialGradient(
+                                        colors = listOf(
+                                            GlowBlue.copy(alpha = 0.3f),
+                                            Color.Transparent
+                                        )
+                                    ),
+                                    radius = size.minDimension / 1.5f
+                                )
+                            }
+                    ) {
+                        AsyncImage(
+                            model = question?.flag,
+                            contentDescription = stringResource(R.string.game_image),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
                 }
             }
         }
@@ -1092,7 +1258,8 @@ private fun VibrantAnswerButton(
                 contentAlignment = Alignment.Center
             ) {
                 when (gameType) {
-                    Constants.GameType.NORMAL -> {
+                    Constants.GameType.NORMAL, Constants.GameType.TIMED -> {
+                        // Show text name for NORMAL and TIMED modes
                         Text(
                             text = option?.name?.EN ?: "",
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -1111,7 +1278,8 @@ private fun VibrantAnswerButton(
                             color = textColor
                         )
                     }
-                    else -> {
+                    Constants.GameType.ADVANCE, Constants.GameType.EXPERT -> {
+                        // Show flag image for ADVANCE and EXPERT modes
                         AsyncImage(
                             model = option?.flag,
                             contentDescription = null,
@@ -1216,15 +1384,41 @@ private fun ExitConfirmationDialog(
 
 @Composable
 private fun ExtraLifeDialog(
+    extraLivesRemaining: Int,
+    isAdReady: Boolean,
+    isAdLoading: Boolean,
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+
+    // Pulsing animation for the heart icon
+    val infiniteTransition = rememberInfiniteTransition(label = "heart_pulse")
+    val heartScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "heart_scale"
+    )
+
     AlertDialog(
         onDismissRequest = { /* Cannot dismiss */ },
         containerColor = colorScheme.surface,
         titleContentColor = colorScheme.onSurface,
         textContentColor = colorScheme.onSurfaceVariant,
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = null,
+                tint = PrideRed,
+                modifier = Modifier
+                    .size(48.dp)
+                    .scale(heartScale)
+            )
+        },
         title = {
             Text(
                 text = stringResource(R.string.dialog_extra_life_title),
@@ -1239,18 +1433,89 @@ private fun ExtraLifeDialog(
             )
         },
         text = {
-            Text(
-                text = stringResource(R.string.dialog_extra_life_description),
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(R.string.dialog_extra_life_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Show remaining extra lives
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .background(
+                            color = NeonPurple.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    repeat(extraLivesRemaining) {
+                        Icon(
+                            imageVector = Icons.Default.Favorite,
+                            contentDescription = null,
+                            tint = PrideRed,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        if (it < extraLivesRemaining - 1) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.extra_lives_remaining, extraLivesRemaining),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                }
+
+                // Loading indicator for ad
+                if (isAdLoading) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        androidx.compose.material3.CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp,
+                            color = NeonBlue
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.loading_ad),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         },
         confirmButton = {
-            TextButton(onClick = onAccept) {
-                Text(
-                    text = stringResource(R.string.dialog_extra_life_btn_yes),
-                    color = NeonGreen,
-                    fontWeight = FontWeight.Bold
-                )
+            TextButton(
+                onClick = onAccept,
+                enabled = isAdReady || !isAdLoading
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = if (isAdReady || !isAdLoading) NeonGreen else colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.watch_ad),
+                        color = if (isAdReady || !isAdLoading) NeonGreen else colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         },
         dismissButton = {

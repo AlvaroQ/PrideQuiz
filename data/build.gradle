@@ -4,8 +4,11 @@ apply plugin: 'kotlin'
 dependencies {
     implementation project(":domain")
 
-    implementation androidLibs.values()
-    implementation kotlinLibs.values()
+    // Kotlin & Coroutines
+    kotlinLibs.each { implementation it.value }
+
+    // Utilities
+    utilityLibs.each { implementation it.value }
 }
 
 java {
