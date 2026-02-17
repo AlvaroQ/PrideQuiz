@@ -18,12 +18,12 @@ buildscript {
             'buildtoolsVersion'     : '30.0.2',
     ]
     ext.libsversions = [
-            'kotlin_version'         : '2.1.21',
-            'gradle_version'         : '8.13.1',
-            'koin_version'           : '4.1.0',
+            'kotlin_version'         : '2.2.10',
+            'gradle_version'         : '9.0.1',
+            'koin_version'           : '4.1.1',
             'preference_version'     : '1.2.1',
-            'google_services_version': '4.4.3',
-            'billing_version'        : "8.0.0"
+            'google_services_version': '4.4.4',
+            'billing_version'        : "8.3.0"
     ]
 
     dependencies {
@@ -32,7 +32,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:${libsversions.gradle_version}"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libsversions.kotlin_version}"
         classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:${libsversions.kotlin_version}"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.9.3"
+        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.9.7"
     }
     ext {
         // ==========================================
@@ -40,47 +40,47 @@ buildscript {
         // ==========================================
         kotlinLibs = [
                 stdlib        : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libsversions.kotlin_version}",
-                coroutinesCore: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0',
-                coroutines    : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0',
+                coroutinesCore: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2',
+                coroutines    : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2',
         ]
 
         // ==========================================
         // ANDROIDX CORE
         // ==========================================
         androidxCoreLibs = [
-                core              : "androidx.core:core-ktx:1.15.0",
+                core              : "androidx.core:core-ktx:1.17.0",
                 appcompat         : "androidx.appcompat:appcompat:1.7.1",
-                fragment          : "androidx.fragment:fragment-ktx:1.8.5",
+                fragment          : "androidx.fragment:fragment-ktx:1.8.7",
                 constraintlayout  : "androidx.constraintlayout:constraintlayout:2.2.1",
                 recyclerview      : "androidx.recyclerview:recyclerview:1.4.0",
-                swiperefreshlayout: "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0",
+                swiperefreshlayout: "androidx.swiperefreshlayout:swiperefreshlayout:1.2.0",
                 preference        : "androidx.preference:preference-ktx:${libsversions.preference_version}",
-                datastore         : "androidx.datastore:datastore-preferences:1.1.1",
+                datastore         : "androidx.datastore:datastore-preferences:1.2.0",
         ]
 
         // ==========================================
         // LIFECYCLE
         // ==========================================
         lifecycleLibs = [
-                viewmodel     : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7",
-                runtime       : "androidx.lifecycle:lifecycle-runtime-ktx:2.9.0",
-                viewmodelCompose: "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7",
-                runtimeCompose: "androidx.lifecycle:lifecycle-runtime-compose:2.8.7",
+                viewmodel     : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
+                runtime       : "androidx.lifecycle:lifecycle-runtime-ktx:2.10.0",
+                viewmodelCompose: "androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0",
+                runtimeCompose: "androidx.lifecycle:lifecycle-runtime-compose:2.10.0",
         ]
 
         // ==========================================
         // NAVIGATION
         // ==========================================
         navigationLibs = [
-                fragmentKtx: "androidx.navigation:navigation-fragment-ktx:2.9.3",
-                uiKtx      : "androidx.navigation:navigation-ui-ktx:2.9.3",
-                compose    : "androidx.navigation:navigation-compose:2.8.4",
+                fragmentKtx: "androidx.navigation:navigation-fragment-ktx:2.9.7",
+                uiKtx      : "androidx.navigation:navigation-ui-ktx:2.9.7",
+                compose    : "androidx.navigation:navigation-compose:2.9.7",
         ]
 
         // ==========================================
         // COMPOSE (BOM separado para platform())
         // ==========================================
-        composeBom = 'androidx.compose:compose-bom:2024.11.00'
+        composeBom = 'androidx.compose:compose-bom:2026.01.01'
 
         composeLibs = [
                 ui            : 'androidx.compose.ui:ui',
@@ -88,7 +88,7 @@ buildscript {
                 uiTooling     : 'androidx.compose.ui:ui-tooling-preview',
                 material3     : 'androidx.compose.material3:material3',
                 iconsExtended : 'androidx.compose.material:material-icons-extended',
-                activityCompose: 'androidx.activity:activity-compose:1.9.3',
+                activityCompose: 'androidx.activity:activity-compose:1.12.4',
         ]
 
         composeDebugLibs = [
@@ -107,7 +107,7 @@ buildscript {
         // ==========================================
         // FIREBASE (BOM separado para platform())
         // ==========================================
-        firebaseBom = "com.google.firebase:firebase-bom:33.6.0"
+        firebaseBom = "com.google.firebase:firebase-bom:34.9.0"
 
         firebaseLibs = [
                 database        : "com.google.firebase:firebase-database",
@@ -122,7 +122,7 @@ buildscript {
         // ADS & BILLING
         // ==========================================
         monetizationLibs = [
-                admob  : "com.google.android.gms:play-services-ads:24.5.0",
+                admob  : "com.google.android.gms:play-services-ads:24.8.0",
                 billing: "com.android.billingclient:billing-ktx:${libsversions.billing_version}",
         ]
 
@@ -156,7 +156,7 @@ buildscript {
         // QUALITY TOOLS
         // ==========================================
         detektPlugin = [
-                formatting: "io.gitlab.arturbosch.detekt:detekt-formatting:1.2.1"
+                formatting: "io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8"
         ]
     }
 }

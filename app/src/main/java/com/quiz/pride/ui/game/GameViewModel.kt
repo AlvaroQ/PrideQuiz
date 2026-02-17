@@ -38,7 +38,8 @@ sealed class GameEvent {
 
 class GameViewModel(
     private val getPrideById: GetPrideById,
-    private val getPaymentDone: GetPaymentDone
+    private val getPaymentDone: GetPaymentDone,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private var randomCountries = mutableListOf<Int>()
@@ -53,10 +54,10 @@ class GameViewModel(
     val events = _events.asSharedFlow()
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
-        _uiState.value = _uiState.value.copy(
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
+        _uiState.update { it.copy(
             showBannerAd = !getPaymentDone()
-        )
+        ) }
         generateNewStage()
     }
 
@@ -107,7 +108,7 @@ class GameViewModel(
     }
 
     fun navigateToResult(points: String) {
-        AnalyticsManager.analyticsGameFinished(points)
+        analyticsManager.analyticsGameFinished(points)
         viewModelScope.launch {
             _events.emit(GameEvent.NavigateToResult)
         }

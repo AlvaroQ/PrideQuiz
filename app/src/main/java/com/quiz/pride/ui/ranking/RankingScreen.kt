@@ -37,10 +37,9 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -111,55 +110,56 @@ private fun UserAvatar(
             shape = CircleShape
         )
 
-    // Check if it's a Base64 image
-    val isBase64 = userImage != null && !userImage.startsWith("http") && userImage.length > 100
+    when {
+        userImage != null && !userImage.startsWith("http") && userImage.length > 100 -> {
+            // Base64 image
+            val bitmap = try {
+                val imageBytes = Base64.decode(userImage, Base64.DEFAULT)
+                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            } catch (e: Exception) {
+                null
+            }
 
-    if (isBase64 && userImage != null) {
-        // Decode Base64 image
-        val bitmap = try {
-            val imageBytes = Base64.decode(userImage, Base64.DEFAULT)
-            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-        } catch (e: Exception) {
-            null
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = avatarModifier,
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                DefaultAvatar(modifier = avatarModifier)
+            }
         }
-
-        if (bitmap != null) {
-            Image(
-                bitmap = bitmap.asImageBitmap(),
+        !userImage.isNullOrEmpty() -> {
+            // URL image - use Coil
+            SubcomposeAsyncImage(
+                model = userImage,
                 contentDescription = null,
                 modifier = avatarModifier,
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(DarkSurfaceVariant),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = NeonPurple,
+                            strokeWidth = 2.dp
+                        )
+                    }
+                },
+                error = {
+                    DefaultAvatar(modifier = Modifier.fillMaxSize())
+                }
             )
-        } else {
+        }
+        else -> {
             DefaultAvatar(modifier = avatarModifier)
         }
-    } else if (!userImage.isNullOrEmpty()) {
-        // URL image - use Coil
-        SubcomposeAsyncImage(
-            model = userImage,
-            contentDescription = null,
-            modifier = avatarModifier,
-            contentScale = ContentScale.Crop,
-            loading = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(DarkSurfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = NeonPurple,
-                        strokeWidth = 2.dp
-                    )
-                }
-            },
-            error = {
-                DefaultAvatar(modifier = Modifier.fillMaxSize())
-            }
-        )
-    } else {
-        DefaultAvatar(modifier = avatarModifier)
     }
 }
 
@@ -186,8 +186,8 @@ private val SilverGlow = Color(0x80E8E8E8)
 private val BronzeColor = Color(0xFFCD7F32)
 private val BronzeGlow = Color(0x80CD7F32)
 
-private fun formatTimestamp(timestamp: Long?): String {
-    if (timestamp == null || timestamp == 0L) return ""
+private fun formatTimestamp(timestamp: Long): String {
+    if (timestamp == 0L) return ""
     return try {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         sdf.format(Date(timestamp))
@@ -286,13 +286,13 @@ fun RankingScreen(
 
             Column(modifier = Modifier.fillMaxSize()) {
                 // Tab Row
-                TabRow(
+                SecondaryTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     containerColor = Color.Transparent,
                     contentColor = White,
-                    indicator = { tabPositions ->
+                    indicator = {
                         TabRowDefaults.SecondaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                            modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
                             height = 3.dp,
                             color = NeonPurple
                         )
@@ -546,7 +546,7 @@ private fun VibrantRankingItem(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            text = user.name ?: "Unknown",
+                            text = user.name.ifEmpty { "Unknown" },
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.Bold,
                                 shadow = if (isTopThree) Shadow(
@@ -587,7 +587,7 @@ private fun VibrantRankingItem(
                             .padding(horizontal = 16.dp, vertical = 10.dp)
                     ) {
                         Text(
-                            text = (user.score ?: 0).toString(),
+                            text = user.score.toString(),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 shadow = Shadow(

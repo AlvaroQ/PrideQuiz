@@ -5,6 +5,6 @@ import com.quiz.domain.App
 
 class AppsRecommendedRepository(private val dataBaseSource: DataBaseSource) {
 
-    suspend fun getAppsRecommended(): MutableList<App> = dataBaseSource.getAppsRecommended()
+    suspend fun getAppsRecommended(): List<App> = dataBaseSource.getAppsRecommended()
 
 }

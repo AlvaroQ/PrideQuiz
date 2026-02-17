@@ -5,7 +5,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.getValue
 import com.quiz.data.datasource.DataBaseSource
 import com.quiz.domain.App
 import com.quiz.domain.Pride
@@ -27,19 +27,19 @@ class DataBaseSourceImpl : DataBaseSource {
                 .addValueEventListener(object : ValueEventListener {
 
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        continuation.resume(dataSnapshot.getValue(Pride::class.java) as Pride){}
+                        continuation.resumeWith(Result.success(dataSnapshot.getValue(Pride::class.java) as Pride))
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         log("getPrideById FAILED", "Failed to read value.", error.toException())
-                        continuation.resume(Pride()){}
+                        continuation.resumeWith(Result.success(Pride()))
                         FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
                     }
                 })
         }
     }
 
-    override suspend fun getPrideList(currentPage: Int): MutableList<Pride> {
+    override suspend fun getPrideList(currentPage: Int): List<Pride> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_PRIDE)
                 .orderByKey()
@@ -54,19 +54,19 @@ class DataBaseSourceImpl : DataBaseSource {
                                 prideList.add(snapshot.getValue(Pride::class.java)!!)
                             }
                         }
-                        continuation.resume(prideList) {}
+                        continuation.resumeWith(Result.success(prideList))
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                        continuation.resume(mutableListOf()){}
+                        continuation.resumeWith(Result.success(mutableListOf()))
                         FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
                     }
                 })
         }
     }
 
-    override suspend fun getAppsRecommended(): MutableList<App> {
+    override suspend fun getAppsRecommended(): List<App> {
         return suspendCancellableCoroutine { continuation ->
             FirebaseDatabase.getInstance().getReference(PATH_REFERENCE_APPS)
                 .addValueEventListener(object : ValueEventListener {
@@ -81,15 +81,14 @@ class DataBaseSourceImpl : DataBaseSource {
                                 }
                             }
                         }
-                        continuation.resume(appList
+                        continuation.resumeWith(Result.success(appList
                             .sortedBy { it.priority }
-                            .filter { it.url != BuildConfig.APPLICATION_ID }
-                            .toMutableList()){}
+                            .filter { it.url != BuildConfig.APPLICATION_ID }))
                     }
 
                     override fun onCancelled(error: DatabaseError) {
                         log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                        continuation.resume(mutableListOf()){}
+                        continuation.resumeWith(Result.success(mutableListOf()))
                         FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
                     }
                 })

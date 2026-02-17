@@ -1,7 +1,7 @@
 package com.quiz.pride.application
 
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
 import com.quiz.data.datasource.DataBaseSource
 import com.quiz.data.datasource.FirestoreDataSource
 import com.quiz.data.datasource.SharedPreferencesLocalDataSource
@@ -15,6 +15,7 @@ import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
 import com.quiz.pride.datasource.XpLeaderboardDataSourceImpl
 import com.quiz.pride.managers.AdFrequencyManager
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.NetworkManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.SharedPrefsDataSource
@@ -27,15 +28,26 @@ import com.quiz.pride.ui.moreApps.MoreAppsViewModel
 import com.quiz.pride.ui.profile.ProfileViewModel
 import com.quiz.pride.ui.ranking.RankingViewModel
 import com.quiz.pride.ui.result.ResultViewModel
-import com.quiz.pride.ui.select.SelectGameViewModel
-import com.quiz.pride.ui.select.SelectViewModel
 import com.quiz.pride.ui.settings.SettingsViewModel
-import com.quiz.usecases.*
+import com.quiz.usecases.GetAppsRecommended
+import com.quiz.usecases.GetPaymentDone
+import com.quiz.usecases.GetPersonalRecord
+import com.quiz.usecases.GetPrideById
+import com.quiz.usecases.GetPrideList
+import com.quiz.usecases.GetRankingScore
+import com.quiz.usecases.GetRecordScore
+import com.quiz.usecases.GetUserGlobalRank
+import com.quiz.usecases.GetUserXpEntry
+import com.quiz.usecases.GetXpLeaderboard
+import com.quiz.usecases.SaveTopScore
+import com.quiz.usecases.SetPaymentDone
+import com.quiz.usecases.SetPersonalRecord
+import com.quiz.usecases.SyncUserXp
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.koin.androidContext
-import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -47,6 +59,9 @@ val appModule = module {
     factory<FirestoreDataSource> { FirestoreDataSourceImpl(get()) }
     factory<SharedPreferencesLocalDataSource> { SharedPrefsDataSource(get()) }
     factory<XpLeaderboardDataSource> { XpLeaderboardDataSourceImpl(get()) }
+
+    // Analytics Manager
+    single { AnalyticsManager(androidContext()) }
 
     // Theme Manager (DataStore based)
     single { ThemeManager(androidContext()) }
@@ -73,14 +88,24 @@ val dataModule = module {
 }
 
 val scopesModule = module {
-    viewModel { SelectViewModel() }
-    viewModel { SelectGameViewModel() }
-    viewModel { GameViewModel(get(), get()) }
-    viewModel { ResultViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { GameViewModel(get(), get(), get()) }
+    viewModel {
+        ResultViewModel(
+            getAppsRecommended = get(),
+            saveTopScore = get(),
+            getRecordScore = get(),
+            getPersonalRecord = get(),
+            setPersonalRecord = get(),
+            getPaymentDone = get(),
+            progressionManager = get(),
+            xpSyncManager = get(),
+            analyticsManager = get()
+        )
+    }
     viewModel { RankingViewModel(get(), get(), get(), get()) }
-    viewModel { InfoViewModel(get(), get()) }
-    viewModel { MoreAppsViewModel(get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), get()) }
+    viewModel { InfoViewModel(get(), get(), get()) }
+    viewModel { MoreAppsViewModel(get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get(), get()) }
     viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { XpLeaderboardViewModel(get(), get(), get()) }
 
@@ -94,11 +119,6 @@ val scopesModule = module {
     factory { SetPersonalRecord(get()) }
     factory { GetRankingScore(get()) }
     factory { GetPrideList(get()) }
-
-    // Timed ranking use cases
-    factory { GetTimedRankingScore(get()) }
-    factory { GetTimedRecordScore(get()) }
-    factory { SaveTimedTopScore(get()) }
 
     // XP Leaderboard use cases
     factory { SyncUserXp(get()) }

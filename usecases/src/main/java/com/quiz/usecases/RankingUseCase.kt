@@ -5,28 +5,28 @@ import com.quiz.data.repository.RankingRepository
 import com.quiz.data.repository.RepositoryException
 import com.quiz.domain.User
 
+enum class RankingMode { NORMAL, TIMED }
 
 class GetRankingScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(): MutableList<User> = rankingRepository.getRanking()
+    suspend operator fun invoke(mode: RankingMode = RankingMode.NORMAL): List<User> =
+        when (mode) {
+            RankingMode.NORMAL -> rankingRepository.getRanking()
+            RankingMode.TIMED -> rankingRepository.getTimedRanking()
+        }
 }
 
 class GetRecordScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(limit: Long): String = rankingRepository.getWorldRecords(limit)
+    suspend operator fun invoke(limit: Long, mode: RankingMode = RankingMode.NORMAL): String =
+        when (mode) {
+            RankingMode.NORMAL -> rankingRepository.getWorldRecords(limit)
+            RankingMode.TIMED -> rankingRepository.getTimedWorldRecords(limit)
+        }
 }
 
 class SaveTopScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(user: User): Either<RepositoryException, User> = rankingRepository.addRecord(user)
-}
-
-// Timed ranking use cases
-class GetTimedRankingScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(): MutableList<User> = rankingRepository.getTimedRanking()
-}
-
-class GetTimedRecordScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(limit: Long): String = rankingRepository.getTimedWorldRecords(limit)
-}
-
-class SaveTimedTopScore(private val rankingRepository: RankingRepository) {
-    suspend fun invoke(user: User): Either<RepositoryException, User> = rankingRepository.addTimedRecord(user)
+    suspend operator fun invoke(user: User, mode: RankingMode = RankingMode.NORMAL): Either<RepositoryException, User> =
+        when (mode) {
+            RankingMode.NORMAL -> rankingRepository.addRecord(user)
+            RankingMode.TIMED -> rankingRepository.addTimedRecord(user)
+        }
 }

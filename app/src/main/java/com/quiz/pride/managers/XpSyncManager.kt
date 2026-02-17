@@ -6,12 +6,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
 import com.quiz.data.repository.XpLeaderboardRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -136,4 +137,12 @@ class XpSyncManager(
      * Get current user's UID
      */
     fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
+
+    /**
+     * Cancel the internal CoroutineScope.
+     * Should be called when the application is terminating.
+     */
+    fun cancel() {
+        scope.cancel()
+    }
 }

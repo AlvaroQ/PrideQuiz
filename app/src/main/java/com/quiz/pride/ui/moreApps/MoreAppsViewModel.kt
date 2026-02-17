@@ -19,14 +19,15 @@ data class MoreAppsUiState(
 
 class MoreAppsViewModel(
     private val getAppsRecommended: GetAppsRecommended,
-    private val getPaymentDone: GetPaymentDone
+    private val getPaymentDone: GetPaymentDone,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(MoreAppsUiState())
     val uiState: StateFlow<MoreAppsUiState> = _uiState.asStateFlow()
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_MORE_APPS)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_MORE_APPS)
         loadApps()
     }
 

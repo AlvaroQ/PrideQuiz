@@ -1,10 +1,9 @@
 package com.quiz.pride.ui.leaderboard
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.XpLeaderboardEntry
+import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.XpSyncManager
-import com.quiz.usecases.GetUserGlobalRank
 import com.quiz.usecases.GetXpLeaderboard
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,9 +19,9 @@ data class XpLeaderboardUiState(
 
 class XpLeaderboardViewModel(
     private val getXpLeaderboard: GetXpLeaderboard,
-    private val getUserGlobalRank: GetUserGlobalRank,
+    private val getUserGlobalRank: com.quiz.usecases.GetUserGlobalRank,
     private val xpSyncManager: XpSyncManager
-) : ViewModel() {
+) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(XpLeaderboardUiState())
     val uiState: StateFlow<XpLeaderboardUiState> = _uiState.asStateFlow()
@@ -33,12 +32,11 @@ class XpLeaderboardViewModel(
 
     fun loadLeaderboard() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.update { it.copy(isLoading = true) }
 
             val currentUid = xpSyncManager.getCurrentUserId()
-            val leaderboard = getXpLeaderboard.invoke()
+            val leaderboard = getXpLeaderboard()
 
-            // Find user's rank if they have XP
             var userRank: Int? = null
             if (currentUid != null) {
                 val userEntry = leaderboard.find { it.uid == currentUid }
@@ -47,12 +45,14 @@ class XpLeaderboardViewModel(
                 }
             }
 
-            _uiState.value = XpLeaderboardUiState(
-                isLoading = false,
-                leaderboardList = leaderboard,
-                userRank = userRank,
-                currentUserUid = currentUid
-            )
+            _uiState.update {
+                XpLeaderboardUiState(
+                    isLoading = false,
+                    leaderboardList = leaderboard,
+                    userRank = userRank,
+                    currentUserUid = currentUid
+                )
+            }
         }
     }
 

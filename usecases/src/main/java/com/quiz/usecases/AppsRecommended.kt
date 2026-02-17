@@ -4,5 +4,5 @@ import com.quiz.data.repository.AppsRecommendedRepository
 import com.quiz.domain.App
 
 class GetAppsRecommended(private val appsRecommendedRepository: AppsRecommendedRepository) {
-    suspend fun invoke(): MutableList<App> = appsRecommendedRepository.getAppsRecommended()
+    suspend operator fun invoke(): List<App> = appsRecommendedRepository.getAppsRecommended()
 }

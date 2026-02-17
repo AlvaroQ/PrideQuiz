@@ -7,8 +7,8 @@ import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetRankingScore
-import com.quiz.usecases.GetTimedRankingScore
 import com.quiz.usecases.GetXpLeaderboard
+import com.quiz.usecases.RankingMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,16 +25,16 @@ data class RankingUiState(
 
 class RankingViewModel(
     private val getRankingScore: GetRankingScore,
-    private val getTimedRankingScore: GetTimedRankingScore,
     private val getPaymentDone: GetPaymentDone,
-    private val getXpLeaderboard: GetXpLeaderboard
+    private val getXpLeaderboard: GetXpLeaderboard,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(RankingUiState())
     val uiState: StateFlow<RankingUiState> = _uiState.asStateFlow()
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RANKING)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RANKING)
         loadRanking()
     }
 
@@ -42,9 +42,9 @@ class RankingViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val ranking = getRankingScore.invoke()
-            val timedRanking = getTimedRankingScore.invoke()
-            val xpLeaderboard = getXpLeaderboard.invoke()
+            val ranking = getRankingScore(RankingMode.NORMAL)
+            val timedRanking = getRankingScore(RankingMode.TIMED)
+            val xpLeaderboard = getXpLeaderboard()
 
             _uiState.update { state ->
                 state.copy(

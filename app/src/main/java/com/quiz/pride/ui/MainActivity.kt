@@ -11,9 +11,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.crashlytics.crashlytics
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.navigation.PrideNavGraph
@@ -25,6 +25,7 @@ import org.koin.android.ext.android.inject
 class MainActivity : ComponentActivity() {
 
     private val themeManager: ThemeManager by inject()
+    private val analyticsManager: AnalyticsManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
     private fun initializeAnalytics() {
         // Initialize with current user or anonymous to prevent crashes
         val currentUid = Firebase.auth.currentUser?.uid ?: "anonymous"
-        AnalyticsManager.initialize(this, currentUid)
+        analyticsManager.uid = currentUid
     }
 
     private fun initializeFirebaseAuth() {
@@ -86,7 +87,7 @@ class MainActivity : ComponentActivity() {
                     result.user?.uid?.let { uid ->
                         Firebase.crashlytics.setUserId(uid)
                         // Update Analytics with real uid
-                        AnalyticsManager.uid = uid
+                        analyticsManager.uid = uid
                     }
                 }
                 .addOnFailureListener { exception ->

@@ -6,7 +6,7 @@ import arrow.core.right
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.ktx.toObjects
+import com.google.firebase.firestore.toObjects
 import com.quiz.data.datasource.FirestoreDataSource
 import com.quiz.data.repository.RepositoryException
 import com.quiz.domain.User
@@ -23,16 +23,16 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
             database.collection(COLLECTION_RANKING)
                 .add(user)
                 .addOnSuccessListener {
-                    continuation.resume(user.right()){}
+                    continuation.resumeWith(Result.success(user.right()))
                 }
                 .addOnFailureListener {
-                    continuation.resume(RepositoryException.NoConnectionException.left()){}
+                    continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }
     }
 
-    override suspend fun getRanking(): MutableList<User> {
+    override suspend fun getRanking(): List<User> {
         return suspendCancellableCoroutine { continuation ->
             val ref = database
                 .collection(COLLECTION_RANKING)
@@ -41,10 +41,10 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
 
             ref.get()
                 .addOnSuccessListener {
-                    continuation.resume(it.toObjects<User>().toMutableList()){}
+                    continuation.resumeWith(Result.success(it.toObjects<User>()))
                 }
                 .addOnFailureListener {
-                    continuation.resume(mutableListOf()){}
+                    continuation.resumeWith(Result.success(emptyList()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }
@@ -60,14 +60,14 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
             ref.get()
                 .addOnSuccessListener {
                     try {
-                        continuation.resume(it.toObjects<User>().last().score.toString()){}
+                        continuation.resumeWith(Result.success(it.toObjects<User>().last().score.toString()))
                     } catch (noSuchElementException: NoSuchElementException) {
-                        continuation.resume(""){}
+                        continuation.resumeWith(Result.success(""))
                         FirebaseCrashlytics.getInstance().recordException(Throwable(noSuchElementException.cause))
                     }
                 }
                 .addOnFailureListener {
-                    continuation.resume(""){}
+                    continuation.resumeWith(Result.success(""))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }
@@ -79,16 +79,16 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
             database.collection(COLLECTION_RANKING_TIMED)
                 .add(user)
                 .addOnSuccessListener {
-                    continuation.resume(user.right()){}
+                    continuation.resumeWith(Result.success(user.right()))
                 }
                 .addOnFailureListener {
-                    continuation.resume(RepositoryException.NoConnectionException.left()){}
+                    continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }
     }
 
-    override suspend fun getTimedRanking(): MutableList<User> {
+    override suspend fun getTimedRanking(): List<User> {
         return suspendCancellableCoroutine { continuation ->
             val ref = database
                 .collection(COLLECTION_RANKING_TIMED)
@@ -97,10 +97,10 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
 
             ref.get()
                 .addOnSuccessListener {
-                    continuation.resume(it.toObjects<User>().toMutableList()){}
+                    continuation.resumeWith(Result.success(it.toObjects<User>()))
                 }
                 .addOnFailureListener {
-                    continuation.resume(mutableListOf()){}
+                    continuation.resumeWith(Result.success(emptyList()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }
@@ -116,14 +116,14 @@ class FirestoreDataSourceImpl(private val database: FirebaseFirestore) : Firesto
             ref.get()
                 .addOnSuccessListener {
                     try {
-                        continuation.resume(it.toObjects<User>().last().score.toString()){}
+                        continuation.resumeWith(Result.success(it.toObjects<User>().last().score.toString()))
                     } catch (noSuchElementException: NoSuchElementException) {
-                        continuation.resume(""){}
+                        continuation.resumeWith(Result.success(""))
                         FirebaseCrashlytics.getInstance().recordException(Throwable(noSuchElementException.cause))
                     }
                 }
                 .addOnFailureListener {
-                    continuation.resume(""){}
+                    continuation.resumeWith(Result.success(""))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(it.cause))
                 }
         }

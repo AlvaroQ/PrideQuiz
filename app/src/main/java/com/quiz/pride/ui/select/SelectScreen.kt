@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
+import org.koin.compose.koinInject
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
@@ -86,9 +87,10 @@ fun SelectScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToProfile: () -> Unit = {}
 ) {
-    // Analytics
+    val analyticsManager: AnalyticsManager = koinInject()
+
     LaunchedEffect(Unit) {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)
     }
 
     // Floating animation for background elements

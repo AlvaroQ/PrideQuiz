@@ -47,15 +47,15 @@ class XpLeaderboardDataSourceImpl(
                         .document(entry.uid)
                         .set(data, SetOptions.merge())
                         .addOnSuccessListener {
-                            continuation.resume(entry.right()) {}
+                            continuation.resumeWith(Result.success(entry.right()))
                         }
                         .addOnFailureListener { e ->
-                            continuation.resume(RepositoryException.NoConnectionException.left()) {}
+                            continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                             FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
                         }
                 }
                 .addOnFailureListener { e ->
-                    continuation.resume(RepositoryException.NoConnectionException.left()) {}
+                    continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
                 }
         }
@@ -69,13 +69,13 @@ class XpLeaderboardDataSourceImpl(
                 .addOnSuccessListener { document ->
                     if (document.exists()) {
                         val entry = document.toObject(XpLeaderboardEntry::class.java)
-                        continuation.resume(entry.right()) {}
+                        continuation.resumeWith(Result.success(entry.right()))
                     } else {
-                        continuation.resume((null as XpLeaderboardEntry?).right()) {}
+                        continuation.resumeWith(Result.success((null as XpLeaderboardEntry?).right()))
                     }
                 }
                 .addOnFailureListener { e ->
-                    continuation.resume(RepositoryException.NoConnectionException.left()) {}
+                    continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
                 }
         }
@@ -91,10 +91,10 @@ class XpLeaderboardDataSourceImpl(
                     val entries = result.documents.mapNotNull { doc ->
                         doc.toObject(XpLeaderboardEntry::class.java)
                     }
-                    continuation.resume(entries) {}
+                    continuation.resumeWith(Result.success(entries))
                 }
                 .addOnFailureListener { e ->
-                    continuation.resume(emptyList()) {}
+                    continuation.resumeWith(Result.success(emptyList()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
                 }
         }
@@ -109,10 +109,10 @@ class XpLeaderboardDataSourceImpl(
                 .addOnSuccessListener { result ->
                     // Rank = count of users with more XP + 1
                     val rank = result.size() + 1
-                    continuation.resume(rank.right()) {}
+                    continuation.resumeWith(Result.success(rank.right()))
                 }
                 .addOnFailureListener { e ->
-                    continuation.resume(RepositoryException.NoConnectionException.left()) {}
+                    continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
                 }
         }

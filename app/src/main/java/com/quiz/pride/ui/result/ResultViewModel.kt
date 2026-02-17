@@ -1,8 +1,5 @@
 package com.quiz.pride.ui.result
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.App
 import com.quiz.domain.User
@@ -20,8 +17,7 @@ import com.quiz.usecases.GetAppsRecommended
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPersonalRecord
 import com.quiz.usecases.GetRecordScore
-import com.quiz.usecases.GetTimedRecordScore
-import com.quiz.usecases.SaveTimedTopScore
+import com.quiz.usecases.RankingMode
 import com.quiz.usecases.SaveTopScore
 import com.quiz.usecases.SetPersonalRecord
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,9 +56,8 @@ class ResultViewModel(
     private val setPersonalRecord: SetPersonalRecord,
     private val getPaymentDone: GetPaymentDone,
     private val progressionManager: ProgressionManager,
-    private val getTimedRecordScore: GetTimedRecordScore,
-    private val saveTimedTopScore: SaveTimedTopScore,
-    private val xpSyncManager: XpSyncManager
+    private val xpSyncManager: XpSyncManager,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(ResultUiState())
@@ -72,7 +67,7 @@ class ResultViewModel(
     val events = _events.asSharedFlow()
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
         loadData()
     }
 
@@ -125,7 +120,7 @@ class ResultViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val apps = getAppsRecommended.invoke()
-            val worldRecord = getRecordScore.invoke(1)
+            val worldRecord = getRecordScore(1)
 
             _uiState.update { state ->
                 state.copy(
@@ -149,9 +144,9 @@ class ResultViewModel(
 
     fun checkWorldRecord(gamePoints: Int) {
         viewModelScope.launch {
-            val pointsLastClassified = getRecordScore.invoke(50)
+            val pointsLastClassified = getRecordScore(50)
             if (pointsLastClassified.isNotEmpty() && gamePoints > pointsLastClassified.toInt()) {
-                AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
+                analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
                 _events.emit(ResultEvent.ShowWorldRecordDialog)
             }
         }
@@ -159,7 +154,7 @@ class ResultViewModel(
 
     fun saveScore(user: User) {
         viewModelScope.launch {
-            saveTopScore.invoke(user)
+            saveTopScore(user)
         }
     }
 
@@ -172,7 +167,7 @@ class ResultViewModel(
      */
     fun checkTimedRanking(score: Int) {
         viewModelScope.launch {
-            val position20Score = getTimedRecordScore.invoke(TOP_RANKING_LIMIT)
+            val position20Score = getRecordScore(TOP_RANKING_LIMIT, RankingMode.TIMED)
             val qualifies = position20Score.isEmpty() || score > (position20Score.toIntOrNull() ?: 0)
 
             if (qualifies) {
@@ -186,7 +181,7 @@ class ResultViewModel(
                         userProfile = userProfile
                     )
                 }
-                AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
+                analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
             }
         }
     }
@@ -209,7 +204,7 @@ class ResultViewModel(
                 timestamp = System.currentTimeMillis()
             )
 
-            saveTimedTopScore.invoke(user)
+            saveTopScore(user, RankingMode.TIMED)
 
             _uiState.update { state ->
                 state.copy(
@@ -229,18 +224,4 @@ class ResultViewModel(
         _uiState.update { it.copy(showTimedRankingDialog = false) }
     }
 
-    fun rateApp(context: Context) {
-        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
-        try {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("market://details?id=${context.packageName}")
-            }
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            val intent = Intent(Intent.ACTION_VIEW).apply {
-                data = Uri.parse("https://play.google.com/store/apps/details?id=${context.packageName}")
-            }
-            context.startActivity(intent)
-        }
-    }
 }

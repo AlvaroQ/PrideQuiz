@@ -23,7 +23,7 @@ import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -65,6 +65,7 @@ import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.PrideTopAppBar
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private const val REMOVE_AD = "remove_ad"
 
@@ -82,6 +83,7 @@ fun SettingsScreen(
     val isLargeTextEnabled by viewModel.isLargeTextEnabled.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
+    val analyticsManager: AnalyticsManager = koinInject()
 
     // Billing Client setup
     var billingClient by remember { mutableStateOf<BillingClient?>(null) }
@@ -94,7 +96,7 @@ fun SettingsScreen(
                     for (purchase in purchases) {
                         when (purchase.purchaseState) {
                             Purchase.PurchaseState.PURCHASED -> {
-                                AnalyticsManager.analyticsScreenViewed("billing_purchase_ok")
+                                analyticsManager.analyticsScreenViewed("billing_purchase_ok")
                                 viewModel.onPurchaseComplete()
                                 // Acknowledge purchase
                                 billingClient?.let { client ->
@@ -105,24 +107,24 @@ fun SettingsScreen(
                                 }
                             }
                             Purchase.PurchaseState.PENDING -> {
-                                AnalyticsManager.analyticsScreenViewed("billing_purchase_pending")
+                                analyticsManager.analyticsScreenViewed("billing_purchase_pending")
                             }
                             else -> {
-                                AnalyticsManager.analyticsScreenViewed("billing_purchase_unspecified")
+                                analyticsManager.analyticsScreenViewed("billing_purchase_unspecified")
                             }
                         }
                     }
                 }
                 billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED -> {
-                    AnalyticsManager.analyticsScreenViewed("billing_purchase_canceled")
+                    analyticsManager.analyticsScreenViewed("billing_purchase_canceled")
                     viewModel.onPurchaseCancelled()
                 }
                 billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                    AnalyticsManager.analyticsScreenViewed("billing_already_purchase")
+                    analyticsManager.analyticsScreenViewed("billing_already_purchase")
                     viewModel.onPurchaseComplete()
                 }
                 else -> {
-                    AnalyticsManager.analyticsScreenViewed("billing_purchase_error")
+                    analyticsManager.analyticsScreenViewed("billing_purchase_error")
                     viewModel.onPurchaseError()
                 }
             }
@@ -219,7 +221,7 @@ fun SettingsScreen(
 
             SettingsCard {
                 SettingsSwitchItem(
-                    icon = Icons.Default.VolumeUp,
+                    icon = Icons.AutoMirrored.Filled.VolumeUp,
                     title = stringResource(R.string.settings_sound_effects),
                     subtitle = stringResource(R.string.settings_sound_effects_desc),
                     checked = isSoundEnabled,
@@ -272,7 +274,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.settings_rate_app),
                     subtitle = stringResource(R.string.settings_rate_app_desc),
                     onClick = {
-                        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
+                        analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
                         try {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data = Uri.parse("market://details?id=${context.packageName}")
@@ -295,7 +297,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.share),
                     subtitle = stringResource(R.string.settings_share_desc),
                     onClick = {
-                        AnalyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
+                        analyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))

@@ -68,19 +68,17 @@ fun MoreAppsScreen(
                 ) {
                     items(
                         items = uiState.appsList,
-                        key = { it.url ?: it.hashCode().toString() }
+                        key = { it.url.ifEmpty { it.hashCode().toString() } }
                     ) { app ->
                         AppItem(
                             app = app,
                             onClick = {
-                                app.url?.let { appUrl ->
-                                    try {
-                                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                                            data = Uri.parse(appUrl)
-                                        }
-                                        context.startActivity(intent)
-                                    } catch (_: Exception) {}
-                                }
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                                        data = Uri.parse(app.url)
+                                    }
+                                    context.startActivity(intent)
+                                } catch (_: Exception) {}
                             }
                         )
                     }

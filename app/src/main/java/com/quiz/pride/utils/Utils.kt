@@ -78,6 +78,7 @@ fun Activity.screenOrientationPortrait(){
 }
 
 const val AVERAGE_MONTH_IN_MILLIS = DateUtils.DAY_IN_MILLIS * 30
+private const val YEAR_IN_MILLIS = 365L * DateUtils.DAY_IN_MILLIS
 fun getRelationTime(context: Context, time: Long): String {
     val now: Long = Date().time
     val delta = now - time
@@ -98,11 +99,11 @@ fun getRelationTime(context: Context, time: Long): String {
             delta <= AVERAGE_MONTH_IN_MILLIS -> {
                 context.resources.getQuantityString(R.plurals.weeks_ago, (delta / DateUtils.WEEK_IN_MILLIS).toInt(), (delta / DateUtils.WEEK_IN_MILLIS).toInt())
             }
-            delta <= DateUtils.YEAR_IN_MILLIS -> {
+            delta <= YEAR_IN_MILLIS -> {
                 context.resources.getQuantityString(R.plurals.months_ago, (delta / AVERAGE_MONTH_IN_MILLIS).toInt(), (delta / AVERAGE_MONTH_IN_MILLIS).toInt())
             }
             else -> {
-                context.resources.getQuantityString(R.plurals.years_ago, (delta / DateUtils.YEAR_IN_MILLIS).toInt(), (delta / DateUtils.YEAR_IN_MILLIS).toInt())
+                context.resources.getQuantityString(R.plurals.years_ago, (delta / YEAR_IN_MILLIS).toInt(), (delta / YEAR_IN_MILLIS).toInt())
             }
         }
     }

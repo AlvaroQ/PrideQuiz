@@ -35,7 +35,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -119,6 +119,7 @@ fun ResultScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val adFrequencyManager: AdFrequencyManager = koinInject()
+    val analyticsManager: AnalyticsManager = koinInject()
     val coroutineScope = rememberCoroutineScope()
 
     // Animation states
@@ -145,8 +146,6 @@ fun ResultScreen(
 
     // Show interstitial ad based on frequency and record game result
     LaunchedEffect(Unit) {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
-
         // Record game completed for ad frequency tracking
         adFrequencyManager.recordGameCompleted()
 
@@ -393,7 +392,10 @@ fun ResultScreen(
                             }
                             context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share)))
                         },
-                        onRate = { viewModel.rateApp(context) }
+                        onRate = {
+                            analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
+                            com.quiz.pride.utils.rateApp(context)
+                        }
                     )
                 }
             }
@@ -613,7 +615,7 @@ private fun StatsGrid(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.Default.TrendingUp,
+                icon = Icons.AutoMirrored.Filled.TrendingUp,
                 label = stringResource(R.string.result_accuracy),
                 value = "$accuracy%",
                 color = if (accuracy >= 80) NeonGreen else if (accuracy >= 50) NeonYellow else NeonOrange,

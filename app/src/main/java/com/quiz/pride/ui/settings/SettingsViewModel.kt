@@ -29,7 +29,8 @@ sealed class SettingsEvent {
 class SettingsViewModel(
     private val setPaymentDone: SetPaymentDone,
     private val getPaymentDone: GetPaymentDone,
-    private val themeManager: ThemeManager
+    private val themeManager: ThemeManager,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -56,7 +57,7 @@ class SettingsViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SETTINGS)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SETTINGS)
         loadPaymentStatus()
     }
 

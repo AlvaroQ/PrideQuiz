@@ -20,14 +20,15 @@ data class InfoUiState(
 
 class InfoViewModel(
     private val getPrideList: GetPrideList,
-    private val getPaymentDone: GetPaymentDone
+    private val getPaymentDone: GetPaymentDone,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(InfoUiState())
     val uiState: StateFlow<InfoUiState> = _uiState.asStateFlow()
 
     init {
-        AnalyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_INFO)
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_INFO)
         loadInitialData()
     }
 
