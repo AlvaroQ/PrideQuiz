@@ -9,6 +9,7 @@ import com.quiz.usecases.GetPrideList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class InfoUiState(
@@ -37,12 +38,13 @@ class InfoViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val initialList = getPrideList.invoke(0)
+            val showAd = !getPaymentDone()
 
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
                     prideList = initialList,
-                    showBannerAd = !getPaymentDone(),
+                    showBannerAd = showAd,
                     currentPage = 0
                 )
             }

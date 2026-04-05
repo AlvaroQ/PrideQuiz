@@ -7,16 +7,23 @@ import com.quiz.data.datasource.FirestoreDataSource
 import com.quiz.data.datasource.SharedPreferencesLocalDataSource
 import com.quiz.data.datasource.XpLeaderboardDataSource
 import com.quiz.data.repository.AppsRecommendedRepository
+import com.quiz.data.repository.AppsRecommendedRepositoryImpl
 import com.quiz.data.repository.PrideByIdRepository
+import com.quiz.data.repository.PrideByIdRepositoryImpl
 import com.quiz.data.repository.RankingRepository
+import com.quiz.data.repository.RankingRepositoryImpl
 import com.quiz.data.repository.SharedPreferencesRepository
+import com.quiz.data.repository.SharedPreferencesRepositoryImpl
 import com.quiz.data.repository.XpLeaderboardRepository
+import com.quiz.data.repository.XpLeaderboardRepositoryImpl
 import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
 import com.quiz.pride.datasource.XpLeaderboardDataSourceImpl
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.NetworkManager
+import com.quiz.pride.managers.AchievementManager
+import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.SharedPrefsDataSource
 import com.quiz.pride.managers.ThemeManager
@@ -48,7 +55,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
-import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 @ExperimentalCoroutinesApi
@@ -72,19 +78,25 @@ val appModule = module {
     // Ad Frequency Manager for controlling ad display frequency
     single { AdFrequencyManager(androidContext()) }
 
-    // Progression Manager for XP, levels, and achievements
+    // Progression Manager for XP, levels, and profile
     single { ProgressionManager(androidContext()) }
 
+    // Game Stats Manager for recording game results and statistics
+    single { GameStatsManager(androidContext(), get()) }
+
+    // Achievement Manager for unlocking and checking achievements
+    single { AchievementManager(androidContext(), get(), get()) }
+
     // XP Sync Manager for Firestore leaderboard synchronization
-    single { XpSyncManager(androidContext(), get(), get(), get()) }
+    single { XpSyncManager(androidContext(), get(), get(), get(), get()) }
 }
 
 val dataModule = module {
-    factoryOf(::PrideByIdRepository)
-    factoryOf(::AppsRecommendedRepository)
-    factoryOf(::RankingRepository)
-    factoryOf(::SharedPreferencesRepository)
-    factoryOf(::XpLeaderboardRepository)
+    factory<PrideByIdRepository> { PrideByIdRepositoryImpl(get()) }
+    factory<AppsRecommendedRepository> { AppsRecommendedRepositoryImpl(get()) }
+    factory<RankingRepository> { RankingRepositoryImpl(get()) }
+    factory<SharedPreferencesRepository> { SharedPreferencesRepositoryImpl(get()) }
+    factory<XpLeaderboardRepository> { XpLeaderboardRepositoryImpl(get()) }
 }
 
 val scopesModule = module {
@@ -98,6 +110,8 @@ val scopesModule = module {
             setPersonalRecord = get(),
             getPaymentDone = get(),
             progressionManager = get(),
+            gameStatsManager = get(),
+            achievementManager = get(),
             xpSyncManager = get(),
             analyticsManager = get()
         )
@@ -106,7 +120,7 @@ val scopesModule = module {
     viewModel { InfoViewModel(get(), get(), get()) }
     viewModel { MoreAppsViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
-    viewModel { ProfileViewModel(get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get()) }
     viewModel { XpLeaderboardViewModel(get(), get(), get()) }
 
     factory { GetPaymentDone(get()) }

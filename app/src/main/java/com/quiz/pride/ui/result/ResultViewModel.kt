@@ -5,9 +5,11 @@ import com.quiz.domain.App
 import com.quiz.domain.User
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.Achievement
+import com.quiz.pride.managers.AchievementManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.GameMode
 import com.quiz.pride.managers.GameResult
+import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.XpGainResult
 import com.quiz.pride.managers.XpSyncManager
@@ -20,11 +22,13 @@ import com.quiz.usecases.GetRecordScore
 import com.quiz.usecases.RankingMode
 import com.quiz.usecases.SaveTopScore
 import com.quiz.usecases.SetPersonalRecord
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ResultUiState(
@@ -56,6 +60,8 @@ class ResultViewModel(
     private val setPersonalRecord: SetPersonalRecord,
     private val getPaymentDone: GetPaymentDone,
     private val progressionManager: ProgressionManager,
+    private val gameStatsManager: GameStatsManager,
+    private val achievementManager: AchievementManager,
     private val xpSyncManager: XpSyncManager,
     private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
@@ -93,10 +99,10 @@ class ResultViewModel(
             )
 
             // Record result and get XP
-            val xpResult = progressionManager.recordGameResult(result)
+            val xpResult = gameStatsManager.recordGameResult(result)
 
             // Check for new achievements
-            val newAchievements = progressionManager.checkAndUnlockAchievements()
+            val newAchievements = achievementManager.checkAndUnlockAchievements()
 
             // Sync XP to Firestore leaderboard
             xpSyncManager.triggerSync()
@@ -119,8 +125,11 @@ class ResultViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val apps = getAppsRecommended.invoke()
-            val worldRecord = getRecordScore(1)
+            val appsDeferred = async { getAppsRecommended.invoke() }
+            val worldRecordDeferred = async { getRecordScore(1) }
+
+            val apps = appsDeferred.await()
+            val worldRecord = worldRecordDeferred.await()
 
             _uiState.update { state ->
                 state.copy(

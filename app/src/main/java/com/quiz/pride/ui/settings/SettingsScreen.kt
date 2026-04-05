@@ -37,7 +37,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,12 +75,12 @@ fun SettingsScreen(
     onNavigateToMoreApps: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
-    val isSoundEnabled by viewModel.isSoundEnabled.collectAsState()
-    val isDynamicColorsEnabled by viewModel.isDynamicColorsEnabled.collectAsState()
-    val isHighContrastEnabled by viewModel.isHighContrastEnabled.collectAsState()
-    val isLargeTextEnabled by viewModel.isLargeTextEnabled.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
+    val isSoundEnabled by viewModel.isSoundEnabled.collectAsStateWithLifecycle()
+    val isDynamicColorsEnabled by viewModel.isDynamicColorsEnabled.collectAsStateWithLifecycle()
+    val isHighContrastEnabled by viewModel.isHighContrastEnabled.collectAsStateWithLifecycle()
+    val isLargeTextEnabled by viewModel.isLargeTextEnabled.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? Activity
     val analyticsManager: AnalyticsManager = koinInject()

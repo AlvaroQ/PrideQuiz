@@ -1,13 +1,7 @@
 package com.quiz.pride.ui.select
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +16,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -61,13 +54,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import org.koin.compose.koinInject
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonPink
@@ -93,63 +85,10 @@ fun SelectScreen(
         analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)
     }
 
-    // Floating animation for background elements
-    val infiniteTransition = rememberInfiniteTransition(label = "float")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 20f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        GradientBackgroundStart,
-                        GradientBackgroundMid,
-                        GradientBackgroundEnd
-                    )
-                )
-            )
+    AnimatedScreenBackground(
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
     ) {
-        // Decorative glow orbs in background
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
-                .alpha(0.3f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPink, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
-        Box(
-            modifier = Modifier
-                .size(150.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 50.dp, y = 200.dp - floatOffset.dp)
-                .alpha(0.25f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPurple, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
         // Background image with overlay
         Image(
             painter = painterResource(R.drawable.protest),

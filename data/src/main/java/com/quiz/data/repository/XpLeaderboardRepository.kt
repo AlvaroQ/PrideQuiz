@@ -1,15 +1,11 @@
 package com.quiz.data.repository
 
-import com.quiz.data.datasource.XpLeaderboardDataSource
+import arrow.core.Either
 import com.quiz.domain.XpLeaderboardEntry
 
-class XpLeaderboardRepository(private val xpLeaderboardDataSource: XpLeaderboardDataSource) {
-
-    suspend fun syncUserXp(entry: XpLeaderboardEntry) = xpLeaderboardDataSource.syncUserXp(entry)
-
-    suspend fun getUserXpEntry(uid: String) = xpLeaderboardDataSource.getUserXpEntry(uid)
-
-    suspend fun getXpLeaderboard(limit: Int = 100) = xpLeaderboardDataSource.getXpLeaderboard(limit)
-
-    suspend fun getUserRank(uid: String, userXp: Long) = xpLeaderboardDataSource.getUserRank(uid, userXp)
+interface XpLeaderboardRepository {
+    suspend fun syncUserXp(entry: XpLeaderboardEntry): Either<RepositoryException, XpLeaderboardEntry>
+    suspend fun getUserXpEntry(uid: String): Either<RepositoryException, XpLeaderboardEntry?>
+    suspend fun getXpLeaderboard(limit: Int = 100): List<XpLeaderboardEntry>
+    suspend fun getUserRank(uid: String, userXp: Long): Either<RepositoryException, Int>
 }

@@ -8,10 +8,6 @@ import kotlinx.coroutines.launch
 
 abstract class ComposeViewModel : ViewModel() {
 
-    protected fun <T> MutableStateFlow<T>.update(transform: (T) -> T) {
-        value = transform(value)
-    }
-
     protected fun launchInScope(block: suspend () -> Unit) {
         viewModelScope.launch {
             block()

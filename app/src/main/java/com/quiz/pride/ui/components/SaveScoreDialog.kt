@@ -213,7 +213,10 @@ fun SaveScoreDialog(
                 // Nickname field
                 OutlinedTextField(
                     value = nickname,
-                    onValueChange = { if (it.length <= 20) nickname = it },
+                    onValueChange = { input ->
+                        val sanitized = input.replace(Regex("[<>\"'&;/\\\\]"), "").take(20)
+                        nickname = sanitized
+                    },
                     label = { Text(stringResource(R.string.dialog_name)) },
                     enabled = !isSaving,
                     singleLine = true,
@@ -250,7 +253,7 @@ fun SaveScoreDialog(
 
                     // Save button
                     Button(
-                        onClick = { onSave(nickname, imageBase64) },
+                        onClick = { onSave(nickname.trim(), imageBase64) },
                         enabled = !isSaving && nickname.isNotBlank(),
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(

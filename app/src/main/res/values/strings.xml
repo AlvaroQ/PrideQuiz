@@ -151,6 +151,8 @@
     <!-- Result screen improvements -->
     <string name="result_title">Game Over</string>
     <string name="result_new_record">New Record!</string>
+    <string name="result_personal_best">Personal Best</string>
+    <string name="result_world_record">World Record</string>
     <string name="result_accuracy">Accuracy</string>
     <string name="result_best_streak">Best Streak</string>
     <string name="result_time_played">Time Played</string>
@@ -209,6 +211,54 @@
     <string name="timed_mode_description">Race against the clock!</string>
     <string name="time_remaining">Time: %d</string>
     <string name="time_bonus">Time Bonus: +%d</string>
+
+    <!-- Level titles -->
+    <string name="level_title_novice">Novice</string>
+    <string name="level_title_explorer">Explorer</string>
+    <string name="level_title_enthusiast">Enthusiast</string>
+    <string name="level_title_connoisseur">Connoisseur</string>
+    <string name="level_title_expert">Expert</string>
+    <string name="level_title_master">Master</string>
+    <string name="level_title_grandmaster">Grandmaster</string>
+    <string name="level_title_legend">Legend</string>
+
+    <!-- Achievement titles -->
+    <string name="achievement_first_game_title">First Steps</string>
+    <string name="achievement_first_game_desc">Complete your first game</string>
+    <string name="achievement_ten_games_title">Getting Started</string>
+    <string name="achievement_ten_games_desc">Play 10 games</string>
+    <string name="achievement_fifty_games_title">Dedicated Player</string>
+    <string name="achievement_fifty_games_desc">Play 50 games</string>
+    <string name="achievement_hundred_games_title">Veteran</string>
+    <string name="achievement_hundred_games_desc">Play 100 games</string>
+    <string name="achievement_first_perfect_title">Perfectionist</string>
+    <string name="achievement_first_perfect_desc">Complete a game with no mistakes</string>
+    <string name="achievement_five_perfect_title">Flawless</string>
+    <string name="achievement_five_perfect_desc">Complete 5 perfect games</string>
+    <string name="achievement_streak_5_title">On Fire</string>
+    <string name="achievement_streak_5_desc">Get a 5 answer streak</string>
+    <string name="achievement_streak_10_title">Unstoppable</string>
+    <string name="achievement_streak_10_desc">Get a 10 answer streak</string>
+    <string name="achievement_streak_15_title">Legendary</string>
+    <string name="achievement_streak_15_desc">Get a 15 answer streak</string>
+    <string name="achievement_streak_20_title">Godlike</string>
+    <string name="achievement_streak_20_desc">Get a 20 answer streak</string>
+    <string name="achievement_level_10_title">Rising Star</string>
+    <string name="achievement_level_10_desc">Reach level 10</string>
+    <string name="achievement_level_25_title">Pride Expert</string>
+    <string name="achievement_level_25_desc">Reach level 25</string>
+    <string name="achievement_level_50_title">Pride Legend</string>
+    <string name="achievement_level_50_desc">Reach level 50</string>
+    <string name="achievement_expert_master_title">Expert Master</string>
+    <string name="achievement_expert_master_desc">Complete 25 expert games</string>
+    <string name="achievement_speed_demon_title">Speed Demon</string>
+    <string name="achievement_speed_demon_desc">Complete 10 timed mode games</string>
+    <string name="achievement_dedicated_title">Dedicated</string>
+    <string name="achievement_dedicated_desc">Play for 1 hour total</string>
+    <string name="achievement_accuracy_80_title">Sharpshooter</string>
+    <string name="achievement_accuracy_80_desc">Maintain 80%+ accuracy over 10 games</string>
+    <string name="achievement_accuracy_90_title">Precision Master</string>
+    <string name="achievement_accuracy_90_desc">Maintain 90%+ accuracy over 20 games</string>
 
     <!-- content description image -->
     <string name="game_title" translatable="false">game title</string>

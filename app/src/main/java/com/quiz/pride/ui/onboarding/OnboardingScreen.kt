@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,6 +60,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
 import com.quiz.pride.ui.theme.AdvanceGradientTop
@@ -68,9 +68,6 @@ import com.quiz.pride.ui.theme.ExpertGradientBottom
 import com.quiz.pride.ui.theme.ExpertGradientTop
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonGreen
@@ -130,63 +127,10 @@ fun OnboardingScreen(
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
 
-    // Floating animation
-    val infiniteTransition = rememberInfiniteTransition(label = "onboarding_bg")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    listOf(
-                        GradientBackgroundStart,
-                        GradientBackgroundMid,
-                        GradientBackgroundEnd
-                    )
-                )
-            )
+    AnimatedScreenBackground(
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
     ) {
-        // Decorative glow orbs
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .offset(x = (-70).dp, y = 100.dp + floatOffset.dp)
-                .alpha(0.25f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPink, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
-        Box(
-            modifier = Modifier
-                .size(160.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 60.dp, y = 200.dp - floatOffset.dp)
-                .alpha(0.2f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPurple, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()

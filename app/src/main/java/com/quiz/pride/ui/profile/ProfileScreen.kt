@@ -25,7 +25,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -59,7 +58,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -93,12 +92,10 @@ import com.quiz.pride.managers.Achievement
 import com.quiz.pride.managers.LevelInfo
 import com.quiz.pride.managers.PlayerStatistics
 import com.quiz.pride.managers.UserProfile
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.NeonBlue
@@ -117,23 +114,11 @@ fun ProfileScreen(
     onNavigateToLeaderboard: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Detect theme
     val colorScheme = MaterialTheme.colorScheme
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
-
-    // Background animation
-    val infiniteTransition = rememberInfiniteTransition(label = "profile_bg")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
 
     Scaffold(
         topBar = {
@@ -143,103 +128,63 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            GradientBackgroundStart,
-                            GradientBackgroundMid,
-                            GradientBackgroundEnd
+        Box(modifier = Modifier.padding(paddingValues)) {
+            AnimatedScreenBackground(
+                orbColor1 = NeonPurple,
+                orbColor2 = NeonPink
+            ) {
+                if (uiState.isLoading) {
+                    LoadingIndicator()
+                } else {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(16.dp)
+                    ) {
+                        // User Profile Card
+                        UserProfileCard(
+                            userProfile = uiState.userProfile,
+                            isDarkTheme = isDarkTheme,
+                            onSaveNickname = { viewModel.saveNickname(it) },
+                            onSaveImage = { viewModel.saveUserImage(it) }
                         )
-                    )
-                )
-        ) {
-            // Decorative glow orbs
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
-                    .alpha(0.25f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPurple, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Level Card
+                        uiState.levelInfo?.let { levelInfo ->
+                            LevelCard(levelInfo = levelInfo, isDarkTheme = isDarkTheme)
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Global Rank Card
+                        GlobalRankCard(
+                            globalRank = uiState.globalRank,
+                            isLoading = uiState.isLoadingRank,
+                            isDarkTheme = isDarkTheme,
+                            onViewLeaderboard = onNavigateToLeaderboard
                         )
-                    }
-            )
 
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 40.dp, y = 200.dp - floatOffset.dp)
-                    .alpha(0.2f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPink, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Statistics Section
+                        uiState.statistics?.let { stats ->
+                            StatisticsSection(statistics = stats, isDarkTheme = isDarkTheme)
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Achievements Section
+                        AchievementsSection(
+                            allAchievements = uiState.allAchievements,
+                            unlockedAchievements = uiState.unlockedAchievements,
+                            isDarkTheme = isDarkTheme
                         )
+
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
-            )
-
-            if (uiState.isLoading) {
-                LoadingIndicator()
-            } else {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ) {
-                    // User Profile Card
-                    UserProfileCard(
-                        userProfile = uiState.userProfile,
-                        isDarkTheme = isDarkTheme,
-                        onSaveNickname = { viewModel.saveNickname(it) },
-                        onSaveImage = { viewModel.saveUserImage(it) }
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Level Card
-                    uiState.levelInfo?.let { levelInfo ->
-                        LevelCard(levelInfo = levelInfo, isDarkTheme = isDarkTheme)
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Global Rank Card
-                    GlobalRankCard(
-                        globalRank = uiState.globalRank,
-                        isLoading = uiState.isLoadingRank,
-                        isDarkTheme = isDarkTheme,
-                        onViewLeaderboard = onNavigateToLeaderboard
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Statistics Section
-                    uiState.statistics?.let { stats ->
-                        StatisticsSection(statistics = stats, isDarkTheme = isDarkTheme)
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    // Achievements Section
-                    AchievementsSection(
-                        allAchievements = uiState.allAchievements,
-                        unlockedAchievements = uiState.unlockedAchievements,
-                        isDarkTheme = isDarkTheme
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
                 }
             }
         }
@@ -870,7 +815,7 @@ private fun AchievementCard(
 
             // Title
             Text(
-                text = achievement.title,
+                text = stringResource(achievement.titleRes),
                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                 color = if (isUnlocked) titleColor else titleColor.copy(alpha = 0.4f),
                 textAlign = TextAlign.Center,
@@ -881,7 +826,7 @@ private fun AchievementCard(
 
             // Description
             Text(
-                text = achievement.description,
+                text = stringResource(achievement.descriptionRes),
                 style = MaterialTheme.typography.labelSmall,
                 color = if (isUnlocked) descriptionColor else descriptionColor.copy(alpha = 0.5f),
                 textAlign = TextAlign.Center,

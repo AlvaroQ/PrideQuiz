@@ -9,9 +9,11 @@ import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetRankingScore
 import com.quiz.usecases.GetXpLeaderboard
 import com.quiz.usecases.RankingMode
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class RankingUiState(
@@ -42,9 +44,14 @@ class RankingViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val ranking = getRankingScore(RankingMode.NORMAL)
-            val timedRanking = getRankingScore(RankingMode.TIMED)
-            val xpLeaderboard = getXpLeaderboard()
+            val rankingDeferred = async { getRankingScore(RankingMode.NORMAL) }
+            val timedRankingDeferred = async { getRankingScore(RankingMode.TIMED) }
+            val xpLeaderboardDeferred = async { getXpLeaderboard() }
+
+            val ranking = rankingDeferred.await()
+            val timedRanking = timedRankingDeferred.await()
+            val xpLeaderboard = xpLeaderboardDeferred.await()
+            val showAd = !getPaymentDone()
 
             _uiState.update { state ->
                 state.copy(
@@ -52,7 +59,7 @@ class RankingViewModel(
                     rankingList = ranking,
                     timedRankingList = timedRanking,
                     xpLeaderboardList = xpLeaderboard,
-                    showRewardedAd = !getPaymentDone()
+                    showRewardedAd = showAd
                 )
             }
         }

@@ -13,7 +13,8 @@
       "WebFetch(domain:vercel.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:skills.sh)",
-      "WebFetch(domain:developer.android.com)"
+      "WebFetch(domain:developer.android.com)",
+      "Bash(sort:*)"
     ],
     "deny": [],
     "ask": []

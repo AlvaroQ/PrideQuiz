@@ -9,6 +9,7 @@ import com.quiz.usecases.GetPaymentDone
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class MoreAppsUiState(
@@ -36,12 +37,13 @@ class MoreAppsViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val apps = getAppsRecommended.invoke()
+            val showAd = !getPaymentDone()
 
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
                     appsList = apps,
-                    showAd = !getPaymentDone()
+                    showAd = showAd
                 )
             }
         }

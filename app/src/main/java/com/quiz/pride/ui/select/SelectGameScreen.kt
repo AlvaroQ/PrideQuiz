@@ -1,13 +1,7 @@
 package com.quiz.pride.ui.select
 
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
@@ -22,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,14 +46,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
 import com.quiz.pride.ui.theme.AdvanceGradientTop
 import com.quiz.pride.ui.theme.ExpertGradientBottom
 import com.quiz.pride.ui.theme.ExpertGradientTop
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
@@ -86,18 +78,6 @@ fun SelectGameScreen(
         analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT_GAME)
     }
 
-    // Floating animation
-    val infiniteTransition = rememberInfiniteTransition(label = "float")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
     Scaffold(
         topBar = {
             PrideTopAppBar(
@@ -106,52 +86,11 @@ fun SelectGameScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            GradientBackgroundStart,
-                            GradientBackgroundMid,
-                            GradientBackgroundEnd
-                        )
-                    )
-                )
-        ) {
-            // Decorative glow orbs
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .offset(x = (-50).dp, y = 80.dp + floatOffset.dp)
-                    .alpha(0.25f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonGreen, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 40.dp, y = 150.dp - floatOffset.dp)
-                    .alpha(0.2f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonOrange, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
+        Box(modifier = Modifier.padding(paddingValues)) {
+            AnimatedScreenBackground(
+                orbColor1 = NeonGreen,
+                orbColor2 = NeonOrange
+            ) {
             // Background image with overlay
             Image(
                 painter = painterResource(R.drawable.protest),
@@ -251,7 +190,8 @@ fun SelectGameScreen(
                     onClick = { onNavigateToGame(Constants.GameType.TIMED) }
                 )
             }
-        }
+            } // AnimatedScreenBackground
+        } // Box padding
     }
 }
 

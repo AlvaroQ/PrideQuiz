@@ -3,7 +3,6 @@ import groovy.xml.XmlParser
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
-apply plugin: 'androidx.navigation.safeargs.kotlin'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
@@ -12,12 +11,6 @@ android {
 
     signingConfigs {
         config {
-            keyAlias PRIDEQUIZ_RELEASE_KEY_ALIAS
-            keyPassword PRIDEQUIZ_RELEASE_KEY_PASSWORD
-            storeFile file(PRIDEQUIZ_RELEASE_STORE_FILE)
-            storePassword PRIDEQUIZ_RELEASE_STORE_PASSWORD
-        }
-        debug {
             keyAlias PRIDEQUIZ_RELEASE_KEY_ALIAS
             keyPassword PRIDEQUIZ_RELEASE_KEY_PASSWORD
             storeFile file(PRIDEQUIZ_RELEASE_STORE_FILE)
@@ -36,7 +29,6 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.debug
             jniDebuggable true
             debuggable true
             minifyEnabled false
@@ -59,6 +51,7 @@ android {
         release {
             signingConfig signingConfigs.config
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable false
             firebaseCrashlytics {
@@ -86,7 +79,6 @@ android {
         jvmToolchain(17)
     }
     buildFeatures {
-        viewBinding true
         compose true
         buildConfig = true
     }

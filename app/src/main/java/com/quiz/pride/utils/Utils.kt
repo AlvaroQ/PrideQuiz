@@ -4,60 +4,19 @@ import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.net.Uri
-import android.os.Build
 import android.text.format.DateUtils
 import android.util.Base64
 import android.util.Log
-import android.view.View
-import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.rewarded.RewardedAd
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import java.io.File
 import java.util.*
 
 
-fun showBanner(show: Boolean, adView: AdView){
-    if(show) {
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-    } else {
-        adView.visibility = View.GONE
-    }
-}
-fun showBonificado(activity: Activity, show: Boolean, rewardedAd: RewardedAd?) {
-    if(show) {
-        rewardedAd?.let { ad ->
-            ad.show(activity) { rewardItem ->
-                Log.d("loadBonificado", "User earned the reward. rewardAmount=$rewardItem.amount, rewardType=$rewardItem.type")
-            }
-        } ?: run {
-            Log.d("loadBonificado", "The rewarded ad wasn't ready yet.")
-        }
-    }
-}
 fun File.toBase64(): String {
     val bytes = readBytes()
     return Base64.encodeToString(bytes, Base64.NO_WRAP)
-}
-fun hideKeyboard(activity: Activity) {
-    val imm = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
-    imm!!.hideSoftInputFromWindow(activity.currentFocus?.windowToken, 0)
-    activity.currentFocus?.clearFocus()
-    activity.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-}
-fun getCircularProgressDrawable(context: Context) : CircularProgressDrawable {
-    return CircularProgressDrawable(context).apply {
-        strokeWidth = 5f
-        centerRadius = 30f
-        start()
-    }
 }
 fun log(tag: String?, msg: String?, error: Throwable? = null){
     if (BuildConfig.BUILD_TYPE != "release") {
@@ -66,14 +25,6 @@ fun log(tag: String?, msg: String?, error: Throwable? = null){
         } else {
             Log.d(tag, msg!!)
         }
-    }
-}
-
-fun Activity.screenOrientationPortrait(){
-    requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
-        ActivityInfo.SCREEN_ORIENTATION_BEHIND
-    } else {
-        ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
     }
 }
 
@@ -120,7 +71,7 @@ fun rateApp(context: Context) {
         context.startActivity(goToMarket)
     } catch (e: ActivityNotFoundException) {
         context.startActivity(Intent(Intent.ACTION_VIEW,
-                Uri.parse("http://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}")))
+                Uri.parse("https://play.google.com/store/apps/details?id=${BuildConfig.APPLICATION_ID}")))
     }
 }
 

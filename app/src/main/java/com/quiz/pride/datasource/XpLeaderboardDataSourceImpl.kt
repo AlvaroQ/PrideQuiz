@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -22,9 +23,10 @@ class XpLeaderboardDataSourceImpl(
 
     override suspend fun syncUserXp(entry: XpLeaderboardEntry): Either<RepositoryException, XpLeaderboardEntry> {
         return suspendCancellableCoroutine { continuation ->
+            val sanitizedNickname = entry.nickname.trim().replace(Regex("[<>\"'&;/\\\\]"), "").take(20)
             val data = hashMapOf(
                 "uid" to entry.uid,
-                "nickname" to entry.nickname,
+                "nickname" to sanitizedNickname,
                 "imageBase64" to entry.imageBase64,
                 "totalXp" to entry.totalXp,
                 "level" to entry.level,
@@ -102,13 +104,13 @@ class XpLeaderboardDataSourceImpl(
 
     override suspend fun getUserRank(uid: String, userXp: Long): Either<RepositoryException, Int> {
         return suspendCancellableCoroutine { continuation ->
-            // Count how many users have more XP than the current user
+            // Count how many users have more XP using aggregate count (1 read instead of N)
             database.collection(COLLECTION_XP_LEADERBOARD)
                 .whereGreaterThan("totalXp", userXp)
-                .get()
+                .count()
+                .get(AggregateSource.SERVER)
                 .addOnSuccessListener { result ->
-                    // Rank = count of users with more XP + 1
-                    val rank = result.size() + 1
+                    val rank = result.count.toInt() + 1
                     continuation.resumeWith(Result.success(rank.right()))
                 }
                 .addOnFailureListener { e ->

@@ -26,6 +26,7 @@ private val Context.syncDataStore by preferencesDataStore(name = "xp_sync_prefer
 class XpSyncManager(
     private val context: Context,
     private val progressionManager: ProgressionManager,
+    private val gameStatsManager: GameStatsManager,
     private val xpLeaderboardRepository: XpLeaderboardRepository,
     private val networkManager: NetworkManager
 ) {
@@ -91,7 +92,8 @@ class XpSyncManager(
         }
 
         return try {
-            val entry = progressionManager.getLeaderboardEntry(uid)
+            val stats = gameStatsManager.getStatistics()
+            val entry = progressionManager.getLeaderboardEntry(uid, stats)
 
             // Only sync if user has a nickname set
             if (entry.nickname.isBlank()) {

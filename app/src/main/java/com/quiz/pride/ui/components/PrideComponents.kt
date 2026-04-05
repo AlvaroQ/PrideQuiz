@@ -14,6 +14,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -45,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
@@ -68,6 +71,7 @@ import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.GradientPositionBottom
 import com.quiz.pride.ui.theme.GradientPositionTop
 import com.quiz.pride.ui.theme.NeonPink
+import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.PrideRed
 import com.quiz.pride.ui.theme.RainbowColors
 import com.quiz.pride.ui.theme.Shimmer
@@ -579,5 +583,76 @@ fun GlassCard(
                 ),
             content = content
         )
+    }
+}
+
+/**
+ * Animated gradient background with floating glow orbs.
+ * Replaces the repeated pattern across 7 screens.
+ */
+@Composable
+fun AnimatedScreenBackground(
+    orbColor1: Color = NeonPink,
+    orbColor2: Color = NeonPurple,
+    content: @Composable BoxScope.() -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "bg_float")
+    val floatOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "float_offset"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        GradientBackgroundStart,
+                        GradientBackgroundMid,
+                        GradientBackgroundEnd
+                    )
+                )
+            )
+    ) {
+        // Decorative glow orb 1
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
+                .alpha(0.3f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(orbColor1, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+
+        // Decorative glow orb 2
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 50.dp, y = 200.dp - floatOffset.dp)
+                .alpha(0.25f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(orbColor2, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+
+        content()
     }
 }

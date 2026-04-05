@@ -1,6 +1,5 @@
 package com.quiz.pride.ui.result
 
-import android.app.Activity
 import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -22,12 +21,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -42,7 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +48,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
@@ -68,14 +64,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.LearnGradientBottom
@@ -116,7 +110,7 @@ fun ResultScreen(
     onNavigateBack: () -> Unit,
     viewModel: ResultViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val adFrequencyManager: AdFrequencyManager = koinInject()
     val analyticsManager: AnalyticsManager = koinInject()
@@ -209,19 +203,8 @@ fun ResultScreen(
         }
     }
 
-    // Floating animation
-    val infiniteTransition = rememberInfiniteTransition(label = "result_bg")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 20f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
     // Pulse animation for score
+    val infiniteTransition = rememberInfiniteTransition(label = "result_bg")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.05f,
@@ -240,59 +223,18 @@ fun ResultScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            GradientBackgroundStart,
-                            GradientBackgroundMid,
-                            GradientBackgroundEnd
-                        )
-                    )
-                )
-        ) {
-            // Decorative glow orbs
-            Box(
-                modifier = Modifier
-                    .size(200.dp)
-                    .offset(x = (-60).dp, y = 80.dp + floatOffset.dp)
-                    .alpha(0.3f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPink, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(150.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 50.dp, y = 150.dp - floatOffset.dp)
-                    .alpha(0.25f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPurple, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        Box(modifier = Modifier.padding(paddingValues)) {
+            AnimatedScreenBackground(
+                orbColor1 = NeonPink,
+                orbColor2 = NeonPurple
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // New Record Badge
@@ -399,6 +341,7 @@ fun ResultScreen(
                     )
                 }
             }
+            } // AnimatedScreenBackground
         }
     }
 
@@ -577,14 +520,14 @@ private fun ScoreDisplay(
         ) {
             RecordBadge(
                 icon = Icons.Default.Star,
-                label = "Personal Best",
+                label = stringResource(R.string.result_personal_best),
                 value = personalRecord,
                 accentColor = NeonPink,
                 modifier = Modifier.weight(1f)
             )
             RecordBadge(
                 icon = Icons.Default.EmojiEvents,
-                label = "World Record",
+                label = stringResource(R.string.result_world_record),
                 value = worldRecord,
                 accentColor = GradientPointsBottom,
                 modifier = Modifier.weight(1f)

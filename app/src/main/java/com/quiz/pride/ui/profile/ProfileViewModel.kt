@@ -3,6 +3,8 @@ package com.quiz.pride.ui.profile
 import androidx.lifecycle.viewModelScope
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.Achievement
+import com.quiz.pride.managers.AchievementManager
+import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.LevelInfo
 import com.quiz.pride.managers.PlayerStatistics
 import com.quiz.pride.managers.ProgressionManager
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class ProfileUiState(
@@ -29,6 +32,8 @@ data class ProfileUiState(
 
 class ProfileViewModel(
     private val progressionManager: ProgressionManager,
+    private val gameStatsManager: GameStatsManager,
+    private val achievementManager: AchievementManager,
     private val xpSyncManager: XpSyncManager,
     private val getUserGlobalRank: GetUserGlobalRank
 ) : ComposeViewModel() {
@@ -47,8 +52,8 @@ class ProfileViewModel(
             val userProfile = progressionManager.getUserProfile()
             val xp = progressionManager.totalXp.first()
             val levelInfo = progressionManager.getLevelInfo(xp)
-            val statistics = progressionManager.getStatistics()
-            val unlockedAchievements = progressionManager.getUnlockedAchievements()
+            val statistics = gameStatsManager.getStatistics()
+            val unlockedAchievements = achievementManager.getUnlockedAchievements()
 
             _uiState.update { it.copy(
                 isLoading = false,
@@ -119,8 +124,8 @@ class ProfileViewModel(
             val userProfile = progressionManager.getUserProfile()
             val xp = progressionManager.totalXp.first()
             val levelInfo = progressionManager.getLevelInfo(xp)
-            val statistics = progressionManager.getStatistics()
-            val unlockedAchievements = progressionManager.getUnlockedAchievements()
+            val statistics = gameStatsManager.getStatistics()
+            val unlockedAchievements = achievementManager.getUnlockedAchievements()
 
             _uiState.update { it.copy(
                 userProfile = userProfile,

@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -41,9 +41,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             // Collect theme state
-            val isDarkMode by themeManager.isDarkMode.collectAsState(initial = false)
-            val isDynamicColors by themeManager.isDynamicColorsEnabled.collectAsState(initial = true)
-            val isOnboardingCompleted by themeManager.isOnboardingCompleted.collectAsState(initial = true)
+            val isDarkMode by themeManager.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+            val isDynamicColors by themeManager.isDynamicColorsEnabled.collectAsStateWithLifecycle(initialValue = true)
+            val isOnboardingCompleted by themeManager.isOnboardingCompleted.collectAsStateWithLifecycle(initialValue = true)
             val coroutineScope = rememberCoroutineScope()
 
             // Determine start destination based on onboarding status

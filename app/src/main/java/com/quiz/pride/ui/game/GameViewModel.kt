@@ -4,34 +4,58 @@ import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Consolidated UI State for Game Screen
- */
 data class GameUiState(
     val isLoading: Boolean = true,
     val question: Pride? = null,
     val options: List<Pride> = emptyList(),
     val correctOptionIndex: Int = -1,
     val showBannerAd: Boolean = true,
-    val showRewardedAd: Boolean = false
-)
+    val showRewardedAd: Boolean = false,
+    // Game state
+    val points: Int = 0,
+    val lives: Int = 3,
+    val stage: Int = 1,
+    val correctAnswers: Int = 0,
+    val currentStreak: Int = 0,
+    val bestStreak: Int = 0,
+    val extraLivesUsed: Int = 0,
+    val selectedAnswer: Int? = null,
+    val showExtraLifeDialog: Boolean = false,
+    val showExitDialog: Boolean = false,
+    // Timed mode
+    val timeRemaining: Int = Constants.TIMED_MODE_TOTAL_SECONDS,
+    val isTimedMode: Boolean = false,
+    // Streak effects
+    val showStreakEffect: Boolean = false,
+    val streakMessage: String = ""
+) {
+    val maxExtraLives: Int get() = 2
+}
 
-/**
- * One-time events for Game Screen
- */
 sealed class GameEvent {
-    object NavigateToResult : GameEvent()
-    object ShowExtraLifeDialog : GameEvent()
+    data class NavigateToResult(
+        val points: Int,
+        val stage: Int,
+        val correctAnswers: Int,
+        val bestStreak: Int,
+        val timePlayed: Long
+    ) : GameEvent()
     object PlaySuccessSound : GameEvent()
     object PlayFailSound : GameEvent()
 }
@@ -43,53 +67,83 @@ class GameViewModel(
 ) : ComposeViewModel() {
 
     private var randomCountries = mutableListOf<Int>()
-    private lateinit var currentPride: Pride
+    private var startTime = System.currentTimeMillis()
+    private var timerJob: Job? = null
 
-    // Consolidated UI State
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    // One-time events
     private val _events = MutableSharedFlow<GameEvent>()
     val events = _events.asSharedFlow()
 
     init {
         analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
-        _uiState.update { it.copy(
-            showBannerAd = !getPaymentDone()
-        ) }
+        _uiState.update { it.copy(showBannerAd = !getPaymentDone()) }
+    }
+
+    fun initGame(gameType: Constants.GameType) {
+        val isTimedMode = gameType == Constants.GameType.TIMED
+        _uiState.update {
+            it.copy(
+                lives = if (isTimedMode) Int.MAX_VALUE else 3,
+                isTimedMode = isTimedMode,
+                timeRemaining = Constants.TIMED_MODE_TOTAL_SECONDS
+            )
+        }
+        startTime = System.currentTimeMillis()
+        if (isTimedMode) startTimer()
         generateNewStage()
+    }
+
+    private fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            while (_uiState.value.timeRemaining > 0) {
+                delay(1000)
+                _uiState.update { it.copy(timeRemaining = it.timeRemaining - 1) }
+            }
+            // Time's up
+            _events.emit(GameEvent.PlayFailSound)
+            emitNavigateToResult()
+        }
     }
 
     fun generateNewStage() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            // Generate question
             val numRandomMain = generateRandomWithExclusion(TOTAL_PRIDES, randomCountries)
             randomCountries.add(numRandomMain)
 
-            currentPride = getPrideById.invoke(numRandomMain)
-
-            // Generate response options
             val correctPosition = (0..3).random()
             val usedIds = mutableListOf(numRandomMain)
-            val optionList = mutableListOf<Pride>()
-
+            val wrongIds = mutableListOf<Int>()
             for (i in 0..3) {
-                if (i == correctPosition) {
-                    optionList.add(currentPride)
-                } else {
+                if (i != correctPosition) {
                     val randomId = generateRandomWithExclusion(TOTAL_PRIDES, usedIds)
                     usedIds.add(randomId)
-                    optionList.add(getPrideById.invoke(randomId))
+                    wrongIds.add(randomId)
+                }
+            }
+
+            val allIds = listOf(numRandomMain) + wrongIds
+            val allPrides = allIds.map { id -> async { getPrideById.invoke(id) } }.awaitAll()
+
+            val optionList = mutableListOf<Pride>()
+            var wrongIndex = 0
+            for (i in 0..3) {
+                if (i == correctPosition) {
+                    optionList.add(allPrides[0])
+                } else {
+                    optionList.add(allPrides[1 + wrongIndex])
+                    wrongIndex++
                 }
             }
 
             _uiState.update { state ->
                 state.copy(
                     isLoading = false,
-                    question = currentPride,
+                    question = allPrides[0],
                     options = optionList,
                     correctOptionIndex = correctPosition
                 )
@@ -97,48 +151,112 @@ class GameViewModel(
         }
     }
 
-    fun showRewardedAd() {
-        if (!getPaymentDone()) {
-            _uiState.update { it.copy(showRewardedAd = true) }
+    fun onAnswerSelected(index: Int, streakOnFire: String, streakUnstoppable: String, streakLegendary: String, streakComboFormat: String) {
+        val state = _uiState.value
+        if (state.selectedAnswer != null) return
+
+        val isCorrect = index == state.correctOptionIndex
+
+        if (isCorrect) {
+            val newStreak = state.currentStreak + 1
+            val newBestStreak = maxOf(newStreak, state.bestStreak)
+
+            val (showEffect, message) = when {
+                newStreak == 5 -> true to streakOnFire
+                newStreak == 10 -> true to streakUnstoppable
+                newStreak == 15 -> true to streakLegendary
+                newStreak >= 3 && newStreak % 3 == 0 -> true to String.format(streakComboFormat, newStreak)
+                else -> false to ""
+            }
+
+            _uiState.update {
+                it.copy(
+                    selectedAnswer = index,
+                    points = it.points + 1,
+                    correctAnswers = it.correctAnswers + 1,
+                    currentStreak = newStreak,
+                    bestStreak = newBestStreak,
+                    showStreakEffect = showEffect,
+                    streakMessage = message
+                )
+            }
+            viewModelScope.launch { _events.emit(GameEvent.PlaySuccessSound) }
+        } else {
+            val newLives = if (state.isTimedMode) state.lives else state.lives - 1
+            _uiState.update {
+                it.copy(
+                    selectedAnswer = index,
+                    lives = newLives,
+                    currentStreak = 0
+                )
+            }
+            viewModelScope.launch { _events.emit(GameEvent.PlayFailSound) }
         }
-    }
 
-    fun onRewardedAdShown() {
-        _uiState.update { it.copy(showRewardedAd = false) }
-    }
-
-    fun navigateToResult(points: String) {
-        analyticsManager.analyticsGameFinished(points)
+        // Delay before next question
         viewModelScope.launch {
-            _events.emit(GameEvent.NavigateToResult)
-        }
-    }
+            delay(1000)
+            _uiState.update { it.copy(selectedAnswer = null, showStreakEffect = false) }
 
-    fun navigateToExtraLifeDialog() {
-        viewModelScope.launch {
-            if (!getPaymentDone()) {
-                _events.emit(GameEvent.ShowExtraLifeDialog)
-            } else {
-                _events.emit(GameEvent.NavigateToResult)
+            val currentState = _uiState.value
+            when {
+                !currentState.isTimedMode && currentState.lives < 1 && currentState.extraLivesUsed < currentState.maxExtraLives && currentState.stage < TOTAL_PRIDES -> {
+                    if (!getPaymentDone()) {
+                        _uiState.update { it.copy(showExtraLifeDialog = true) }
+                    } else {
+                        emitNavigateToResult()
+                    }
+                }
+                currentState.stage >= TOTAL_PRIDES || (!currentState.isTimedMode && currentState.lives < 1) -> {
+                    emitNavigateToResult()
+                }
+                else -> {
+                    _uiState.update { it.copy(stage = it.stage + 1) }
+                    generateNewStage()
+                }
             }
         }
     }
 
-    fun playSuccessSound() {
-        viewModelScope.launch {
-            _events.emit(GameEvent.PlaySuccessSound)
+    fun onExtraLifeAccepted() {
+        _uiState.update {
+            it.copy(
+                showExtraLifeDialog = false,
+                lives = 1,
+                extraLivesUsed = it.extraLivesUsed + 1
+            )
         }
+        generateNewStage()
     }
 
-    fun playFailSound() {
-        viewModelScope.launch {
-            _events.emit(GameEvent.PlayFailSound)
-        }
+    fun onExtraLifeDeclined() {
+        _uiState.update { it.copy(showExtraLifeDialog = false) }
+        viewModelScope.launch { emitNavigateToResult() }
     }
 
-    fun getCurrentPride(): Pride = currentPride
+    fun showExitDialog() {
+        _uiState.update { it.copy(showExitDialog = true) }
+    }
 
-    fun getCorrectOptionIndex(): Int = _uiState.value.correctOptionIndex
+    fun dismissExitDialog() {
+        _uiState.update { it.copy(showExitDialog = false) }
+    }
+
+    private suspend fun emitNavigateToResult() {
+        val state = _uiState.value
+        analyticsManager.analyticsGameFinished(state.points.toString())
+        timerJob?.cancel()
+        val timePlayed = System.currentTimeMillis() - startTime
+        _events.emit(
+            GameEvent.NavigateToResult(
+                points = state.points,
+                stage = state.stage,
+                correctAnswers = state.correctAnswers,
+                bestStreak = state.bestStreak,
+                timePlayed = timePlayed
+            )
+        )
+    }
 
     private fun generateRandomWithExclusion(max: Int, exclude: List<Int>): Int {
         var num = (0..max).random()
@@ -146,5 +264,10 @@ class GameViewModel(
             num = (0..max).random()
         }
         return num
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timerJob?.cancel()
     }
 }

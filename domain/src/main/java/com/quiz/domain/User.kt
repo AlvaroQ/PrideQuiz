@@ -1,6 +1,7 @@
 package com.quiz.domain
 
 data class User(
+    val uid: String = "",
     val name: String = "",
     val points: String = "",
     val score: Int = 0,

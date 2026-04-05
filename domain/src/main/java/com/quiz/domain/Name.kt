@@ -1,10 +1,10 @@
 package com.quiz.domain
 
 data class Name(
-    var ES: String = "",
-    var EN: String = "",
-    var DE: String = "",
-    var IT: String = "",
-    var FR: String = "",
-    var PT: String = ""
+    val ES: String = "",
+    val EN: String = "",
+    val DE: String = "",
+    val IT: String = "",
+    val FR: String = "",
+    val PT: String = ""
 )

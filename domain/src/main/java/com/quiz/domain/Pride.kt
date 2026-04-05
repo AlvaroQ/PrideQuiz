@@ -1,7 +1,7 @@
 package com.quiz.domain
 
 data class Pride(
-    var name: Name? = null,
-    var description: Name? = null,
-    var flag: String = ""
+    val name: Name? = null,
+    val description: Name? = null,
+    val flag: String = ""
 )

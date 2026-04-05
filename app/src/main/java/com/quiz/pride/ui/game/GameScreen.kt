@@ -17,8 +17,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -46,8 +44,6 @@ import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -57,13 +53,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,7 +63,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -122,9 +113,7 @@ import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.utils.Constants
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -135,58 +124,29 @@ fun GameScreen(
     onNavigateBack: () -> Unit,
     viewModel: GameViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val themeManager: ThemeManager = koinInject()
-    val soundEnabled by themeManager.isSoundEnabled.collectAsState(initial = true)
-    val coroutineScope = rememberCoroutineScope()
+    val soundEnabled by themeManager.isSoundEnabled.collectAsStateWithLifecycle(initialValue = true)
     val hapticFeedback = LocalHapticFeedback.current
-
-    // Game state
-    var points by remember { mutableIntStateOf(0) }
-    var lives by remember { mutableIntStateOf(if (gameType == Constants.GameType.TIMED) Int.MAX_VALUE else 3) }
-    var stage by remember { mutableIntStateOf(1) }
-    var extraLivesUsed by remember { mutableIntStateOf(0) }
-    val maxExtraLives = 2
-    var selectedAnswer by remember { mutableStateOf<Int?>(null) }
-    var showExtraLifeDialog by remember { mutableStateOf(false) }
-    var showExitDialog by remember { mutableStateOf(false) }
-    var isShowingRewardedAd by remember { mutableStateOf(false) }
-
-    // Timed mode state - 3 minutes global timer
-    var timeRemaining by remember { mutableIntStateOf(Constants.TIMED_MODE_TOTAL_SECONDS) }
 
     // Rewarded Ad state
     val rewardedAdState = rememberRewardedAdState()
 
-    // Stats for result screen
-    var correctAnswers by remember { mutableIntStateOf(0) }
-    var currentStreak by remember { mutableIntStateOf(0) }
-    var bestStreak by remember { mutableIntStateOf(0) }
-    var showStreakEffect by remember { mutableStateOf(false) }
-    var streakMessage by remember { mutableStateOf("") }
-    val startTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    // Streak strings (resolved from composable context for ViewModel)
+    val streakOnFire = stringResource(R.string.streak_on_fire)
+    val streakUnstoppable = stringResource(R.string.streak_unstoppable)
+    val streakLegendary = stringResource(R.string.streak_legendary)
+    val streakCombo = context.getString(R.string.streak_combo)
+
+    // Initialize game once
+    LaunchedEffect(gameType) {
+        viewModel.initGame(gameType)
+    }
 
     // Handle back button press
     BackHandler {
-        showExitDialog = true
-    }
-
-    // Global timer for TIMED mode - 3 minutes countdown
-    LaunchedEffect(gameType) {
-        if (gameType == Constants.GameType.TIMED) {
-            while (timeRemaining > 0) {
-                delay(1000)
-                timeRemaining--
-            }
-            // Time's up - end game
-            if (timeRemaining <= 0) {
-                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                viewModel.playFailSound()
-                val timePlayed = System.currentTimeMillis() - startTime
-                onNavigateToResult(points, stage, correctAnswers, bestStreak, timePlayed)
-            }
-        }
+        viewModel.showExitDialog()
     }
 
     // Handle one-time events
@@ -194,11 +154,11 @@ fun GameScreen(
         viewModel.events.collectLatest { event ->
             when (event) {
                 is GameEvent.NavigateToResult -> {
-                    val timePlayed = System.currentTimeMillis() - startTime
-                    onNavigateToResult(points, stage, correctAnswers, bestStreak, timePlayed)
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onNavigateToResult(event.points, event.stage, event.correctAnswers, event.bestStreak, event.timePlayed)
                 }
-                is GameEvent.ShowExtraLifeDialog -> showExtraLifeDialog = true
                 is GameEvent.PlaySuccessSound -> {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (soundEnabled) {
                         try {
                             MediaPlayer.create(context, R.raw.success)?.apply {
@@ -209,6 +169,7 @@ fun GameScreen(
                     }
                 }
                 is GameEvent.PlayFailSound -> {
+                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (soundEnabled) {
                         try {
                             MediaPlayer.create(context, R.raw.fail)?.apply {
@@ -232,10 +193,10 @@ fun GameScreen(
     } else {
         Brush.verticalGradient(
             listOf(
-                Color(0xFFE8F5E9), // Soft mint
-                Color(0xFFF3E5F5), // Soft lavender
-                Color(0xFFFCE4EC), // Soft pink
-                Color(0xFFE3F2FD)  // Soft blue
+                Color(0xFFE8F5E9),
+                Color(0xFFF3E5F5),
+                Color(0xFFFCE4EC),
+                Color(0xFFE3F2FD)
             )
         )
     }
@@ -255,14 +216,14 @@ fun GameScreen(
     Scaffold(
         topBar = {
             EnhancedGameTopBar(
-                points = points,
-                lives = lives,
-                stage = stage,
+                points = uiState.points,
+                lives = uiState.lives,
+                stage = uiState.stage,
                 totalStages = Constants.TOTAL_PRIDES,
-                currentStreak = currentStreak,
-                isTimedMode = gameType == Constants.GameType.TIMED,
-                timeRemaining = timeRemaining,
-                onBackClick = { showExitDialog = true }
+                currentStreak = uiState.currentStreak,
+                isTimedMode = uiState.isTimedMode,
+                timeRemaining = uiState.timeRemaining,
+                onBackClick = { viewModel.showExitDialog() }
             )
         }
     ) { paddingValues ->
@@ -306,13 +267,13 @@ fun GameScreen(
 
             // Streak effect overlay
             AnimatedVisibility(
-                visible = showStreakEffect,
+                visible = uiState.showStreakEffect,
                 enter = scaleIn() + fadeIn(),
                 exit = scaleOut() + fadeOut()
             ) {
                 StreakEffectOverlay(
-                    streak = currentStreak,
-                    message = streakMessage
+                    streak = uiState.currentStreak,
+                    message = uiState.streakMessage
                 )
             }
 
@@ -324,76 +285,10 @@ fun GameScreen(
                     question = uiState.question,
                     options = uiState.options,
                     correctOptionIndex = uiState.correctOptionIndex,
-                    selectedAnswer = selectedAnswer,
+                    selectedAnswer = uiState.selectedAnswer,
                     isDarkTheme = isDarkTheme,
                     onAnswerSelected = { index ->
-                        if (selectedAnswer == null) {
-                            selectedAnswer = index
-                            val isCorrect = index == uiState.correctOptionIndex
-
-                            if (isCorrect) {
-                                // Haptic feedback for correct answer
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.playSuccessSound()
-                                points++
-                                correctAnswers++
-                                currentStreak++
-
-                                // Update best streak
-                                if (currentStreak > bestStreak) {
-                                    bestStreak = currentStreak
-                                }
-
-                                // Show streak effects at milestones
-                                when {
-                                    currentStreak == 5 -> {
-                                        streakMessage = context.getString(R.string.streak_on_fire)
-                                        showStreakEffect = true
-                                    }
-                                    currentStreak == 10 -> {
-                                        streakMessage = context.getString(R.string.streak_unstoppable)
-                                        showStreakEffect = true
-                                    }
-                                    currentStreak == 15 -> {
-                                        streakMessage = context.getString(R.string.streak_legendary)
-                                        showStreakEffect = true
-                                    }
-                                    currentStreak >= 3 && currentStreak % 3 == 0 -> {
-                                        streakMessage = context.getString(R.string.streak_combo, currentStreak)
-                                        showStreakEffect = true
-                                    }
-                                }
-                            } else {
-                                // Haptic feedback for wrong answer
-                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.playFailSound()
-                                // In timed mode, wrong answers don't reduce lives (time is the challenge)
-                                if (gameType != Constants.GameType.TIMED) {
-                                    lives--
-                                }
-                                currentStreak = 0
-                            }
-
-                            // Delay before next question
-                            coroutineScope.launch {
-                                delay(1000)
-                                selectedAnswer = null
-                                showStreakEffect = false
-
-                                when {
-                                    gameType != Constants.GameType.TIMED && lives < 1 && extraLivesUsed < maxExtraLives && stage < Constants.TOTAL_PRIDES -> {
-                                        viewModel.navigateToExtraLifeDialog()
-                                    }
-                                    stage >= Constants.TOTAL_PRIDES || (gameType != Constants.GameType.TIMED && lives < 1) -> {
-                                        viewModel.navigateToResult(points.toString())
-                                    }
-                                    else -> {
-                                        stage++
-                                        viewModel.generateNewStage()
-                                    }
-                                }
-                            }
-                        }
+                        viewModel.onAnswerSelected(index, streakOnFire, streakUnstoppable, streakLegendary, streakCombo)
                     }
                 )
             }
@@ -401,60 +296,36 @@ fun GameScreen(
     }
 
     // Exit Confirmation Dialog
-    if (showExitDialog) {
+    if (uiState.showExitDialog) {
         ExitConfirmationDialog(
-            onStay = { showExitDialog = false },
+            onStay = { viewModel.dismissExitDialog() },
             onLeave = {
-                showExitDialog = false
+                viewModel.dismissExitDialog()
                 onNavigateBack()
             }
         )
     }
 
     // Extra Life Dialog
-    if (showExtraLifeDialog) {
+    if (uiState.showExtraLifeDialog) {
         ExtraLifeDialog(
-            extraLivesRemaining = maxExtraLives - extraLivesUsed,
+            extraLivesRemaining = uiState.maxExtraLives - uiState.extraLivesUsed,
             isAdReady = rewardedAdState.isReady,
             isAdLoading = rewardedAdState.isLoading,
             onAccept = {
-                showExtraLifeDialog = false
-                isShowingRewardedAd = true
-
                 val activity = context.findActivity()
                 if (activity != null && rewardedAdState.isReady) {
                     rewardedAdState.showAd(
                         activity = activity,
-                        onRewardEarned = {
-                            // User watched the ad, grant extra life
-                            lives = 1
-                            extraLivesUsed++
-                            viewModel.generateNewStage()
-                        },
-                        onAdDismissed = {
-                            isShowingRewardedAd = false
-                        },
-                        onAdFailed = { _ ->
-                            isShowingRewardedAd = false
-                            // If ad fails, grant life anyway as fallback
-                            lives = 1
-                            extraLivesUsed++
-                            viewModel.generateNewStage()
-                        }
+                        onRewardEarned = { viewModel.onExtraLifeAccepted() },
+                        onAdDismissed = { },
+                        onAdFailed = { _ -> viewModel.onExtraLifeAccepted() }
                     )
                 } else {
-                    // Ad not ready, grant life as fallback
-                    isShowingRewardedAd = false
-                    lives = 1
-                    extraLivesUsed++
-                    viewModel.generateNewStage()
+                    viewModel.onExtraLifeAccepted()
                 }
             },
-            onDecline = {
-                showExtraLifeDialog = false
-                val timePlayed = System.currentTimeMillis() - startTime
-                onNavigateToResult(points, stage, correctAnswers, bestStreak, timePlayed)
-            }
+            onDecline = { viewModel.onExtraLifeDeclined() }
         )
     }
 }

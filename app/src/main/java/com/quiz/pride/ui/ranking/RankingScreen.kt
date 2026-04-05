@@ -1,12 +1,7 @@
 package com.quiz.pride.ui.ranking
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -23,7 +18,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -43,7 +37,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -74,12 +68,10 @@ import androidx.compose.material3.Icon
 import com.quiz.domain.User
 import com.quiz.domain.XpLeaderboardEntry
 import com.quiz.pride.R
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.components.ShimmerRankingItem
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientPointsTop
@@ -201,7 +193,7 @@ fun RankingScreen(
     onNavigateBack: () -> Unit,
     viewModel: RankingViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val pagerState = rememberPagerState(
         initialPage = uiState.selectedTabIndex,
         pageCount = { 3 }
@@ -218,18 +210,6 @@ fun RankingScreen(
         viewModel.onTabSelected(pagerState.currentPage)
     }
 
-    // Floating animation
-    val infiniteTransition = rememberInfiniteTransition(label = "ranking_bg")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 15f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
     Scaffold(
         topBar = {
             PrideTopAppBar(
@@ -238,55 +218,14 @@ fun RankingScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            GradientBackgroundStart,
-                            GradientBackgroundMid,
-                            GradientBackgroundEnd
-                        )
-                    )
-                )
-        ) {
-            // Decorative glow orbs
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
-                    .alpha(0.2f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPink, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(140.dp)
-                    .align(Alignment.CenterEnd)
-                    .offset(x = 60.dp, y = -50.dp - floatOffset.dp)
-                    .alpha(0.15f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPurple, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Tab Row
-                SecondaryTabRow(
+        Box(modifier = Modifier.padding(paddingValues)) {
+            AnimatedScreenBackground(
+                orbColor1 = NeonPink,
+                orbColor2 = NeonPurple
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    // Tab Row
+                    SecondaryTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     containerColor = Color.Transparent,
                     contentColor = White,
@@ -414,6 +353,7 @@ fun RankingScreen(
                             }
                         }
                     }
+                }
                 }
             }
         }

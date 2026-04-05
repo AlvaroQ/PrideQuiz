@@ -1,17 +1,11 @@
 package com.quiz.pride.ui.info
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,7 +20,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -48,7 +41,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,11 +68,9 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.quiz.domain.Pride
 import com.quiz.pride.R
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.ShimmerInfoCard
 import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
-import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonBlue
@@ -93,7 +84,7 @@ fun InfoScreen(
     onNavigateBack: () -> Unit,
     viewModel: InfoViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
     // Detect theme
@@ -114,64 +105,10 @@ fun InfoScreen(
         }
     }
 
-    // Floating animation for background
-    val infiniteTransition = rememberInfiniteTransition(label = "info_bg")
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "float_offset"
-    )
-
-    // Vibrant gradient background (same as ProfileScreen)
-    val backgroundGradient = Brush.verticalGradient(
-        listOf(
-            GradientBackgroundStart,
-            GradientBackgroundMid,
-            GradientBackgroundEnd
-        )
-    )
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundGradient)
+    AnimatedScreenBackground(
+        orbColor1 = NeonPurple,
+        orbColor2 = NeonPink
     ) {
-        // Decorative glow orbs (same style as ProfileScreen)
-        Box(
-            modifier = Modifier
-                .size(180.dp)
-                .offset(x = (-50).dp, y = 100.dp + floatOffset.dp)
-                .alpha(0.25f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPurple, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
-        Box(
-            modifier = Modifier
-                .size(120.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 40.dp, y = 200.dp - floatOffset.dp)
-                .alpha(0.2f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(NeonPink, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
