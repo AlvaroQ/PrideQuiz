@@ -6,11 +6,11 @@ import com.quiz.domain.User
 
 interface FirestoreDataSource {
     suspend fun addRecord(user: User): Either<RepositoryException, User>
-    suspend fun getRanking(): List<User>
-    suspend fun getWorldRecords(limit: Long): String
+    suspend fun getRanking(): Either<RepositoryException, List<User>>
+    suspend fun getWorldRecords(limit: Long): Either<RepositoryException, String>
 
     // Timed ranking methods
     suspend fun addTimedRecord(user: User): Either<RepositoryException, User>
-    suspend fun getTimedRanking(): List<User>
-    suspend fun getTimedWorldRecords(limit: Long): String
+    suspend fun getTimedRanking(): Either<RepositoryException, List<User>>
+    suspend fun getTimedWorldRecords(limit: Long): Either<RepositoryException, String>
 }

@@ -1,6 +1,7 @@
 package com.quiz.pride.ui.game
 
-import android.media.MediaPlayer
+import android.media.AudioAttributes
+import android.media.SoundPool
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -40,10 +41,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -52,9 +54,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -73,6 +77,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -84,9 +89,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import android.content.res.Configuration
+import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.R
-import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.RewardedAdState
 import com.quiz.pride.ui.components.findActivity
@@ -113,9 +120,10 @@ import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.utils.Constants
+import androidx.compose.ui.tooling.preview.Preview
+import com.quiz.pride.ui.theme.PrideQuizTheme
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun GameScreen(
@@ -126,8 +134,7 @@ fun GameScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val themeManager: ThemeManager = koinInject()
-    val soundEnabled by themeManager.isSoundEnabled.collectAsStateWithLifecycle(initialValue = true)
+    val soundEnabled by viewModel.isSoundEnabled.collectAsStateWithLifecycle()
     val hapticFeedback = LocalHapticFeedback.current
 
     // Rewarded Ad state
@@ -149,6 +156,42 @@ fun GameScreen(
         viewModel.showExitDialog()
     }
 
+    // SoundPool compartido para sonidos cortos — evita multiples MediaPlayer activos
+    val soundPool = remember {
+        SoundPool.Builder()
+            .setMaxStreams(2)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .build()
+    }
+
+    // Carga de sonidos (asincrona, listos antes de la primera respuesta del usuario)
+    var successSoundReady by remember { mutableStateOf(false) }
+    var failSoundReady by remember { mutableStateOf(false) }
+
+    val successSoundId = remember { soundPool.load(context, R.raw.success, 1) }
+    val failSoundId = remember { soundPool.load(context, R.raw.fail, 1) }
+
+    remember(soundPool) {
+        soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            if (status == 0) {
+                when (sampleId) {
+                    successSoundId -> successSoundReady = true
+                    failSoundId -> failSoundReady = true
+                }
+            }
+        }
+        null
+    }
+
+    DisposableEffect(Unit) {
+        onDispose { soundPool.release() }
+    }
+
     // Handle one-time events
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
@@ -159,23 +202,17 @@ fun GameScreen(
                 }
                 is GameEvent.PlaySuccessSound -> {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (soundEnabled) {
+                    if (soundEnabled && successSoundReady) {
                         try {
-                            MediaPlayer.create(context, R.raw.success)?.apply {
-                                start()
-                                setOnCompletionListener { release() }
-                            }
+                            soundPool.play(successSoundId, 1f, 1f, 1, 0, 1f)
                         } catch (_: Exception) {}
                     }
                 }
                 is GameEvent.PlayFailSound -> {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                    if (soundEnabled) {
+                    if (soundEnabled && failSoundReady) {
                         try {
-                            MediaPlayer.create(context, R.raw.fail)?.apply {
-                                start()
-                                setOnCompletionListener { release() }
-                            }
+                            soundPool.play(failSoundId, 1f, 1f, 1, 0, 1f)
                         } catch (_: Exception) {}
                     }
                 }
@@ -185,33 +222,26 @@ fun GameScreen(
 
     // Detect theme using MaterialTheme colors
     val colorScheme = MaterialTheme.colorScheme
-    val isDarkTheme = colorScheme.background.luminance() < 0.5f
-
-    // Theme-aware background gradient
-    val gameBackgroundGradient = if (isDarkTheme) {
-        Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
-    } else {
-        Brush.verticalGradient(
-            listOf(
-                Color(0xFFE8F5E9),
-                Color(0xFFF3E5F5),
-                Color(0xFFFCE4EC),
-                Color(0xFFE3F2FD)
-            )
-        )
+    // remember evita recalcular luminance() en cada recomposicion
+    val isDarkTheme = remember(colorScheme.background) {
+        colorScheme.background.luminance() < 0.5f
     }
 
-    // Floating animation for background
-    val infiniteTransition = rememberInfiniteTransition(label = "game_bg")
-    val glowOffset by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 30f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_offset"
-    )
+    // Theme-aware background gradient — remember evita crear un nuevo Brush en cada recomposicion
+    val gameBackgroundGradient = remember(isDarkTheme) {
+        if (isDarkTheme) {
+            Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
+        } else {
+            Brush.verticalGradient(
+                listOf(
+                    Color(0xFFE8F5E9),
+                    Color(0xFFF3E5F5),
+                    Color(0xFFFCE4EC),
+                    Color(0xFFE3F2FD)
+                )
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -233,37 +263,9 @@ fun GameScreen(
                 .padding(paddingValues)
                 .background(gameBackgroundGradient)
         ) {
-            // Decorative glow orbs
-            Box(
-                modifier = Modifier
-                    .size(180.dp)
-                    .offset(x = (-60).dp, y = 50.dp + glowOffset.dp)
-                    .alpha(0.2f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonPink, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
-
-            Box(
-                modifier = Modifier
-                    .size(150.dp)
-                    .align(Alignment.TopEnd)
-                    .offset(x = 60.dp, y = 100.dp - glowOffset.dp)
-                    .alpha(0.15f)
-                    .drawBehind {
-                        drawCircle(
-                            brush = Brush.radialGradient(
-                                colors = listOf(NeonBlue, Color.Transparent)
-                            ),
-                            radius = size.minDimension / 2
-                        )
-                    }
-            )
+            // Orbs decorativos en composable hijo — la InfiniteTransition vive ahi
+            // y solo ese composable se recompone cada frame (no toda la pantalla)
+            GameBackgroundOrbs()
 
             // Streak effect overlay
             AnimatedVisibility(
@@ -277,10 +279,13 @@ fun GameScreen(
                 )
             }
 
-            if (uiState.isLoading) {
-                LoadingIndicator()
-            } else {
-                GameContent(
+            when {
+                uiState.isLoading -> LoadingIndicator()
+                uiState.hasError -> GameErrorState(
+                    message = stringResource(R.string.error_loading_question),
+                    onRetry = { viewModel.retryCurrentStage() }
+                )
+                else -> GameContent(
                     gameType = gameType,
                     question = uiState.question,
                     options = uiState.options,
@@ -326,6 +331,59 @@ fun GameScreen(
                 }
             },
             onDecline = { viewModel.onExtraLifeDeclined() }
+        )
+    }
+}
+
+/**
+ * Orbs decorativos con animacion flotante.
+ * La InfiniteTransition vive aqui adentro para que SOLO este composable
+ * se recomponga cada frame — el resto de la pantalla queda estable.
+ */
+@Composable
+private fun GameBackgroundOrbs() {
+    val infiniteTransition = rememberInfiniteTransition(label = "game_bg")
+    val glowOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 30f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "glow_offset"
+    )
+
+    // Box contenedor necesario para que .align() tenga un BoxScope valido
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .size(180.dp)
+                .offset(x = (-60).dp, y = 50.dp + glowOffset.dp)
+                .alpha(0.2f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(NeonPink, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+
+        Box(
+            modifier = Modifier
+                .size(150.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 60.dp, y = 100.dp - glowOffset.dp)
+                .alpha(0.15f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(NeonBlue, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
         )
     }
 }
@@ -450,19 +508,27 @@ private fun TimerIndicator(
     val totalTime = Constants.TIMED_MODE_TOTAL_SECONDS
     val progress = timeRemaining.toFloat() / totalTime.toFloat()
 
-    val infiniteTransition = rememberInfiniteTransition(label = "timer")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (timeRemaining <= 30) 1.1f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "timer_scale"
-    )
+    // Precalcular isUrgent para usar como key del remember, evitando reinicios innecesarios
+    val isUrgent = timeRemaining <= 30
+
+    // Solo se anima cuando es urgente; si no, la escala es fija en 1f
+    val scale = if (isUrgent) {
+        val transition = rememberInfiniteTransition(label = "timer_urgent")
+        transition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(500),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "timer_scale"
+        ).value
+    } else {
+        1f
+    }
 
     val color = when {
-        timeRemaining <= 30 -> PrideRed
+        isUrgent -> PrideRed
         timeRemaining <= 60 -> NeonOrange
         else -> NeonBlue
     }
@@ -482,7 +548,7 @@ private fun TimerIndicator(
             .padding(horizontal = 12.dp, vertical = 8.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.Timer,
+            painter = painterResource(id = R.drawable.ic_timer),
             contentDescription = null,
             tint = color,
             modifier = Modifier
@@ -518,17 +584,6 @@ private fun StreakIndicator(
     streak: Int,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "streak")
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(500),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "streak_scale"
-    )
-
     val color = when {
         streak >= 15 -> NeonPurple
         streak >= 10 -> NeonOrange
@@ -545,14 +600,8 @@ private fun StreakIndicator(
             )
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.LocalFireDepartment,
-            contentDescription = null,
-            tint = color,
-            modifier = Modifier
-                .size(20.dp)
-                .scale(scale)
-        )
+        // Icono animado en composable hijo aislado: solo el hijo recompone cada frame
+        StreakFireIcon(color = color, animate = streak >= 3)
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = "$streak",
@@ -561,6 +610,90 @@ private fun StreakIndicator(
             fontSize = 14.sp
         )
     }
+}
+
+/**
+ * Icono de fuego aislado con su propia InfiniteTransition.
+ * Solo se anima cuando el streak es relevante (>= 3).
+ * Al estar en un composable hijo, la recomposicion por animacion
+ * queda confinada a este nodo y no afecta al StreakIndicator padre.
+ */
+@Composable
+private fun StreakFireIcon(color: Color, animate: Boolean) {
+    val scale: Float = if (animate) {
+        val infiniteTransition = rememberInfiniteTransition(label = "streak_fire")
+        val animScale by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.2f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(500),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "streak_scale"
+        )
+        animScale
+    } else {
+        1f
+    }
+    Icon(
+        painter = painterResource(id = R.drawable.ic_local_fire_department),
+        contentDescription = null,
+        tint = color,
+        modifier = Modifier
+            .size(20.dp)
+            .scale(scale)
+    )
+}
+
+/**
+ * Icono de corazon aislado con su propia InfiniteTransition.
+ * Al extraerlo, cada corazon es un composable independiente y la animacion
+ * infinita no fuerza la recomposicion del Row completo.
+ */
+@Composable
+private fun HeartIcon(index: Int, isAlive: Boolean) {
+    val scale by animateFloatAsState(
+        targetValue = if (isAlive) 1f else 0.7f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "heart_scale"
+    )
+
+    // Solo crear InfiniteTransition si el corazon esta vivo; si esta muerto no hay animacion
+    val heartBeat: Float = if (isAlive) {
+        val infiniteTransition = rememberInfiniteTransition(label = "heart_beat_$index")
+        val beat by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.15f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(600, delayMillis = index * 100),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "heart_beat"
+        )
+        beat
+    } else {
+        1f
+    }
+
+    Icon(
+        imageVector = if (isAlive) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+        contentDescription = null,
+        tint = if (isAlive) PrideRed else White.copy(alpha = 0.3f),
+        modifier = Modifier
+            .size(32.dp)
+            .scale(scale * heartBeat)
+            .drawBehind {
+                if (isAlive) {
+                    drawCircle(
+                        color = PrideRed.copy(alpha = 0.3f),
+                        radius = size.minDimension * 0.9f
+                    )
+                }
+            }
+    )
 }
 
 @Composable
@@ -574,44 +707,7 @@ private fun AnimatedLivesIndicator(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         repeat(maxLives) { index ->
-            val isAlive = index < currentLives
-
-            val scale by animateFloatAsState(
-                targetValue = if (isAlive) 1f else 0.7f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                ),
-                label = "heart_scale"
-            )
-
-            val infiniteTransition = rememberInfiniteTransition(label = "heart_beat_$index")
-            val heartBeat by infiniteTransition.animateFloat(
-                initialValue = 1f,
-                targetValue = if (isAlive) 1.15f else 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(600, delayMillis = index * 100),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "heart_beat"
-            )
-
-            Icon(
-                imageVector = if (isAlive) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = null,
-                tint = if (isAlive) PrideRed else White.copy(alpha = 0.3f),
-                modifier = Modifier
-                    .size(32.dp)
-                    .scale(scale * heartBeat)
-                    .drawBehind {
-                        if (isAlive) {
-                            drawCircle(
-                                color = PrideRed.copy(alpha = 0.3f),
-                                radius = size.minDimension * 0.9f
-                            )
-                        }
-                    }
-            )
+            HeartIcon(index = index, isAlive = index < currentLives)
         }
     }
 }
@@ -654,7 +750,7 @@ private fun StreakEffectOverlay(
                 .padding(24.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.LocalFireDepartment,
+                painter = painterResource(id = R.drawable.ic_local_fire_department),
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(48.dp)
@@ -751,7 +847,11 @@ private fun GameContent(
                             }
                     ) {
                         AsyncImage(
-                            model = question?.flag,
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(question?.flag)
+                                .crossfade(200)
+                                .size(600, 400)
+                                .build(),
                             contentDescription = stringResource(R.string.game_image),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -808,7 +908,11 @@ private fun GameContent(
                             }
                     ) {
                         AsyncImage(
-                            model = question?.flag,
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(question?.flag)
+                                .crossfade(200)
+                                .size(600, 400)
+                                .build(),
                             contentDescription = stringResource(R.string.game_image),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Fit
@@ -1253,17 +1357,13 @@ private fun ExitConfirmationDialog(
     )
 }
 
+/**
+ * Corazon pulsante aislado para el dialog de vida extra.
+ * La InfiniteTransition vive aqui y solo recompone este icono,
+ * no el contenido del AlertDialog completo.
+ */
 @Composable
-private fun ExtraLifeDialog(
-    extraLivesRemaining: Int,
-    isAdReady: Boolean,
-    isAdLoading: Boolean,
-    onAccept: () -> Unit,
-    onDecline: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-
-    // Pulsing animation for the heart icon
+private fun PulsingHeartIcon() {
     val infiniteTransition = rememberInfiniteTransition(label = "heart_pulse")
     val heartScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -1274,6 +1374,25 @@ private fun ExtraLifeDialog(
         ),
         label = "heart_scale"
     )
+    Icon(
+        imageVector = Icons.Default.Favorite,
+        contentDescription = null,
+        tint = PrideRed,
+        modifier = Modifier
+            .size(48.dp)
+            .scale(heartScale)
+    )
+}
+
+@Composable
+private fun ExtraLifeDialog(
+    extraLivesRemaining: Int,
+    isAdReady: Boolean,
+    isAdLoading: Boolean,
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
 
     AlertDialog(
         onDismissRequest = { /* Cannot dismiss */ },
@@ -1281,14 +1400,8 @@ private fun ExtraLifeDialog(
         titleContentColor = colorScheme.onSurface,
         textContentColor = colorScheme.onSurfaceVariant,
         icon = {
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = null,
-                tint = PrideRed,
-                modifier = Modifier
-                    .size(48.dp)
-                    .scale(heartScale)
-            )
+            // Icono animado en composable hijo — no recompone el resto del dialog
+            PulsingHeartIcon()
         },
         title = {
             Text(
@@ -1399,4 +1512,203 @@ private fun ExtraLifeDialog(
             }
         }
     )
+}
+
+// ============================================
+// PREVIEWS
+// ============================================
+
+private val fakePride = Pride(
+    name = Name(ES = "Bandera Arcoiris", EN = "Rainbow Flag"),
+    description = Name(
+        ES = "Simbolo internacional del movimiento LGBTQ+",
+        EN = "International symbol of the LGBTQ+ movement"
+    ),
+    flag = ""
+)
+
+private val fakePrideOptions = listOf(
+    Pride(name = Name(EN = "Rainbow Flag")),
+    Pride(name = Name(EN = "Bisexual Pride")),
+    Pride(name = Name(EN = "Trans Pride")),
+    Pride(name = Name(EN = "Non-Binary Pride"))
+)
+
+@Preview(showBackground = true, name = "GameContent - Normal - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "GameContent - Normal - Dark")
+@Composable
+private fun GameContentNormalPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
+                )
+        ) {
+            GameContent(
+                gameType = Constants.GameType.NORMAL,
+                question = fakePride,
+                options = fakePrideOptions,
+                correctOptionIndex = 0,
+                selectedAnswer = null,
+                isDarkTheme = true,
+                onAnswerSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GameContent - Respuesta Correcta")
+@Composable
+private fun GameContentCorrectAnswerPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
+                )
+        ) {
+            GameContent(
+                gameType = Constants.GameType.NORMAL,
+                question = fakePride,
+                options = fakePrideOptions,
+                correctOptionIndex = 0,
+                selectedAnswer = 0,
+                isDarkTheme = true,
+                onAnswerSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GameContent - Respuesta Incorrecta")
+@Composable
+private fun GameContentWrongAnswerPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
+                )
+        ) {
+            GameContent(
+                gameType = Constants.GameType.ADVANCE,
+                question = fakePride,
+                options = fakePrideOptions,
+                correctOptionIndex = 0,
+                selectedAnswer = 2,
+                isDarkTheme = true,
+                onAnswerSelected = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "EnhancedGameTopBar - Normal - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "EnhancedGameTopBar - Normal - Dark")
+@Composable
+private fun EnhancedGameTopBarNormalPreview() {
+    PrideQuizTheme {
+        EnhancedGameTopBar(
+            points = 850,
+            lives = 2,
+            stage = 7,
+            totalStages = 20,
+            currentStreak = 5,
+            isTimedMode = false,
+            timeRemaining = 0,
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "EnhancedGameTopBar - Timed Mode")
+@Composable
+private fun EnhancedGameTopBarTimedPreview() {
+    PrideQuizTheme {
+        EnhancedGameTopBar(
+            points = 1200,
+            lives = 3,
+            stage = 12,
+            totalStages = 20,
+            currentStreak = 0,
+            isTimedMode = true,
+            timeRemaining = 45,
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "StreakEffectOverlay")
+@Composable
+private fun StreakEffectOverlayPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.size(300.dp)) {
+            StreakEffectOverlay(
+                streak = 7,
+                message = "On Fire!"
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "AnimatedLivesIndicator - Full")
+@Composable
+private fun AnimatedLivesIndicatorPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .background(GradientPositionTop)
+                .padding(16.dp)
+        ) {
+            AnimatedLivesIndicator(currentLives = 2, maxLives = 3)
+        }
+    }
+}
+
+/**
+ * Estado de error del juego con boton de reintentar.
+ * Se muestra cuando falla la carga de una pregunta.
+ */
+@Composable
+fun GameErrorState(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(horizontal = 32.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = White,
+                textAlign = TextAlign.Center
+            )
+            Button(onClick = onRetry) {
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = stringResource(R.string.error_retry))
+            }
+        }
+    }
 }

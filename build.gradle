@@ -10,152 +10,23 @@ buildscript {
             'applicationId': "com.quiz.pride"
     ]
     ext.versions = [
-            'compileSdk'            : 36,
-            'minSdk'                : 26,
-            'targetSdk'             : 36,
-            'name'                  : '3.0.0',
-            'code'                  : 50,
-            'buildtoolsVersion'     : '30.0.2',
-    ]
-    ext.libsversions = [
-            'kotlin_version'         : '2.2.10',
-            'gradle_version'         : '9.0.1',
-            'koin_version'           : '4.1.1',
-            'preference_version'     : '1.2.1',
-            'google_services_version': '4.4.4',
-            'billing_version'        : "8.3.0"
+            'compileSdk'        : 36,
+            'minSdk'            : 26,
+            'targetSdk'         : 36,
+            'name'              : '3.0.0',
+            'code'              : 50,
+            'buildtoolsVersion' : '30.0.2',
     ]
 
+    // Nota: el Version Catalog (libs.*) NO está disponible dentro de buildscript {}.
+    // Las versiones de classpath se mantienen hardcodeadas — es la limitacion de Gradle con Groovy DSL.
     dependencies {
-        classpath "com.google.gms:google-services:${libsversions.google_services_version}"
-        classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.6'
-        classpath "com.android.tools.build:gradle:${libsversions.gradle_version}"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${libsversions.kotlin_version}"
-        classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:${libsversions.kotlin_version}"
-    }
-    ext {
-        // ==========================================
-        // KOTLIN & COROUTINES
-        // ==========================================
-        kotlinLibs = [
-                stdlib        : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${libsversions.kotlin_version}",
-                coroutinesCore: 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2',
-                coroutines    : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2',
-        ]
-
-        // ==========================================
-        // ANDROIDX CORE
-        // ==========================================
-        androidxCoreLibs = [
-                core              : "androidx.core:core-ktx:1.17.0",
-                appcompat         : "androidx.appcompat:appcompat:1.7.1",
-                preference        : "androidx.preference:preference-ktx:${libsversions.preference_version}",
-                datastore         : "androidx.datastore:datastore-preferences:1.2.0",
-        ]
-
-        // ==========================================
-        // LIFECYCLE
-        // ==========================================
-        lifecycleLibs = [
-                viewmodel     : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0",
-                runtime       : "androidx.lifecycle:lifecycle-runtime-ktx:2.10.0",
-                viewmodelCompose: "androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0",
-                runtimeCompose: "androidx.lifecycle:lifecycle-runtime-compose:2.10.0",
-        ]
-
-        // ==========================================
-        // NAVIGATION
-        // ==========================================
-        navigationLibs = [
-                compose    : "androidx.navigation:navigation-compose:2.9.7",
-        ]
-
-        // ==========================================
-        // COMPOSE (BOM separado para platform())
-        // ==========================================
-        composeBom = 'androidx.compose:compose-bom:2026.01.01'
-
-        composeLibs = [
-                ui            : 'androidx.compose.ui:ui',
-                uiGraphics    : 'androidx.compose.ui:ui-graphics',
-                uiTooling     : 'androidx.compose.ui:ui-tooling-preview',
-                material3     : 'androidx.compose.material3:material3',
-                iconsExtended : 'androidx.compose.material:material-icons-extended',
-                activityCompose: 'androidx.activity:activity-compose:1.12.4',
-        ]
-
-        composeDebugLibs = [
-                uiTooling    : 'androidx.compose.ui:ui-tooling',
-                uiTestManifest: 'androidx.compose.ui:ui-test-manifest',
-        ]
-
-        // ==========================================
-        // DEPENDENCY INJECTION (KOIN)
-        // ==========================================
-        koinLibs = [
-                android : "io.insert-koin:koin-android:${libsversions.koin_version}",
-                compose : "io.insert-koin:koin-androidx-compose:${libsversions.koin_version}",
-        ]
-
-        // ==========================================
-        // FIREBASE (BOM separado para platform())
-        // ==========================================
-        firebaseBom = "com.google.firebase:firebase-bom:34.9.0"
-
-        firebaseLibs = [
-                database        : "com.google.firebase:firebase-database",
-                firestore       : "com.google.firebase:firebase-firestore",
-                analytics       : "com.google.firebase:firebase-analytics",
-                auth            : "com.google.firebase:firebase-auth",
-                crashlytics     : "com.google.firebase:firebase-crashlytics",
-                listenablefuture: "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava",
-        ]
-
-        // ==========================================
-        // ADS & BILLING
-        // ==========================================
-        monetizationLibs = [
-                admob  : "com.google.android.gms:play-services-ads:24.8.0",
-                billing: "com.android.billingclient:billing-ktx:${libsversions.billing_version}",
-        ]
-
-        // ==========================================
-        // IMAGE LOADING
-        // ==========================================
-        imageLibs = [
-                coilCompose: "io.coil-kt:coil-compose:2.7.0",
-        ]
-
-        // ==========================================
-        // NETWORKING
-        // ==========================================
-        networkLibs = [
-                okhttpLogging        : "com.squareup.okhttp3:logging-interceptor:4.12.0",
-                retrofit             : "com.squareup.retrofit2:retrofit:2.9.0",
-                retrofitGson         : "com.squareup.retrofit2:converter-gson:2.9.0",
-        ]
-
-        // ==========================================
-        // UTILITIES
-        // ==========================================
-        utilityLibs = [
-                arrow: "io.arrow-kt:arrow-core:1.2.4",
-        ]
-
-        // ==========================================
-        // QUALITY TOOLS
-        // ==========================================
-        detektPlugin = [
-                formatting: "io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8"
-        ]
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
+        classpath "com.google.gms:google-services:4.4.4"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:3.0.6"
+        classpath 'com.android.tools.build:gradle:9.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10"
+        classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:2.2.10"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:2.2.10"
     }
 }
 

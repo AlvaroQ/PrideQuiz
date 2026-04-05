@@ -1,3 +1,27 @@
+pluginManagement {
+    // Included build con los convention plugins centralizados de PrideQuiz.
+    // Debe estar dentro de pluginManagement para que Gradle resuelva los plugins
+    // del included build antes de procesar los modulos del proyecto.
+    includeBuild("build-logic")
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+}
+
 include ':data'
 include ':domain'
 include ':usecases'

@@ -4,9 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.quiz.pride.common.DataStoreKeys
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -22,12 +21,11 @@ private val Context.adFrequencyDataStore: DataStore<Preferences> by preferencesD
 class AdFrequencyManager(private val context: Context) {
 
     companion object {
-        // Keys for DataStore
-        private val GAMES_SINCE_INTERSTITIAL = intPreferencesKey("games_since_interstitial")
-        private val INTERSTITIALS_THIS_SESSION = intPreferencesKey("interstitials_this_session")
-        private val SESSION_START_TIME = longPreferencesKey("session_start_time")
-        private val LAST_INTERSTITIAL_TIME = longPreferencesKey("last_interstitial_time")
-        private val TOTAL_GAMES_PLAYED = intPreferencesKey("total_games_played")
+        private val GAMES_SINCE_INTERSTITIAL = DataStoreKeys.AdFrequencyKeys.GAMES_SINCE_INTERSTITIAL
+        private val INTERSTITIALS_THIS_SESSION = DataStoreKeys.AdFrequencyKeys.INTERSTITIALS_THIS_SESSION
+        private val SESSION_START_TIME = DataStoreKeys.AdFrequencyKeys.SESSION_START_TIME
+        private val LAST_INTERSTITIAL_TIME = DataStoreKeys.AdFrequencyKeys.LAST_INTERSTITIAL_TIME
+        private val TOTAL_GAMES_PLAYED = DataStoreKeys.AdFrequencyKeys.TOTAL_GAMES_PLAYED
 
         // Configuration constants
         const val GAMES_BEFORE_FIRST_INTERSTITIAL = 2  // Show after 2nd game
@@ -49,6 +47,7 @@ class AdFrequencyManager(private val context: Context) {
      * Check if we should show an interstitial ad
      */
     suspend fun shouldShowInterstitial(): Boolean {
+        // Lectura unica del DataStore — evita doble lectura con checkAndResetSession
         val preferences = context.adFrequencyDataStore.data.first()
 
         val gamesSinceLast = preferences[GAMES_SINCE_INTERSTITIAL] ?: 0
@@ -56,8 +55,8 @@ class AdFrequencyManager(private val context: Context) {
         val lastInterstitialTime = preferences[LAST_INTERSTITIAL_TIME] ?: 0L
         val totalGamesPlayed = preferences[TOTAL_GAMES_PLAYED] ?: 0
 
-        // Check session reset
-        checkAndResetSession()
+        // Check session reset pasando las preferencias ya leidas
+        checkAndResetSession(preferences)
 
         // Don't exceed max interstitials per session
         if (interstitialsThisSession >= MAX_INTERSTITIALS_PER_SESSION) {
@@ -105,16 +104,16 @@ class AdFrequencyManager(private val context: Context) {
     }
 
     /**
-     * Check and reset session if needed
+     * Check and reset session if needed.
+     * Recibe las preferencias ya leidas para evitar una segunda lectura del DataStore.
      */
-    private suspend fun checkAndResetSession() {
-        val preferences = context.adFrequencyDataStore.data.first()
+    private suspend fun checkAndResetSession(preferences: Preferences) {
         val sessionStart = preferences[SESSION_START_TIME] ?: 0L
         val now = System.currentTimeMillis()
         val sessionTimeoutMs = SESSION_TIMEOUT_MINUTES * 60 * 1000L
 
         if (now - sessionStart > sessionTimeoutMs || sessionStart == 0L) {
-            // Reset session
+            // Solo escribe si se necesita resetear la sesion
             context.adFrequencyDataStore.edit { prefs ->
                 prefs[SESSION_START_TIME] = now
                 prefs[INTERSTITIALS_THIS_SESSION] = 0

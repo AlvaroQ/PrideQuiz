@@ -1,6 +1,7 @@
 package com.quiz.pride.ui.result
 
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -28,11 +29,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,26 +41,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
+import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
-import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.components.PrideTopAppBar
@@ -89,13 +88,12 @@ import com.quiz.pride.ui.components.SaveScoreDialog
 import com.quiz.pride.ui.components.findActivity
 import com.quiz.pride.ui.components.rememberInterstitialAdState
 import com.quiz.pride.ui.components.rememberRewardedAdState
-import com.quiz.pride.managers.AdFrequencyManager
-import com.quiz.pride.managers.GameMode
+import androidx.compose.ui.tooling.preview.Preview
+import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.utils.Constants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 
 @Composable
 fun ResultScreen(
@@ -112,9 +110,6 @@ fun ResultScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val adFrequencyManager: AdFrequencyManager = koinInject()
-    val analyticsManager: AnalyticsManager = koinInject()
-    val coroutineScope = rememberCoroutineScope()
 
     // Animation states
     var showScore by remember { mutableStateOf(false) }
@@ -131,59 +126,51 @@ fun ResultScreen(
     var displayedPoints by remember { mutableIntStateOf(points) }
     var hasDoubledPoints by remember { mutableStateOf(false) }
     var isShowingAd by remember { mutableStateOf(false) }
-    var hasRecordedResult by remember { mutableStateOf(false) }
     var showXpGain by remember { mutableStateOf(false) }
 
     // Check if new record
     val isNewRecord = displayedPoints > (uiState.personalRecord.toIntOrNull() ?: 0)
     val recordDifference = displayedPoints - (uiState.personalRecord.toIntOrNull() ?: 0)
 
-    // Show interstitial ad based on frequency and record game result
+    // Escuchar eventos del ViewModel (interstitial, etc.)
     LaunchedEffect(Unit) {
-        // Record game completed for ad frequency tracking
-        adFrequencyManager.recordGameCompleted()
-
-        // Record game result for XP and achievements
-        if (!hasRecordedResult) {
-            hasRecordedResult = true
-            val gameMode = when (gameType) {
-                Constants.GameType.NORMAL -> GameMode.NORMAL
-                Constants.GameType.ADVANCE -> GameMode.ADVANCE
-                Constants.GameType.EXPERT -> GameMode.EXPERT
-                Constants.GameType.TIMED -> GameMode.TIMED
-            }
-            viewModel.recordGameResult(
-                gameMode = gameMode,
-                correctAnswers = correctAnswers,
-                totalQuestions = totalQuestions,
-                bestStreak = bestStreak,
-                timePlayedMs = timePlayed,
-                completedAllQuestions = totalQuestions >= Constants.TOTAL_PRIDES
-            )
-        }
-
-        // Check if we should show interstitial
-        val shouldShow = adFrequencyManager.shouldShowInterstitial()
-        if (shouldShow && interstitialAdState.isReady && !hasShownInterstitial) {
-            val activity = context.findActivity()
-            if (activity != null) {
-                hasShownInterstitial = true
-                isShowingAd = true
-                interstitialAdState.showAd(
-                    activity = activity,
-                    onAdDismissed = {
-                        isShowingAd = false
-                        coroutineScope.launch {
-                            adFrequencyManager.recordInterstitialShown()
+        viewModel.events.collect { event ->
+            when (event) {
+                is ResultEvent.ShowInterstitialAd -> {
+                    if (interstitialAdState.isReady && !hasShownInterstitial) {
+                        val activity = context.findActivity()
+                        if (activity != null) {
+                            hasShownInterstitial = true
+                            isShowingAd = true
+                            interstitialAdState.showAd(
+                                activity = activity,
+                                onAdDismissed = {
+                                    isShowingAd = false
+                                    viewModel.onInterstitialShown()
+                                },
+                                onAdFailed = {
+                                    isShowingAd = false
+                                }
+                            )
                         }
-                    },
-                    onAdFailed = {
-                        isShowingAd = false
                     }
-                )
+                }
             }
         }
+    }
 
+    // Inicializar pantalla: delega toda la logica de negocio al ViewModel (idempotente)
+    LaunchedEffect(Unit) {
+        viewModel.onScreenInitialized(
+            gameType = gameType,
+            points = points,
+            totalQuestions = totalQuestions,
+            correctAnswers = correctAnswers,
+            bestStreak = bestStreak,
+            timePlayed = timePlayed
+        )
+
+        // Animaciones de entrada progresiva (responsabilidad exclusiva del composable)
         delay(300)
         showScore = true
         delay(500)
@@ -196,24 +183,7 @@ fun ResultScreen(
         showButtons = true
         delay(300)
         showXpGain = true
-
-        // Check if TIMED mode score qualifies for top 20
-        if (gameType == Constants.GameType.TIMED) {
-            viewModel.checkTimedRanking(points)
-        }
     }
-
-    // Pulse animation for score
-    val infiniteTransition = rememberInfiniteTransition(label = "result_bg")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse_scale"
-    )
 
     Scaffold(
         topBar = {
@@ -228,6 +198,10 @@ fun ResultScreen(
                 orbColor1 = NeonPink,
                 orbColor2 = NeonPurple
             ) {
+                // Orbs decorativos en composable hijo — la InfiniteTransition vive ahi
+                // y solo ese composable se recompone cada frame (no toda la pantalla)
+                ResultBackgroundOrbs()
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -253,7 +227,6 @@ fun ResultScreen(
                 ) {
                     ScoreDisplay(
                         points = displayedPoints,
-                        pulseScale = pulseScale,
                         personalRecord = uiState.personalRecord,
                         worldRecord = uiState.worldRecord,
                         isNewRecord = isNewRecord,
@@ -300,29 +273,42 @@ fun ResultScreen(
                     ActionButtons(
                         points = displayedPoints,
                         hasDoubledPoints = hasDoubledPoints,
+                        hasPaid = uiState.hasPaid,
                         isRewardedAdReady = rewardedAdState.isReady,
                         isRewardedAdLoading = rewardedAdState.isLoading,
                         onDoublePoints = {
-                            val activity = context.findActivity()
-                            if (activity != null && rewardedAdState.isReady) {
-                                isShowingAd = true
-                                rewardedAdState.showAd(
-                                    activity = activity,
-                                    onRewardEarned = {
-                                        displayedPoints = displayedPoints * 2
-                                        hasDoubledPoints = true
-                                    },
-                                    onAdDismissed = {
-                                        isShowingAd = false
-                                    },
-                                    onAdFailed = {
-                                        isShowingAd = false
-                                    }
-                                )
+                            if (uiState.hasPaid) {
+                                // Pagadores duplican gratis, sin ver video
+                                displayedPoints = displayedPoints * 2
+                                hasDoubledPoints = true
+                            } else {
+                                val activity = context.findActivity()
+                                if (activity != null && rewardedAdState.isReady) {
+                                    isShowingAd = true
+                                    rewardedAdState.showAd(
+                                        activity = activity,
+                                        onRewardEarned = {
+                                            displayedPoints = displayedPoints * 2
+                                            hasDoubledPoints = true
+                                        },
+                                        onAdDismissed = {
+                                            isShowingAd = false
+                                        },
+                                        onAdFailed = {
+                                            isShowingAd = false
+                                        }
+                                    )
+                                }
                             }
                         },
-                        onNavigateToGame = onNavigateToGame,
-                        onNavigateToRanking = onNavigateToRanking,
+                        onNavigateToGame = {
+                            viewModel.onPlayAgainClicked()
+                            onNavigateToGame()
+                        },
+                        onNavigateToRanking = {
+                            viewModel.onRankingClicked()
+                            onNavigateToRanking()
+                        },
                         onShare = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
@@ -335,7 +321,7 @@ fun ResultScreen(
                             context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share)))
                         },
                         onRate = {
-                            analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
+                            viewModel.onRateClicked()
                             com.quiz.pride.utils.rateApp(context)
                         }
                     )
@@ -343,6 +329,22 @@ fun ResultScreen(
             }
             } // AnimatedScreenBackground
         }
+    }
+
+    // World Record Save Dialog
+    if (uiState.showWorldRecordDialog) {
+        SaveScoreDialog(
+            score = uiState.worldRecordPoints,
+            initialNickname = uiState.userProfile.nickname,
+            initialImageBase64 = uiState.userProfile.imageBase64,
+            isSaving = uiState.isSavingWorldRecord,
+            onSave = { nickname, imageBase64 ->
+                viewModel.saveScore(nickname, imageBase64)
+            },
+            onDismiss = {
+                viewModel.onWorldRecordDialogDismissed()
+            }
+        )
     }
 
     // Timed Ranking Save Dialog
@@ -388,7 +390,7 @@ private fun NewRecordBadge() {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = Icons.Default.EmojiEvents,
+            painter = painterResource(R.drawable.ic_emoji_events),
             contentDescription = null,
             tint = Color.Black,
             modifier = Modifier.size(24.dp)
@@ -403,10 +405,109 @@ private fun NewRecordBadge() {
     }
 }
 
+/**
+ * Orbs decorativos con animacion de pulso para ResultScreen.
+ * La InfiniteTransition vive aqui adentro para que SOLO este composable
+ * se recomponga cada frame — el resto de la pantalla queda estable.
+ */
+@Composable
+private fun ResultBackgroundOrbs() {
+    val infiniteTransition = rememberInfiniteTransition(label = "result_bg")
+    val glowOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 30f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(4000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "result_glow_offset"
+    )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .offset(x = (-70).dp, y = 60.dp + glowOffset.dp)
+                .alpha(0.15f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(NeonPink, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+        Box(
+            modifier = Modifier
+                .size(180.dp)
+                .align(Alignment.TopEnd)
+                .offset(x = 70.dp, y = 120.dp - glowOffset.dp)
+                .alpha(0.12f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(NeonPurple, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+    }
+}
+
+/**
+ * Glow circular pulsante alrededor del puntaje.
+ * La InfiniteTransition vive aqui adentro — solo este composable se recompone
+ * cada frame. El texto del puntaje, los records y el resto de ScoreDisplay
+ * permanecen estables.
+ */
+@Composable
+private fun PulsingScoreGlow(points: Int) {
+    val infiniteTransition = rememberInfiniteTransition(label = "score_pulse")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_scale"
+    )
+    Box(
+        modifier = Modifier
+            .drawBehind {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            GradientPointsTop.copy(alpha = 0.35f),
+                            Color.Transparent
+                        )
+                    ),
+                    radius = 120f * pulseScale
+                )
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = points.toString(),
+            fontSize = 64.sp,
+            fontWeight = FontWeight.Bold,
+            color = GradientPointsBottom,
+            style = MaterialTheme.typography.displayLarge.copy(
+                shadow = Shadow(
+                    color = GradientPointsTop,
+                    offset = Offset(0f, 0f),
+                    blurRadius = 16f
+                )
+            )
+        )
+    }
+}
+
 @Composable
 private fun ScoreDisplay(
     points: Int,
-    pulseScale: Float,
     personalRecord: String,
     worldRecord: String,
     isNewRecord: Boolean,
@@ -460,36 +561,8 @@ private fun ScoreDisplay(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Big score with golden glow
-                Box(
-                    modifier = Modifier
-                        .drawBehind {
-                            drawCircle(
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        GradientPointsTop.copy(alpha = 0.35f),
-                                        Color.Transparent
-                                    )
-                                ),
-                                radius = 120f * pulseScale
-                            )
-                        },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = points.toString(),
-                        fontSize = 64.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = GradientPointsBottom,
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            shadow = Shadow(
-                                color = GradientPointsTop,
-                                offset = Offset(0f, 0f),
-                                blurRadius = 16f
-                            )
-                        )
-                    )
-                }
+                // Glow pulsante aislado en composable hijo — no recompone el resto del card
+                PulsingScoreGlow(points = points)
 
                 // Record comparison
                 if (recordDifference != 0) {
@@ -519,14 +592,14 @@ private fun ScoreDisplay(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             RecordBadge(
-                icon = Icons.Default.Star,
+                icon = rememberVectorPainter(Icons.Default.Star),
                 label = stringResource(R.string.result_personal_best),
                 value = personalRecord,
                 accentColor = NeonPink,
                 modifier = Modifier.weight(1f)
             )
             RecordBadge(
-                icon = Icons.Default.EmojiEvents,
+                icon = painterResource(R.drawable.ic_emoji_events),
                 label = stringResource(R.string.result_world_record),
                 value = worldRecord,
                 accentColor = GradientPointsBottom,
@@ -558,14 +631,14 @@ private fun StatsGrid(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.AutoMirrored.Filled.TrendingUp,
+                icon = painterResource(R.drawable.ic_trending_up),
                 label = stringResource(R.string.result_accuracy),
                 value = "$accuracy%",
                 color = if (accuracy >= 80) NeonGreen else if (accuracy >= 50) NeonYellow else NeonOrange,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                icon = Icons.Default.LocalFireDepartment,
+                icon = painterResource(R.drawable.ic_local_fire_department),
                 label = stringResource(R.string.result_best_streak),
                 value = bestStreak.toString(),
                 color = when {
@@ -581,14 +654,14 @@ private fun StatsGrid(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.Default.Star,
+                icon = rememberVectorPainter(Icons.Default.Star),
                 label = "Correct",
                 value = "$correctAnswers/$totalQuestions",
                 color = NeonGreen,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                icon = Icons.Default.Timer,
+                icon = painterResource(R.drawable.ic_timer),
                 label = stringResource(R.string.result_time_played),
                 value = timeFormatted,
                 color = NeonPink,
@@ -600,7 +673,7 @@ private fun StatsGrid(
 
 @Composable
 private fun StatCard(
-    icon: ImageVector,
+    icon: Painter,
     label: String,
     value: String,
     color: Color,
@@ -622,7 +695,7 @@ private fun StatCard(
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
-                imageVector = icon,
+                painter = icon,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier
@@ -662,6 +735,7 @@ private fun StatCard(
 private fun ActionButtons(
     points: Int,
     hasDoubledPoints: Boolean,
+    hasPaid: Boolean,
     isRewardedAdReady: Boolean,
     isRewardedAdLoading: Boolean,
     onDoublePoints: () -> Unit,
@@ -677,6 +751,7 @@ private fun ActionButtons(
         // Double Points Button (only show if not already doubled)
         if (!hasDoubledPoints && points > 0) {
             DoublePointsButton(
+                hasPaid = hasPaid,
                 isAdReady = isRewardedAdReady,
                 isAdLoading = isRewardedAdLoading,
                 onClick = onDoublePoints
@@ -724,6 +799,7 @@ private fun ActionButtons(
 
 @Composable
 private fun DoublePointsButton(
+    hasPaid: Boolean,
     isAdReady: Boolean,
     isAdLoading: Boolean,
     onClick: () -> Unit,
@@ -762,7 +838,7 @@ private fun DoublePointsButton(
                 ),
                 shape = RoundedCornerShape(16.dp)
             )
-            .clickable(enabled = isAdReady || !isAdLoading) { onClick() }
+            .clickable(enabled = hasPaid || isAdReady || !isAdLoading) { onClick() }
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -770,7 +846,7 @@ private fun DoublePointsButton(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            if (isAdLoading) {
+            if (!hasPaid && isAdLoading) {
                 androidx.compose.material3.CircularProgressIndicator(
                     modifier = Modifier.size(20.dp),
                     strokeWidth = 2.dp,
@@ -803,7 +879,10 @@ private fun DoublePointsButton(
                     color = White
                 )
                 Text(
-                    text = stringResource(R.string.double_points_subtitle),
+                    text = stringResource(
+                        if (hasPaid) R.string.double_points_subtitle_paid
+                        else R.string.double_points_subtitle
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = White.copy(alpha = 0.7f)
                 )
@@ -823,7 +902,7 @@ private fun DoublePointsButton(
 
 @Composable
 private fun RecordBadge(
-    icon: ImageVector,
+    icon: Painter,
     label: String,
     value: String,
     accentColor: Color,
@@ -857,7 +936,7 @@ private fun RecordBadge(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = icon,
+                    painter = icon,
                     contentDescription = null,
                     tint = accentColor,
                     modifier = Modifier.size(24.dp)
@@ -898,6 +977,135 @@ private fun formatTime(millis: Long): String {
     val seconds = (millis / 1000) % 60
     val minutes = (millis / (1000 * 60)) % 60
     return String.format("%d:%02d", minutes, seconds)
+}
+
+// ============================================
+// PREVIEWS
+// ============================================
+
+@Preview(showBackground = true, name = "ScoreDisplay - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "ScoreDisplay - Dark")
+@Composable
+private fun ScoreDisplayPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ScoreDisplay(
+                points = 1250,
+                personalRecord = "980",
+                worldRecord = "2400",
+                isNewRecord = true,
+                recordDifference = 270
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "ScoreDisplay - Sin Record")
+@Composable
+private fun ScoreDisplayNoRecordPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            ScoreDisplay(
+                points = 450,
+                personalRecord = "980",
+                worldRecord = "2400",
+                isNewRecord = false,
+                recordDifference = -530
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "StatsGrid - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "StatsGrid - Dark")
+@Composable
+private fun StatsGridPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            StatsGrid(
+                totalQuestions = 20,
+                correctAnswers = 16,
+                bestStreak = 8,
+                timePlayed = 185000L
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "StatCard - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "StatCard - Dark")
+@Composable
+private fun StatCardPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .size(140.dp)
+        ) {
+            StatCard(
+                icon = rememberVectorPainter(Icons.Default.Star),
+                label = "Precision",
+                value = "80%",
+                color = NeonGreen
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "XpGainedBadge - Con Level Up - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "XpGainedBadge - Con Level Up - Dark")
+@Composable
+private fun XpGainedBadgePreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            XpGainedBadge(
+                xpGained = 320,
+                newLevel = 5
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "XpGainedBadge - Sin Level Up")
+@Composable
+private fun XpGainedBadgeNoLevelPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            XpGainedBadge(
+                xpGained = 120,
+                newLevel = null
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "RecordBadge - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "RecordBadge - Dark")
+@Composable
+private fun RecordBadgePreview() {
+    PrideQuizTheme {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            RecordBadge(
+                icon = rememberVectorPainter(Icons.Default.Star),
+                label = "Record Personal",
+                value = "980",
+                accentColor = NeonPink,
+                modifier = Modifier.weight(1f)
+            )
+            RecordBadge(
+                icon = painterResource(R.drawable.ic_emoji_events),
+                label = "Record Mundial",
+                value = "2400",
+                accentColor = GradientPointsBottom,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
 }
 
 @Composable

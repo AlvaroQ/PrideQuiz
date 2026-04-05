@@ -32,32 +32,32 @@
 -keepattributes RuntimeVisibleAnnotations
 -keep class * extends androidx.navigation.Navigator
 
-# For using GSON @Expose annotation
--keepattributes *Annotation*
--dontwarn sun.misc.**
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
+# Domain models usados por Firebase (serializacion/deserializacion)
+-keep class com.quiz.domain.Pride { *; }
+-keep class com.quiz.domain.Name { *; }
+-keep class com.quiz.domain.User { *; }
+-keep class com.quiz.domain.XpLeaderboardEntry { *; }
+-keep class com.quiz.domain.App { *; }
+-keep class com.quiz.domain.UserProfile { *; }
+-keep class com.quiz.domain.LevelInfo { *; }
+-keep class com.quiz.domain.Achievement { *; }
+-keep class com.quiz.domain.GameMode { *; }
+-keep class com.quiz.domain.GameResult { *; }
+-keep class com.quiz.domain.PlayerStatistics { *; }
+-keep class com.quiz.domain.XpGainResult { *; }
 
-# Application classes that will be serialized/deserialized
--keep class com.quiz.domain.** { *; }
--keep class com.quiz.data.** { *; }
+# DTOs para Firebase deserialization
 -keep class com.quiz.pride.datasource.dto.** { *; }
 
--ignorewarnings
--dontwarn okhttp3.**
--dontwarn okio.**
+# Data layer: mantener nombres para debugging de stack traces
+-keepnames class com.quiz.data.repository.**
+
 -dontwarn javax.annotation.**
--dontwarn org.conscrypt.**
--dontwarn com.squareup.okhttp.**
 -dontnote junit.framework.**
 -dontnote junit.runner.**
 -dontwarn android.test.**
--dontwarn android.support.test.**
 -dontwarn org.junit.**
 -dontwarn org.hamcrest.**
--dontwarn com.squareup.javawriter.JavaWriter
--dontwarn org.mockito.**
 
 # Crashlitics
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.

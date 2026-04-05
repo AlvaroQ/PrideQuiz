@@ -85,4 +85,16 @@
     <!-- content -->
     <string name="locale">es</string>
     <string name="best_score">Mejores puntuaciones</string>
+    <string name="error_loading_apps">No se pudieron cargar las apps. Inténtalo de nuevo.</string>
+
+    <!-- Result screen -->
+    <string name="double_points_title">¡Duplicá tus puntos!</string>
+    <string name="double_points_subtitle">Mirá un video corto para 2x tu puntaje</string>
+    <string name="double_points_subtitle_paid">Tocá para 2x tu puntaje — ¡beneficio premium!</string>
+
+    <!-- Settings / Billing -->
+    <string name="settings_restore_purchases">Restaurar compras</string>
+    <string name="settings_restore_purchases_desc">Recuperar compras anteriores en este dispositivo</string>
+    <string name="restore_success">¡Compra restaurada exitosamente!</string>
+    <string name="restore_no_purchases">No se encontraron compras anteriores.</string>
 </resources>

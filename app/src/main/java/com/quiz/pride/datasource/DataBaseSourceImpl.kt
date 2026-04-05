@@ -17,6 +17,7 @@ import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
 import com.quiz.pride.utils.log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resumeWithException
 
 @ExperimentalCoroutinesApi
 class DataBaseSourceImpl : DataBaseSource {
@@ -32,8 +33,8 @@ class DataBaseSourceImpl : DataBaseSource {
 
                 override fun onCancelled(error: DatabaseError) {
                     log("getPrideById FAILED", "Failed to read value.", error.toException())
-                    continuation.resumeWith(Result.success(Pride()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
+                    continuation.resumeWithException(error.toException())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)
@@ -63,8 +64,8 @@ class DataBaseSourceImpl : DataBaseSource {
 
                 override fun onCancelled(error: DatabaseError) {
                     log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                    continuation.resumeWith(Result.success(mutableListOf()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
+                    continuation.resumeWithException(error.toException())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)
@@ -93,8 +94,8 @@ class DataBaseSourceImpl : DataBaseSource {
 
                 override fun onCancelled(error: DatabaseError) {
                     log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                    continuation.resumeWith(Result.success(mutableListOf()))
                     FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
+                    continuation.resumeWithException(error.toException())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)

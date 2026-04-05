@@ -8,7 +8,7 @@ import com.quiz.domain.User
 enum class RankingMode { NORMAL, TIMED }
 
 class GetRankingScore(private val rankingRepository: RankingRepository) {
-    suspend operator fun invoke(mode: RankingMode = RankingMode.NORMAL): List<User> =
+    suspend operator fun invoke(mode: RankingMode = RankingMode.NORMAL): Either<RepositoryException, List<User>> =
         when (mode) {
             RankingMode.NORMAL -> rankingRepository.getRanking()
             RankingMode.TIMED -> rankingRepository.getTimedRanking()
@@ -16,7 +16,7 @@ class GetRankingScore(private val rankingRepository: RankingRepository) {
 }
 
 class GetRecordScore(private val rankingRepository: RankingRepository) {
-    suspend operator fun invoke(limit: Long, mode: RankingMode = RankingMode.NORMAL): String =
+    suspend operator fun invoke(limit: Long, mode: RankingMode = RankingMode.NORMAL): Either<RepositoryException, String> =
         when (mode) {
             RankingMode.NORMAL -> rankingRepository.getWorldRecords(limit)
             RankingMode.TIMED -> rankingRepository.getTimedWorldRecords(limit)

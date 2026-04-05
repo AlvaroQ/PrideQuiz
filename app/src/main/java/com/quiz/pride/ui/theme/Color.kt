@@ -136,3 +136,53 @@ val Overlay = Color(0x80000000)               // 50% black overlay
 val GlowPink = Color(0x40EC4899)
 val GlowPurple = Color(0x40A855F7)
 val GlowBlue = Color(0x404FACFE)
+
+// ============================================
+// HIGH CONTRAST COLORS — WCAG AAA (7:1 ratio)
+// ============================================
+
+// Alto contraste — tema oscuro
+// Fondo negro puro, texto blanco puro — ratio > 21:1
+val HighContrastDarkBackground = Color(0xFF000000)
+val HighContrastDarkSurface = Color(0xFF0A0A0A)
+val HighContrastDarkSurfaceVariant = Color(0xFF141414)
+val HighContrastDarkOnBackground = Color(0xFFFFFFFF)
+val HighContrastDarkOnSurface = Color(0xFFFFFFFF)
+// Primary: amarillo brillante sobre negro — ratio ~18:1
+val HighContrastDarkPrimary = Color(0xFFFFD700)
+val HighContrastDarkOnPrimary = Color(0xFF000000)
+val HighContrastDarkPrimaryContainer = Color(0xFF1A1500)
+val HighContrastDarkOnPrimaryContainer = Color(0xFFFFD700)
+// Secondary: cian brillante sobre negro — ratio ~15:1
+val HighContrastDarkSecondary = Color(0xFF00FFFF)
+val HighContrastDarkOnSecondary = Color(0xFF000000)
+val HighContrastDarkSecondaryContainer = Color(0xFF001A1A)
+val HighContrastDarkOnSecondaryContainer = Color(0xFF00FFFF)
+// Tertiary: verde lima brillante sobre negro — ratio ~14:1
+val HighContrastDarkTertiary = Color(0xFF39FF14)
+val HighContrastDarkOnTertiary = Color(0xFF000000)
+val HighContrastDarkTertiaryContainer = Color(0xFF041400)
+val HighContrastDarkOnTertiaryContainer = Color(0xFF39FF14)
+
+// Alto contraste — tema claro
+// Fondo blanco puro, texto negro puro — ratio > 21:1
+val HighContrastLightBackground = Color(0xFFFFFFFF)
+val HighContrastLightSurface = Color(0xFFFFFFFF)
+val HighContrastLightSurfaceVariant = Color(0xFFF0F0F0)
+val HighContrastLightOnBackground = Color(0xFF000000)
+val HighContrastLightOnSurface = Color(0xFF000000)
+// Primary: purpura intenso sobre blanco — ratio ~8:1
+val HighContrastLightPrimary = Color(0xFF5B009E)
+val HighContrastLightOnPrimary = Color(0xFFFFFFFF)
+val HighContrastLightPrimaryContainer = Color(0xFFEDD9FF)
+val HighContrastLightOnPrimaryContainer = Color(0xFF2B0050)
+// Secondary: azul oscuro sobre blanco — ratio ~10:1
+val HighContrastLightSecondary = Color(0xFF0000CD)
+val HighContrastLightOnSecondary = Color(0xFFFFFFFF)
+val HighContrastLightSecondaryContainer = Color(0xFFD6D6FF)
+val HighContrastLightOnSecondaryContainer = Color(0xFF00006B)
+// Tertiary: verde oscuro sobre blanco — ratio ~9:1
+val HighContrastLightTertiary = Color(0xFF005A00)
+val HighContrastLightOnTertiary = Color(0xFFFFFFFF)
+val HighContrastLightTertiaryContainer = Color(0xFFCCF2CC)
+val HighContrastLightOnTertiaryContainer = Color(0xFF002800)

@@ -11,7 +11,7 @@ import android.util.Log
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import java.io.File
-import java.util.*
+import java.util.Date
 
 
 fun File.toBase64(): String {

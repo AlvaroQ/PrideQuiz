@@ -1,0 +1,211 @@
+[versions]
+# ==========================================
+# BUILD TOOLS
+# ==========================================
+agp = "9.0.1"
+kotlin = "2.2.10"
+
+# ==========================================
+# ANDROID SDK
+# ==========================================
+compileSdk = "36"
+minSdk = "26"
+targetSdk = "36"
+
+# ==========================================
+# KOTLIN & COROUTINES
+# ==========================================
+coroutines = "1.10.2"
+kotlinxSerialization = "1.8.1"
+
+# ==========================================
+# ANDROIDX CORE
+# ==========================================
+androidxCore = "1.17.0"
+appcompat = "1.7.1"
+preference = "1.2.1"
+datastore = "1.2.0"
+
+# ==========================================
+# LIFECYCLE
+# ==========================================
+lifecycle = "2.10.0"
+
+# ==========================================
+# NAVIGATION
+# ==========================================
+navigation = "2.9.7"
+
+# ==========================================
+# COMPOSE
+# ==========================================
+composeBom = "2026.01.01"
+activityCompose = "1.12.4"
+
+# ==========================================
+# DEPENDENCY INJECTION (KOIN)
+# ==========================================
+koin = "4.1.1"
+
+# ==========================================
+# FIREBASE
+# ==========================================
+firebaseBom = "34.9.0"
+googleServices = "4.4.4"
+firebaseCrashlyticsGradle = "3.0.6"
+
+# ==========================================
+# ADS & BILLING
+# ==========================================
+admob = "24.8.0"
+billing = "8.3.0"
+ump = "3.1.0"
+
+# ==========================================
+# IMAGE LOADING
+# ==========================================
+coil = "2.7.0"
+
+# ==========================================
+# NETWORKING
+# ==========================================
+# okhttp = "4.12.0"    # Eliminado: no se usa Retrofit en el proyecto
+# retrofit = "2.9.0"   # Eliminado: no se usa Retrofit en el proyecto
+
+# ==========================================
+# UTILITIES
+# ==========================================
+arrow = "1.2.4"
+guava = "9999.0-empty-to-avoid-conflict-with-guava"
+
+# ==========================================
+# QUALITY TOOLS
+# ==========================================
+detekt = "1.23.8"
+
+# ==========================================
+# TESTING
+# ==========================================
+mockk = "1.13.16"
+turbine = "1.2.0"
+junit = "4.13.2"
+
+
+[libraries]
+# ==========================================
+# BUILD-LOGIC — Gradle Plugin dependencies (usadas en build-logic como compileOnly)
+# ==========================================
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+
+# ==========================================
+# KOTLIN & COROUTINES
+# ==========================================
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
+
+# ==========================================
+# ANDROIDX CORE
+# ==========================================
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidxCore" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
+
+# ==========================================
+# LIFECYCLE
+# ==========================================
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+
+# ==========================================
+# NAVIGATION
+# ==========================================
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+
+# ==========================================
+# COMPOSE (BOM + libs sin version — gestionadas por BOM)
+# ==========================================
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+
+# Debug
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+# ==========================================
+# DEPENDENCY INJECTION (KOIN)
+# ==========================================
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+
+# ==========================================
+# FIREBASE (BOM + libs sin version — gestionadas por BOM)
+# ==========================================
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
+guava-listenablefuture = { group = "com.google.guava", name = "listenablefuture", version.ref = "guava" }
+
+# ==========================================
+# ADS & BILLING
+# ==========================================
+play-services-ads = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
+billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "billing" }
+ump = { group = "com.google.android.ump", name = "user-messaging-platform", version.ref = "ump" }
+
+# ==========================================
+# IMAGE LOADING
+# ==========================================
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+# ==========================================
+# NETWORKING
+# ==========================================
+# Eliminado: Retrofit y OkHttp no se usan en el proyecto (solo Firebase para networking)
+# okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+# retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+# retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+
+# ==========================================
+# UTILITIES
+# ==========================================
+arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
+
+# ==========================================
+# QUALITY TOOLS
+# ==========================================
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+
+# ==========================================
+# TESTING
+# ==========================================
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
+koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
+
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }

@@ -5,15 +5,23 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.stateIn
 
 /**
- * Manages network connectivity state and provides reactive updates
+ * Manages network connectivity state and provides reactive updates.
+ * El [networkState] es un StateFlow compartido — registra UN SOLO NetworkCallback
+ * con el OS independientemente de cuantos observadores haya.
  */
-class NetworkManager(private val context: Context) {
+class NetworkManager(
+    private val context: Context,
+    applicationScope: CoroutineScope
+) {
 
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
@@ -28,9 +36,11 @@ class NetworkManager(private val context: Context) {
     }
 
     /**
-     * Observe network connectivity changes as a Flow
+     * StateFlow compartido del estado de red.
+     * Un unico NetworkCallback registrado con el OS; multiples observadores
+     * comparten la misma suscripcion gracias a WhileSubscribed(5000).
      */
-    fun observeNetworkState(): Flow<NetworkState> = callbackFlow {
+    val networkState: StateFlow<NetworkState> = callbackFlow {
         val callback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 trySend(NetworkState.Available)
@@ -65,13 +75,19 @@ class NetworkManager(private val context: Context) {
 
         connectivityManager.registerNetworkCallback(request, callback)
 
-        // Emit initial state
+        // Emitir estado inicial
         trySend(if (isNetworkAvailable()) NetworkState.Available else NetworkState.Unavailable)
 
         awaitClose {
             connectivityManager.unregisterNetworkCallback(callback)
         }
-    }.distinctUntilChanged()
+    }
+        .distinctUntilChanged()
+        .stateIn(
+            scope = applicationScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = if (isNetworkAvailable()) NetworkState.Available else NetworkState.Unavailable
+        )
 
     /**
      * Get the current connection type
@@ -93,17 +109,17 @@ class NetworkManager(private val context: Context) {
  * Represents the current network state
  */
 sealed class NetworkState {
-    object Available : NetworkState()
-    object Unavailable : NetworkState()
+    data object Available : NetworkState()
+    data object Unavailable : NetworkState()
 }
 
 /**
  * Represents the type of network connection
  */
 sealed class ConnectionType {
-    object Wifi : ConnectionType()
-    object Cellular : ConnectionType()
-    object Ethernet : ConnectionType()
-    object Other : ConnectionType()
-    object None : ConnectionType()
+    data object Wifi : ConnectionType()
+    data object Cellular : ConnectionType()
+    data object Ethernet : ConnectionType()
+    data object Other : ConnectionType()
+    data object None : ConnectionType()
 }

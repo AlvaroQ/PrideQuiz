@@ -1,14 +1,15 @@
 package com.quiz.pride.ui.profile
 
 import androidx.lifecycle.viewModelScope
+import com.quiz.domain.Achievement
+import com.quiz.domain.LevelInfo
+import com.quiz.domain.PlayerStatistics
+import com.quiz.domain.UserProfile
 import com.quiz.pride.common.ComposeViewModel
-import com.quiz.pride.managers.Achievement
 import com.quiz.pride.managers.AchievementManager
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.GameStatsManager
-import com.quiz.pride.managers.LevelInfo
-import com.quiz.pride.managers.PlayerStatistics
 import com.quiz.pride.managers.ProgressionManager
-import com.quiz.pride.managers.UserProfile
 import com.quiz.pride.managers.XpSyncManager
 import com.quiz.usecases.GetUserGlobalRank
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,36 +36,48 @@ class ProfileViewModel(
     private val gameStatsManager: GameStatsManager,
     private val achievementManager: AchievementManager,
     private val xpSyncManager: XpSyncManager,
-    private val getUserGlobalRank: GetUserGlobalRank
+    private val getUserGlobalRank: GetUserGlobalRank,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     init {
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_PROFILE)
         loadProfileData()
     }
 
     fun loadProfileData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, isLoadingRank = true) }
-
-            val userProfile = progressionManager.getUserProfile()
-            val xp = progressionManager.totalXp.first()
-            val levelInfo = progressionManager.getLevelInfo(xp)
-            val statistics = gameStatsManager.getStatistics()
-            val unlockedAchievements = achievementManager.getUnlockedAchievements()
-
-            _uiState.update { it.copy(
-                isLoading = false,
-                userProfile = userProfile,
-                levelInfo = levelInfo,
-                statistics = statistics,
-                unlockedAchievements = unlockedAchievements
-            ) }
-
-            loadGlobalRank(xp)
+            fetchAndUpdateProfile(showLoading = true)
         }
+    }
+
+    /**
+     * Logica comun de carga del perfil.
+     * @param showLoading true para mostrar estado de carga (carga inicial), false para refresh silencioso
+     */
+    private suspend fun fetchAndUpdateProfile(showLoading: Boolean) {
+        if (showLoading) {
+            _uiState.update { it.copy(isLoading = true, isLoadingRank = true) }
+        }
+
+        val userProfile = progressionManager.getUserProfile()
+        val xp = progressionManager.totalXp.first()
+        val levelInfo = progressionManager.getLevelInfo(xp)
+        val statistics = gameStatsManager.getStatistics()
+        val unlockedAchievements = achievementManager.getUnlockedAchievements()
+
+        _uiState.update { it.copy(
+            isLoading = false,
+            userProfile = userProfile,
+            levelInfo = levelInfo,
+            statistics = statistics,
+            unlockedAchievements = unlockedAchievements
+        ) }
+
+        loadGlobalRank(xp)
     }
 
     private fun loadGlobalRank(currentXp: Long) {
@@ -121,20 +134,7 @@ class ProfileViewModel(
 
     fun refreshData() {
         viewModelScope.launch {
-            val userProfile = progressionManager.getUserProfile()
-            val xp = progressionManager.totalXp.first()
-            val levelInfo = progressionManager.getLevelInfo(xp)
-            val statistics = gameStatsManager.getStatistics()
-            val unlockedAchievements = achievementManager.getUnlockedAchievements()
-
-            _uiState.update { it.copy(
-                userProfile = userProfile,
-                levelInfo = levelInfo,
-                statistics = statistics,
-                unlockedAchievements = unlockedAchievements
-            ) }
-
-            loadGlobalRank(xp)
+            fetchAndUpdateProfile(showLoading = false)
         }
     }
 }

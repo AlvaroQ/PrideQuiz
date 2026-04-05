@@ -2,7 +2,10 @@ apply plugin: 'java-library'
 apply plugin: 'kotlin'
 
 dependencies {
-    implementation kotlinLibs.values()
+    // Kotlin stdlib
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
 }
 java {
     sourceCompatibility = JavaVersion.VERSION_17

@@ -6,15 +6,11 @@ class SharedPreferencesRepositoryImpl(
     private val sharedPreferencesLocalDataSource: SharedPreferencesLocalDataSource
 ) : SharedPreferencesRepository {
 
-    override var paymentDone: Boolean
-        get() = sharedPreferencesLocalDataSource.paymentDone
-        set(value) {
-            sharedPreferencesLocalDataSource.paymentDone = value
-        }
+    override fun getPaymentDone(): Boolean = sharedPreferencesLocalDataSource.getPaymentDone()
 
-    override var personalRecord: Int
-        get() = sharedPreferencesLocalDataSource.personalRecord
-        set(value) {
-            sharedPreferencesLocalDataSource.personalRecord = value
-        }
+    override fun setPaymentDone(value: Boolean) = sharedPreferencesLocalDataSource.setPaymentDone(value)
+
+    override fun getPersonalRecord(): Int = sharedPreferencesLocalDataSource.getPersonalRecord()
+
+    override fun setPersonalRecord(value: Int) = sharedPreferencesLocalDataSource.setPersonalRecord(value)
 }

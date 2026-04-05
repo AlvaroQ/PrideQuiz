@@ -1,9 +1,11 @@
 package com.quiz.pride.ui.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
 import com.quiz.usecases.GetPaymentDone
@@ -14,11 +16,14 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Collections
 
 data class GameUiState(
     val isLoading: Boolean = true,
@@ -43,7 +48,9 @@ data class GameUiState(
     val isTimedMode: Boolean = false,
     // Streak effects
     val showStreakEffect: Boolean = false,
-    val streakMessage: String = ""
+    val streakMessage: String = "",
+    // Error state
+    val hasError: Boolean = false
 ) {
     val maxExtraLives: Int get() = 2
 }
@@ -56,25 +63,60 @@ sealed class GameEvent {
         val bestStreak: Int,
         val timePlayed: Long
     ) : GameEvent()
-    object PlaySuccessSound : GameEvent()
-    object PlayFailSound : GameEvent()
+    data object PlaySuccessSound : GameEvent()
+    data object PlayFailSound : GameEvent()
 }
 
 class GameViewModel(
     private val getPrideById: GetPrideById,
     private val getPaymentDone: GetPaymentDone,
-    private val analyticsManager: AnalyticsManager
+    private val analyticsManager: AnalyticsManager,
+    private val themeManager: ThemeManager,
+    private val savedStateHandle: SavedStateHandle
 ) : ComposeViewModel() {
 
-    private var randomCountries = mutableListOf<Int>()
+    private val randomCountries: MutableSet<Int> = Collections.synchronizedSet(mutableSetOf())
     private var startTime = System.currentTimeMillis()
     private var timerJob: Job? = null
 
-    private val _uiState = MutableStateFlow(GameUiState())
+    // Restaurar estado critico del juego tras process death
+    private val savedPoints = savedStateHandle.get<Int>("points") ?: 0
+    private val savedLives = savedStateHandle.get<Int>("lives") ?: 3
+    private val savedStage = savedStateHandle.get<Int>("stage") ?: 0
+    private val savedCorrectAnswers = savedStateHandle.get<Int>("correctAnswers") ?: 0
+    private val savedBestStreak = savedStateHandle.get<Int>("bestStreak") ?: 0
+
+    private val _uiState = MutableStateFlow(
+        GameUiState(
+            points = savedPoints,
+            lives = savedLives,
+            stage = if (savedStage > 0) savedStage else 1,
+            correctAnswers = savedCorrectAnswers,
+            bestStreak = savedBestStreak
+        )
+    )
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<GameEvent>()
     val events = _events.asSharedFlow()
+
+    // Expuesto como StateFlow para que el composable lo observe sin koinInject
+    val isSoundEnabled: StateFlow<Boolean> = themeManager.isSoundEnabled
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), true)
+
+    /**
+     * Persiste los campos criticos del juego en SavedStateHandle.
+     * Se llama despues de cada update que modifique puntos, vidas, stage, etc.
+     * Permite recuperar el estado tras un process death del sistema.
+     */
+    private fun saveState() {
+        val state = _uiState.value
+        savedStateHandle["points"] = state.points
+        savedStateHandle["lives"] = state.lives
+        savedStateHandle["stage"] = state.stage
+        savedStateHandle["correctAnswers"] = state.correctAnswers
+        savedStateHandle["bestStreak"] = state.bestStreak
+    }
 
     init {
         analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
@@ -90,6 +132,7 @@ class GameViewModel(
                 timeRemaining = Constants.TIMED_MODE_TOTAL_SECONDS
             )
         }
+        analyticsManager.analyticsGameModeSelected(gameType.name)
         startTime = System.currentTimeMillis()
         if (isTimedMode) startTimer()
         generateNewStage()
@@ -127,7 +170,19 @@ class GameViewModel(
             }
 
             val allIds = listOf(numRandomMain) + wrongIds
-            val allPrides = allIds.map { id -> async { getPrideById.invoke(id) } }.awaitAll()
+            val allPridesResults = allIds.map { id -> async { getPrideById.invoke(id) } }.awaitAll()
+
+            // Si algun fetch fallo, mostrar estado de error y no avanzar
+            val allPrides = mutableListOf<Pride>()
+            for (result in allPridesResults) {
+                result.fold(
+                    ifLeft = {
+                        _uiState.update { state -> state.copy(isLoading = false, hasError = true) }
+                        return@launch
+                    },
+                    ifRight = { pride -> allPrides.add(pride) }
+                )
+            }
 
             val optionList = mutableListOf<Pride>()
             var wrongIndex = 0
@@ -149,6 +204,11 @@ class GameViewModel(
                 )
             }
         }
+    }
+
+    fun retryCurrentStage() {
+        _uiState.update { it.copy(hasError = false) }
+        generateNewStage()
     }
 
     fun onAnswerSelected(index: Int, streakOnFire: String, streakUnstoppable: String, streakLegendary: String, streakComboFormat: String) {
@@ -180,6 +240,7 @@ class GameViewModel(
                     streakMessage = message
                 )
             }
+            saveState()
             viewModelScope.launch { _events.emit(GameEvent.PlaySuccessSound) }
         } else {
             val newLives = if (state.isTimedMode) state.lives else state.lives - 1
@@ -190,6 +251,7 @@ class GameViewModel(
                     currentStreak = 0
                 )
             }
+            saveState()
             viewModelScope.launch { _events.emit(GameEvent.PlayFailSound) }
         }
 
@@ -202,6 +264,7 @@ class GameViewModel(
             when {
                 !currentState.isTimedMode && currentState.lives < 1 && currentState.extraLivesUsed < currentState.maxExtraLives && currentState.stage < TOTAL_PRIDES -> {
                     if (!getPaymentDone()) {
+                        analyticsManager.analyticsExtraLife("offered")
                         _uiState.update { it.copy(showExtraLifeDialog = true) }
                     } else {
                         emitNavigateToResult()
@@ -212,6 +275,7 @@ class GameViewModel(
                 }
                 else -> {
                     _uiState.update { it.copy(stage = it.stage + 1) }
+                    saveState()
                     generateNewStage()
                 }
             }
@@ -219,6 +283,7 @@ class GameViewModel(
     }
 
     fun onExtraLifeAccepted() {
+        analyticsManager.analyticsExtraLife("accepted")
         _uiState.update {
             it.copy(
                 showExtraLifeDialog = false,
@@ -226,15 +291,19 @@ class GameViewModel(
                 extraLivesUsed = it.extraLivesUsed + 1
             )
         }
+        saveState()
         generateNewStage()
     }
 
     fun onExtraLifeDeclined() {
+        analyticsManager.analyticsExtraLife("declined")
         _uiState.update { it.copy(showExtraLifeDialog = false) }
         viewModelScope.launch { emitNavigateToResult() }
     }
 
     fun showExitDialog() {
+        val state = _uiState.value
+        analyticsManager.analyticsGameExit(state.stage, state.points)
         _uiState.update { it.copy(showExitDialog = true) }
     }
 
@@ -258,12 +327,17 @@ class GameViewModel(
         )
     }
 
-    private fun generateRandomWithExclusion(max: Int, exclude: List<Int>): Int {
-        var num = (0..max).random()
-        while (exclude.contains(num)) {
-            num = (0..max).random()
+    private fun generateRandomWithExclusion(max: Int, exclude: Collection<Int>): Int {
+        // Si exclude ya es un Set (caso de randomCountries que es synchronizedSet),
+        // reutilizarlo directamente en lugar de convertirlo de nuevo
+        val excludeSet = if (exclude is Set) exclude else exclude.toSet()
+        val available = (0..max).filter { it !in excludeSet }
+        if (available.isEmpty()) {
+            // Se agotaron todos los IDs disponibles: resetear y empezar de nuevo
+            randomCountries.clear()
+            return (0..max).random()
         }
-        return num
+        return available.random()
     }
 
     override fun onCleared() {

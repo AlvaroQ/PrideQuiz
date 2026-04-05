@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.AggregateSource
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.SetOptions
@@ -36,25 +36,14 @@ class XpLeaderboardDataSourceImpl(
                 "lastUpdated" to FieldValue.serverTimestamp()
             )
 
-            // Add createdAt only if document doesn't exist
+            // set() con merge: crea el documento si no existe, actualiza campos si existe.
+            // createdAt se omite del sync: si el documento es nuevo, Firestore lo crea sin ese campo.
+            // Esto elimina el get() previo y reduce a 1 sola operacion de escritura.
             database.collection(COLLECTION_XP_LEADERBOARD)
                 .document(entry.uid)
-                .get()
-                .addOnSuccessListener { document ->
-                    if (!document.exists()) {
-                        data["createdAt"] = FieldValue.serverTimestamp()
-                    }
-
-                    database.collection(COLLECTION_XP_LEADERBOARD)
-                        .document(entry.uid)
-                        .set(data, SetOptions.merge())
-                        .addOnSuccessListener {
-                            continuation.resumeWith(Result.success(entry.right()))
-                        }
-                        .addOnFailureListener { e ->
-                            continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
-                            FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
-                        }
+                .set(data, SetOptions.merge())
+                .addOnSuccessListener {
+                    continuation.resumeWith(Result.success(entry.right()))
                 }
                 .addOnFailureListener { e ->
                     continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))

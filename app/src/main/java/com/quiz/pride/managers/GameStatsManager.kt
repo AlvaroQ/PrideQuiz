@@ -1,9 +1,13 @@
 package com.quiz.pride.managers
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
+import com.quiz.domain.GameMode
+import com.quiz.domain.GameResult
+import com.quiz.domain.PlayerStatistics
+import com.quiz.domain.XpGainResult
+import com.quiz.pride.common.DataStoreKeys
 import kotlinx.coroutines.flow.first
 
 /**
@@ -15,20 +19,17 @@ class GameStatsManager(
 ) {
 
     companion object {
-        // Statistics Keys
-        internal val TOTAL_GAMES_PLAYED = intPreferencesKey("total_games_played")
-        internal val TOTAL_CORRECT_ANSWERS = intPreferencesKey("total_correct_answers")
-        internal val TOTAL_WRONG_ANSWERS = intPreferencesKey("total_wrong_answers")
-        internal val BEST_STREAK_EVER = intPreferencesKey("best_streak_ever")
-        internal val TOTAL_TIME_PLAYED_MS = longPreferencesKey("total_time_played_ms")
-        internal val PERFECT_GAMES = intPreferencesKey("perfect_games")
-        internal val GAMES_WON = intPreferencesKey("games_won")
-
-        // Mode-specific stats
-        internal val NORMAL_GAMES = intPreferencesKey("normal_games")
-        internal val ADVANCE_GAMES = intPreferencesKey("advance_games")
-        internal val EXPERT_GAMES = intPreferencesKey("expert_games")
-        internal val TIMED_GAMES = intPreferencesKey("timed_games")
+        internal val TOTAL_GAMES_PLAYED = DataStoreKeys.GameStatsKeys.TOTAL_GAMES_PLAYED
+        internal val TOTAL_CORRECT_ANSWERS = DataStoreKeys.GameStatsKeys.TOTAL_CORRECT_ANSWERS
+        internal val TOTAL_WRONG_ANSWERS = DataStoreKeys.GameStatsKeys.TOTAL_WRONG_ANSWERS
+        internal val BEST_STREAK_EVER = DataStoreKeys.GameStatsKeys.BEST_STREAK_EVER
+        internal val TOTAL_TIME_PLAYED_MS = DataStoreKeys.GameStatsKeys.TOTAL_TIME_PLAYED_MS
+        internal val PERFECT_GAMES = DataStoreKeys.GameStatsKeys.PERFECT_GAMES
+        internal val GAMES_WON = DataStoreKeys.GameStatsKeys.GAMES_WON
+        internal val NORMAL_GAMES = DataStoreKeys.GameStatsKeys.NORMAL_GAMES
+        internal val ADVANCE_GAMES = DataStoreKeys.GameStatsKeys.ADVANCE_GAMES
+        internal val EXPERT_GAMES = DataStoreKeys.GameStatsKeys.EXPERT_GAMES
+        internal val TIMED_GAMES = DataStoreKeys.GameStatsKeys.TIMED_GAMES
     }
 
     suspend fun recordGameResult(result: GameResult): XpGainResult {
@@ -101,7 +102,14 @@ class GameStatsManager(
 
     suspend fun getStatistics(): PlayerStatistics {
         val prefs = context.progressionDataStore.data.first()
+        return getStatisticsFromPrefs(prefs)
+    }
 
+    /**
+     * Construye PlayerStatistics desde preferencias ya leidas.
+     * Permite reutilizar una lectura existente sin hacer un segundo acceso al disco.
+     */
+    fun getStatisticsFromPrefs(prefs: Preferences): PlayerStatistics {
         val totalGames = prefs[TOTAL_GAMES_PLAYED] ?: 0
         val totalCorrect = prefs[TOTAL_CORRECT_ANSWERS] ?: 0
         val totalWrong = prefs[TOTAL_WRONG_ANSWERS] ?: 0

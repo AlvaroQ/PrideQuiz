@@ -6,10 +6,17 @@ dependencies {
     implementation project(":domain")
 
     // Kotlin & Coroutines
-    kotlinLibs.each { implementation it.value }
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
 
     // Utilities
-    utilityLibs.each { implementation it.value }
+    implementation libs.arrow.core
+
+    // Testing
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.mockk
 }
 
 java {

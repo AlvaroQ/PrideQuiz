@@ -2,12 +2,15 @@ package com.quiz.pride.managers
 
 import android.content.Context
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
-import androidx.datastore.preferences.core.longPreferencesKey
-import androidx.datastore.preferences.core.stringPreferencesKey
+import com.quiz.domain.LevelInfo
+import com.quiz.domain.PlayerStatistics
+import com.quiz.domain.UserProfile
+import com.quiz.domain.XpGainResult
 import com.quiz.domain.XpLeaderboardEntry
 import com.quiz.pride.R
+import com.quiz.pride.common.DataStoreKeys
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
@@ -17,13 +20,10 @@ import kotlinx.coroutines.flow.map
 class ProgressionManager(private val context: Context) {
 
     companion object {
-        // User Profile Keys
-        private val USER_NICKNAME = stringPreferencesKey("user_nickname")
-        private val USER_IMAGE = stringPreferencesKey("user_image")
-
-        // XP and Level Keys
-        private val TOTAL_XP = longPreferencesKey("total_xp")
-        private val CURRENT_LEVEL = intPreferencesKey("current_level")
+        private val USER_NICKNAME = DataStoreKeys.ProgressionKeys.USER_NICKNAME
+        private val USER_IMAGE = DataStoreKeys.ProgressionKeys.USER_IMAGE
+        private val TOTAL_XP = DataStoreKeys.ProgressionKeys.TOTAL_XP
+        private val CURRENT_LEVEL = DataStoreKeys.ProgressionKeys.CURRENT_LEVEL
 
         // XP Configuration
         const val XP_PER_CORRECT_ANSWER = 10
@@ -130,7 +130,9 @@ class ProgressionManager(private val context: Context) {
         .map { it[TOTAL_XP] ?: 0L }
 
     val currentLevel: Flow<Int> = context.progressionDataStore.data
-        .map { calculateLevel(it[TOTAL_XP] ?: 0L) }
+        .map { it[TOTAL_XP] ?: 0L }
+        .distinctUntilChanged()
+        .map { calculateLevel(it) }
 
     fun getLevelInfo(xp: Long): LevelInfo {
         val level = calculateLevel(xp)

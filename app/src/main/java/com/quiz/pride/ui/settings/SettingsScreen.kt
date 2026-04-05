@@ -2,6 +2,7 @@ package com.quiz.pride.ui.settings
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -16,15 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BrightnessMedium
-import androidx.compose.material.icons.filled.ColorLens
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.RemoveCircleOutline
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.TextFields
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,35 +34,23 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.android.billingclient.api.AcknowledgePurchaseParams
-import com.android.billingclient.api.BillingClient
-import com.android.billingclient.api.BillingClientStateListener
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.BillingResult
-import com.android.billingclient.api.PendingPurchasesParams
-import com.android.billingclient.api.Purchase
-import com.android.billingclient.api.PurchasesUpdatedListener
-import com.android.billingclient.api.QueryProductDetailsParams
-import com.google.common.collect.ImmutableList
+import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
-import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.PrideTopAppBar
+import com.quiz.pride.ui.theme.PrideQuizTheme
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
-
-private const val REMOVE_AD = "remove_ad"
 
 @Composable
 fun SettingsScreen(
@@ -76,100 +59,39 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
-    val isSoundEnabled by viewModel.isSoundEnabled.collectAsStateWithLifecycle()
-    val isDynamicColorsEnabled by viewModel.isDynamicColorsEnabled.collectAsStateWithLifecycle()
-    val isHighContrastEnabled by viewModel.isHighContrastEnabled.collectAsStateWithLifecycle()
-    val isLargeTextEnabled by viewModel.isLargeTextEnabled.collectAsStateWithLifecycle()
+    val prefsState by viewModel.prefsState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? Activity
-    val analyticsManager: AnalyticsManager = koinInject()
 
-    // Billing Client setup
-    var billingClient by remember { mutableStateOf<BillingClient?>(null) }
-    var isBillingReady by remember { mutableStateOf(false) }
-
-    val purchasesUpdatedListener = remember {
-        PurchasesUpdatedListener { billingResult, purchases ->
-            when {
-                billingResult.responseCode == BillingClient.BillingResponseCode.OK && purchases != null -> {
-                    for (purchase in purchases) {
-                        when (purchase.purchaseState) {
-                            Purchase.PurchaseState.PURCHASED -> {
-                                analyticsManager.analyticsScreenViewed("billing_purchase_ok")
-                                viewModel.onPurchaseComplete()
-                                // Acknowledge purchase
-                                billingClient?.let { client ->
-                                    val params = AcknowledgePurchaseParams.newBuilder()
-                                        .setPurchaseToken(purchase.purchaseToken)
-                                        .build()
-                                    client.acknowledgePurchase(params) { _ -> }
-                                }
-                            }
-                            Purchase.PurchaseState.PENDING -> {
-                                analyticsManager.analyticsScreenViewed("billing_purchase_pending")
-                            }
-                            else -> {
-                                analyticsManager.analyticsScreenViewed("billing_purchase_unspecified")
-                            }
-                        }
-                    }
-                }
-                billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED -> {
-                    analyticsManager.analyticsScreenViewed("billing_purchase_canceled")
-                    viewModel.onPurchaseCancelled()
-                }
-                billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
-                    analyticsManager.analyticsScreenViewed("billing_already_purchase")
-                    viewModel.onPurchaseComplete()
-                }
-                else -> {
-                    analyticsManager.analyticsScreenViewed("billing_purchase_error")
-                    viewModel.onPurchaseError()
-                }
-            }
-        }
-    }
-
+    // Inicializar BillingClient cuando la pantalla entra en composicion y liberarlo al salir
     DisposableEffect(Unit) {
-        billingClient = BillingClient.newBuilder(context)
-            .enablePendingPurchases(
-                PendingPurchasesParams.newBuilder()
-                    .enableOneTimeProducts()
-                    .build()
-            )
-            .setListener(purchasesUpdatedListener)
-            .build()
-
-        billingClient?.startConnection(object : BillingClientStateListener {
-            override fun onBillingSetupFinished(billingResult: BillingResult) {
-                isBillingReady = billingResult.responseCode == BillingClient.BillingResponseCode.OK
-            }
-
-            override fun onBillingServiceDisconnected() {
-                isBillingReady = false
-            }
-        })
-
+        viewModel.initBilling()
         onDispose {
-            billingClient?.endConnection()
+            viewModel.releaseBilling()
         }
     }
 
-    // Handle events
+    // Handle events del ViewModel
     LaunchedEffect(Unit) {
         viewModel.events.collectLatest { event ->
             when (event) {
                 SettingsEvent.LaunchBillingFlow -> {
-                    if (isBillingReady && billingClient != null && activity != null) {
-                        launchBillingFlow(billingClient!!, activity)
-                    }
+                    activity?.let { viewModel.launchBillingFlow(it) }
                 }
                 SettingsEvent.PurchaseSuccess -> {
                     Toast.makeText(context, R.string.purchase_success, Toast.LENGTH_SHORT).show()
                 }
                 SettingsEvent.PurchaseError -> {
                     Toast.makeText(context, R.string.purchase_error, Toast.LENGTH_SHORT).show()
+                }
+                SettingsEvent.ConsentReset -> {
+                    Toast.makeText(context, "Consentimiento de anuncios reseteado", Toast.LENGTH_SHORT).show()
+                }
+                SettingsEvent.RestoreSuccess -> {
+                    Toast.makeText(context, R.string.restore_success, Toast.LENGTH_SHORT).show()
+                }
+                SettingsEvent.RestoreNoPurchases -> {
+                    Toast.makeText(context, R.string.restore_no_purchases, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -187,19 +109,23 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState())
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
             // Appearance Section
             SettingsSectionHeader(title = stringResource(R.string.settings_appearance))
 
             SettingsCard {
                 SettingsSwitchItem(
-                    icon = Icons.Default.BrightnessMedium,
+                    icon = painterResource(R.drawable.ic_brightness_medium),
                     title = stringResource(R.string.settings_dark_mode),
                     subtitle = stringResource(R.string.settings_dark_mode_desc),
-                    checked = isDarkMode,
+                    checked = prefsState.isDarkMode,
                     onCheckedChange = { viewModel.setDarkMode(it) }
                 )
 
@@ -207,10 +133,10 @@ fun SettingsScreen(
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                     SettingsSwitchItem(
-                        icon = Icons.Default.ColorLens,
+                        icon = painterResource(R.drawable.ic_color_lens),
                         title = stringResource(R.string.settings_dynamic_colors),
                         subtitle = stringResource(R.string.settings_dynamic_colors_desc),
-                        checked = isDynamicColorsEnabled,
+                        checked = prefsState.isDynamicColorsEnabled,
                         onCheckedChange = { viewModel.setDynamicColorsEnabled(it) }
                     )
                 }
@@ -221,10 +147,10 @@ fun SettingsScreen(
 
             SettingsCard {
                 SettingsSwitchItem(
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
+                    icon = painterResource(R.drawable.ic_volume_up),
                     title = stringResource(R.string.settings_sound_effects),
                     subtitle = stringResource(R.string.settings_sound_effects_desc),
-                    checked = isSoundEnabled,
+                    checked = prefsState.isSoundEnabled,
                     onCheckedChange = { viewModel.setSoundEnabled(it) }
                 )
             }
@@ -234,20 +160,20 @@ fun SettingsScreen(
 
             SettingsCard {
                 SettingsSwitchItem(
-                    icon = Icons.Default.Contrast,
+                    icon = painterResource(R.drawable.ic_contrast),
                     title = stringResource(R.string.settings_high_contrast),
                     subtitle = stringResource(R.string.settings_high_contrast_desc),
-                    checked = isHighContrastEnabled,
+                    checked = prefsState.isHighContrastEnabled,
                     onCheckedChange = { viewModel.setHighContrastEnabled(it) }
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                 SettingsSwitchItem(
-                    icon = Icons.Default.TextFields,
+                    icon = painterResource(R.drawable.ic_text_fields),
                     title = stringResource(R.string.settings_large_text),
                     subtitle = stringResource(R.string.settings_large_text_desc),
-                    checked = isLargeTextEnabled,
+                    checked = prefsState.isLargeTextEnabled,
                     onCheckedChange = { viewModel.setLargeTextEnabled(it) }
                 )
             }
@@ -259,10 +185,20 @@ fun SettingsScreen(
                 // Remove Ads
                 if (uiState.showAds) {
                     SettingsClickableItem(
-                        icon = Icons.Default.RemoveCircleOutline,
+                        icon = painterResource(R.drawable.ic_remove_circle_outline),
                         title = stringResource(R.string.settings_remove_ads),
                         subtitle = stringResource(R.string.settings_remove_ads_desc),
                         onClick = { viewModel.onRemoveAdsClick() }
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                    // Restore Purchases
+                    SettingsClickableItem(
+                        icon = rememberVectorPainter(Icons.Default.Refresh),
+                        title = stringResource(R.string.settings_restore_purchases),
+                        subtitle = stringResource(R.string.settings_restore_purchases_desc),
+                        onClick = { viewModel.onRestorePurchases() }
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
@@ -270,11 +206,11 @@ fun SettingsScreen(
 
                 // Rate App
                 SettingsClickableItem(
-                    icon = Icons.Default.Star,
+                    icon = rememberVectorPainter(Icons.Default.Star),
                     title = stringResource(R.string.settings_rate_app),
                     subtitle = stringResource(R.string.settings_rate_app_desc),
                     onClick = {
-                        analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE)
+                        viewModel.onRateClicked()
                         try {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
                                 data = Uri.parse("market://details?id=${context.packageName}")
@@ -293,11 +229,11 @@ fun SettingsScreen(
 
                 // Share
                 SettingsClickableItem(
-                    icon = Icons.Default.Share,
+                    icon = rememberVectorPainter(Icons.Default.Share),
                     title = stringResource(R.string.share),
                     subtitle = stringResource(R.string.settings_share_desc),
                     onClick = {
-                        analyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
+                        viewModel.onShareClicked()
                         val shareIntent = Intent(Intent.ACTION_SEND).apply {
                             type = "text/plain"
                             putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
@@ -311,11 +247,25 @@ fun SettingsScreen(
 
                 // More Apps
                 SettingsClickableItem(
-                    icon = Icons.Default.MoreHoriz,
+                    icon = painterResource(R.drawable.ic_more_horiz),
                     title = stringResource(R.string.more_apps),
                     subtitle = stringResource(R.string.settings_more_apps_desc),
                     onClick = onNavigateToMoreApps
                 )
+            }
+
+            // Seccion DEBUG: solo visible en builds de desarrollo
+            if (BuildConfig.DEBUG) {
+                SettingsSectionHeader(title = "Debug")
+
+                SettingsCard {
+                    SettingsClickableItem(
+                        icon = painterResource(R.drawable.ic_policy),
+                        title = "Resetear consentimiento de anuncios",
+                        subtitle = "Fuerza la reaparicion del formulario UMP/GDPR (solo DEBUG)",
+                        onClick = { viewModel.resetAdConsent() }
+                    )
+                }
             }
 
             // About Section
@@ -342,38 +292,15 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
+            } // cierra Column interior (scrolleable)
 
-private fun launchBillingFlow(billingClient: BillingClient, activity: Activity) {
-    val productList = ImmutableList.of(
-        QueryProductDetailsParams.Product.newBuilder()
-            .setProductId(REMOVE_AD)
-            .setProductType(BillingClient.ProductType.INAPP)
-            .build()
-    )
-
-    val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
-        .setProductList(productList)
-        .build()
-
-    billingClient.queryProductDetailsAsync(queryProductDetailsParams) { _, result ->
-        val productDetailsList = result.productDetailsList
-        for (productDetails in productDetailsList) {
-            if (productDetails.productId == REMOVE_AD) {
-                val productDetailsParamsList = listOf(
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(productDetails)
-                        .build()
+            // Banner publicitario al fondo (solo cuando el usuario no pago)
+            if (uiState.showAds) {
+                BannerAdView(
+                    adUnitId = stringResource(R.string.BANNER_PREFERENCES)
                 )
-                val flowParams = BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(productDetailsParamsList)
-                    .build()
-                billingClient.launchBillingFlow(activity, flowParams)
-                break
             }
-        }
+        } // cierra Column exterior
     }
 }
 
@@ -404,7 +331,7 @@ private fun SettingsCard(
 
 @Composable
 private fun SettingsSwitchItem(
-    icon: ImageVector,
+    icon: Painter,
     title: String,
     subtitle: String,
     checked: Boolean,
@@ -417,7 +344,7 @@ private fun SettingsSwitchItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = icon,
+            painter = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
@@ -448,7 +375,7 @@ private fun SettingsSwitchItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SettingsClickableItem(
-    icon: ImageVector,
+    icon: Painter,
     title: String,
     subtitle: String,
     onClick: () -> Unit
@@ -466,7 +393,7 @@ private fun SettingsClickableItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                imageVector = icon,
+                painter = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
@@ -485,6 +412,102 @@ private fun SettingsClickableItem(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+// ============================================
+// PREVIEWS
+// ============================================
+
+@Preview(showBackground = true, name = "SettingsSectionHeader - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SettingsSectionHeader - Dark")
+@Composable
+private fun SettingsSectionHeaderPreview() {
+    PrideQuizTheme {
+        Column(modifier = Modifier.padding(16.dp)) {
+            SettingsSectionHeader(title = "Apariencia")
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "SettingsSwitchItem - Activado - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SettingsSwitchItem - Activado - Dark")
+@Composable
+private fun SettingsSwitchItemOnPreview() {
+    PrideQuizTheme {
+        SettingsCard {
+            SettingsSwitchItem(
+                icon = painterResource(R.drawable.ic_brightness_medium),
+                title = "Modo oscuro",
+                subtitle = "Cambia el tema de la aplicacion",
+                checked = true,
+                onCheckedChange = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "SettingsSwitchItem - Desactivado - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SettingsSwitchItem - Desactivado - Dark")
+@Composable
+private fun SettingsSwitchItemOffPreview() {
+    PrideQuizTheme {
+        SettingsCard {
+            SettingsSwitchItem(
+                icon = painterResource(R.drawable.ic_volume_up),
+                title = "Efectos de sonido",
+                subtitle = "Activa o desactiva los sonidos del juego",
+                checked = false,
+                onCheckedChange = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "SettingsClickableItem - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SettingsClickableItem - Dark")
+@Composable
+private fun SettingsClickableItemPreview() {
+    PrideQuizTheme {
+        SettingsCard {
+            SettingsClickableItem(
+                icon = rememberVectorPainter(Icons.Default.Star),
+                title = "Valorar la app",
+                subtitle = "Ayudanos con una resena en Google Play",
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "SettingsCard - Seccion Completa - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SettingsCard - Seccion Completa - Dark")
+@Composable
+private fun SettingsCardFullSectionPreview() {
+    PrideQuizTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SettingsSectionHeader(title = "Apariencia")
+            SettingsCard {
+                SettingsSwitchItem(
+                    icon = painterResource(R.drawable.ic_brightness_medium),
+                    title = "Modo oscuro",
+                    subtitle = "Cambia el tema de la aplicacion",
+                    checked = true,
+                    onCheckedChange = {}
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                SettingsSwitchItem(
+                    icon = painterResource(R.drawable.ic_color_lens),
+                    title = "Colores dinamicos",
+                    subtitle = "Usa los colores del sistema (Android 12+)",
+                    checked = false,
+                    onCheckedChange = {}
                 )
             }
         }

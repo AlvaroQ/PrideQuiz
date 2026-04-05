@@ -34,13 +34,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -53,13 +53,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
@@ -79,11 +82,12 @@ import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 data class OnboardingPage(
     val title: String,
     val description: String,
-    val icon: ImageVector,
+    val icon: Painter,
     val gradientColors: List<Color>,
     val glowColor: Color
 )
@@ -91,34 +95,35 @@ data class OnboardingPage(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(
-    onFinish: () -> Unit
+    onFinish: () -> Unit,
+    analyticsManager: AnalyticsManager = koinInject()
 ) {
     val pages = listOf(
         OnboardingPage(
             title = stringResource(R.string.onboarding_welcome_title),
             description = stringResource(R.string.onboarding_welcome_desc),
-            icon = Icons.Default.Favorite,
+            icon = rememberVectorPainter(Icons.Default.Favorite),
             gradientColors = listOf(StartGradientTop, StartGradientBottom),
             glowColor = GlowPink
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_learn_title),
             description = stringResource(R.string.onboarding_learn_desc),
-            icon = Icons.Default.School,
+            icon = painterResource(id = R.drawable.ic_school),
             gradientColors = listOf(LearnGradientTop, LearnGradientBottom),
             glowColor = GlowPurple
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_play_title),
             description = stringResource(R.string.onboarding_play_desc),
-            icon = Icons.Default.PlayArrow,
+            icon = rememberVectorPainter(Icons.Default.PlayArrow),
             gradientColors = listOf(NormalGradientTop, NormalGradientBottom),
             glowColor = NeonGreen.copy(alpha = 0.4f)
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_modes_title),
             description = stringResource(R.string.onboarding_modes_desc),
-            icon = Icons.Default.Star,
+            icon = rememberVectorPainter(Icons.Default.Star),
             gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
             glowColor = Color(0x40FBBF24)
         )
@@ -126,6 +131,17 @@ fun OnboardingScreen(
 
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_ONBOARDING)
+        analyticsManager.analyticsOnboardingStep(0, "viewed")
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage > 0) {
+            analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "viewed")
+        }
+    }
 
     AnimatedScreenBackground(
         orbColor1 = NeonPink,
@@ -142,7 +158,10 @@ fun OnboardingScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                TextButton(onClick = onFinish) {
+                TextButton(onClick = {
+                    analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "skipped")
+                    onFinish()
+                }) {
                     Text(
                         text = stringResource(R.string.onboarding_skip),
                         color = White.copy(alpha = 0.7f),
@@ -210,7 +229,10 @@ fun OnboardingScreen(
             ) {
                 PrideButton(
                     text = stringResource(R.string.onboarding_get_started),
-                    onClick = onFinish,
+                    onClick = {
+                        analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "completed")
+                        onFinish()
+                    },
                     gradientColors = listOf(StartGradientTop, StartGradientBottom),
                     glowColor = GlowPink,
                     modifier = Modifier.fillMaxWidth()
@@ -227,7 +249,10 @@ fun OnboardingScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
-                        onClick = onFinish
+                        onClick = {
+                            analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "skipped")
+                            onFinish()
+                        }
                     ) {
                         Text(
                             text = stringResource(R.string.onboarding_skip),
@@ -296,7 +321,7 @@ private fun OnboardingPageContent(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = page.icon,
+                painter = page.icon,
                 contentDescription = null,
                 tint = White,
                 modifier = Modifier.size(64.dp)

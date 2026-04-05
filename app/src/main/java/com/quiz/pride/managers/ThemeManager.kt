@@ -3,24 +3,37 @@ package com.quiz.pride.managers
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import com.quiz.pride.common.DataStoreKeys
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 // Extension to create DataStore singleton
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "pride_settings")
 
+/**
+ * Gestor de preferencias de usuario persistidas via DataStore.
+ *
+ * Aunque el nombre indica "Theme", este manager actua como "Settings Manager" general
+ * y centraliza todas las preferencias de la app:
+ * - Tema visual: dark mode, dynamic colors (Material You)
+ * - Accesibilidad: alto contraste, texto grande
+ * - Audio: sonido habilitado
+ * - Navegacion: estado del onboarding (usado por MainActivity para elegir destino inicial)
+ *
+ * Refactor pendiente: si el scope crece, considerar separar en PreferencesManager
+ * con sub-namespaces (theme, accessibility, navigation).
+ */
 class ThemeManager(private val context: Context) {
 
     companion object {
-        private val DARK_MODE_KEY = booleanPreferencesKey("dark_mode_enabled")
-        private val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled")
-        private val DYNAMIC_COLORS_KEY = booleanPreferencesKey("dynamic_colors_enabled")
-        private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed")
-        private val HIGH_CONTRAST_KEY = booleanPreferencesKey("high_contrast_enabled")
-        private val LARGE_TEXT_KEY = booleanPreferencesKey("large_text_enabled")
+        private val DARK_MODE_KEY = DataStoreKeys.ThemeKeys.DARK_MODE
+        private val SOUND_ENABLED_KEY = DataStoreKeys.ThemeKeys.SOUND_ENABLED
+        private val DYNAMIC_COLORS_KEY = DataStoreKeys.ThemeKeys.DYNAMIC_COLORS
+        private val ONBOARDING_COMPLETED_KEY = DataStoreKeys.ThemeKeys.ONBOARDING_COMPLETED
+        private val HIGH_CONTRAST_KEY = DataStoreKeys.ThemeKeys.HIGH_CONTRAST
+        private val LARGE_TEXT_KEY = DataStoreKeys.ThemeKeys.LARGE_TEXT
     }
 
     // Dark Mode

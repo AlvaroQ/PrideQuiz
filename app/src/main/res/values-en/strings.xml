@@ -85,4 +85,9 @@
 
     <!-- content -->
     <string name="locale">en</string>
+
+    <!-- Error states -->
+    <string name="error_loading_question">Could not load the question. Please try again.</string>
+    <string name="error_retry">Retry</string>
+    <string name="error_ranking_partial">Some data couldn\'t be loaded.</string>
 </resources>

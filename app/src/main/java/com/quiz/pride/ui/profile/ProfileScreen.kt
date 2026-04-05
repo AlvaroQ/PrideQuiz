@@ -37,15 +37,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EmojiEvents
-import androidx.compose.material.icons.filled.Leaderboard
-import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -77,21 +72,23 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.quiz.domain.Achievement
+import com.quiz.domain.LevelInfo
+import com.quiz.domain.PlayerStatistics
+import com.quiz.domain.UserProfile
 import com.quiz.pride.R
-import com.quiz.pride.managers.Achievement
-import com.quiz.pride.managers.LevelInfo
-import com.quiz.pride.managers.PlayerStatistics
-import com.quiz.pride.managers.UserProfile
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.PrideTopAppBar
@@ -193,16 +190,21 @@ fun ProfileScreen(
 
 @Composable
 private fun LevelCard(levelInfo: LevelInfo, isDarkTheme: Boolean) {
-    val infiniteTransition = rememberInfiniteTransition(label = "level_glow")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
+    // Solo se anima en dark theme: en light theme el glow no se dibuja
+    val glowAlpha = if (isDarkTheme) {
+        val infiniteTransition = rememberInfiniteTransition(label = "level_glow")
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.6f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glow_alpha"
+        ).value
+    } else {
+        0f
+    }
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
@@ -348,16 +350,21 @@ private fun GlobalRankCard(
     isDarkTheme: Boolean,
     onViewLeaderboard: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "rank_glow")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.6f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(2000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "rank_glow_alpha"
-    )
+    // Solo se anima en dark theme: en light theme el glow no se dibuja
+    val glowAlpha = if (isDarkTheme) {
+        val infiniteTransition = rememberInfiniteTransition(label = "rank_glow")
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 0.6f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "rank_glow_alpha"
+        ).value
+    } else {
+        0f
+    }
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
@@ -406,7 +413,7 @@ private fun GlobalRankCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Leaderboard,
+                    painter = painterResource(R.drawable.ic_leaderboard),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
                     tint = White
@@ -504,7 +511,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.Default.Star,
+                icon = rememberVectorPainter(Icons.Default.Star),
                 label = stringResource(R.string.games_played),
                 value = statistics.totalGamesPlayed.toString(),
                 color = NeonPink,
@@ -512,7 +519,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                icon = Icons.Default.EmojiEvents,
+                icon = painterResource(id = R.drawable.ic_emoji_events),
                 label = stringResource(R.string.games_won),
                 value = statistics.gamesWon.toString(),
                 color = GradientPointsBottom,
@@ -528,7 +535,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.Default.LocalFireDepartment,
+                icon = painterResource(id = R.drawable.ic_local_fire_department),
                 label = stringResource(R.string.best_streak),
                 value = statistics.bestStreakEver.toString(),
                 color = NeonOrange,
@@ -536,7 +543,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                icon = Icons.Default.Star,
+                icon = rememberVectorPainter(Icons.Default.Star),
                 label = stringResource(R.string.accuracy_label),
                 value = "${statistics.accuracy.toInt()}%",
                 color = NeonGreen,
@@ -552,7 +559,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(
-                icon = Icons.Default.Star,
+                icon = rememberVectorPainter(Icons.Default.Star),
                 label = stringResource(R.string.perfect_games),
                 value = statistics.perfectGames.toString(),
                 color = NeonPurple,
@@ -560,7 +567,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                icon = Icons.Default.Timer,
+                icon = painterResource(R.drawable.ic_timer),
                 label = stringResource(R.string.time_played),
                 value = statistics.totalTimePlayed,
                 color = NeonBlue,
@@ -618,7 +625,7 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
 
 @Composable
 private fun StatCard(
-    icon: ImageVector,
+    icon: Painter,
     label: String,
     value: String,
     color: Color,
@@ -644,7 +651,7 @@ private fun StatCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
-                imageVector = icon,
+                painter = icon,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier.size(24.dp)
@@ -752,7 +759,11 @@ private fun AchievementsSection(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(allAchievements) { achievement ->
+            items(
+                items = allAchievements,
+                key = { it.ordinal },
+                contentType = { "achievement" }
+            ) { achievement ->
                 AchievementCard(
                     achievement = achievement,
                     isUnlocked = achievement in unlockedAchievements,
@@ -769,16 +780,21 @@ private fun AchievementCard(
     isUnlocked: Boolean,
     isDarkTheme: Boolean
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "achievement_glow")
-    val glowScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (isUnlocked) 1.05f else 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1500),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_scale"
-    )
+    // Solo se anima si el logro esta desbloqueado — evita InfiniteTransition activa para todos
+    val glowScale = if (isUnlocked) {
+        val infiniteTransition = rememberInfiniteTransition(label = "achievement_glow")
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(1500),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "glow_scale"
+        ).value
+    } else {
+        1f
+    }
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
@@ -973,7 +989,7 @@ private fun UserProfileCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.CameraAlt,
+                        painter = painterResource(R.drawable.ic_camera_alt),
                         contentDescription = stringResource(R.string.change_photo),
                         tint = White,
                         modifier = Modifier.size(18.dp)

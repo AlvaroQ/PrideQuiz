@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
 data class MoreAppsUiState(
     val isLoading: Boolean = true,
     val appsList: List<App> = emptyList(),
-    val showAd: Boolean = false
+    val showAd: Boolean = false,
+    val hasError: Boolean = false
 )
 
 class MoreAppsViewModel(
@@ -32,20 +33,38 @@ class MoreAppsViewModel(
         loadApps()
     }
 
+    /** Recarga la lista de apps. Puede invocarse desde pull-to-refresh o retry. */
+    fun refresh() {
+        loadApps()
+    }
+
+    fun onAppClicked(appName: String) {
+        analyticsManager.analyticsAppRecommendedOpen(appName)
+    }
+
     private fun loadApps() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, hasError = false) }
 
-            val apps = getAppsRecommended.invoke()
             val showAd = !getPaymentDone()
 
-            _uiState.update { state ->
-                state.copy(
-                    isLoading = false,
-                    appsList = apps,
-                    showAd = showAd
-                )
-            }
+            getAppsRecommended.invoke().fold(
+                ifLeft = {
+                    _uiState.update { state ->
+                        state.copy(isLoading = false, showAd = showAd, hasError = true)
+                    }
+                },
+                ifRight = { apps ->
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            appsList = apps,
+                            showAd = showAd,
+                            hasError = false
+                        )
+                    }
+                }
+            )
         }
     }
 }

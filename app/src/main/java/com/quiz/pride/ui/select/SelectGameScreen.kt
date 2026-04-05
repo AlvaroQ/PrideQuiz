@@ -3,7 +3,6 @@ package com.quiz.pride.ui.select
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -63,21 +62,15 @@ import com.quiz.pride.ui.theme.NormalGradientTop
 import com.quiz.pride.ui.theme.TimedGradientBottom
 import com.quiz.pride.ui.theme.TimedGradientTop
 import com.quiz.pride.ui.theme.White
-import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.utils.Constants
-import org.koin.compose.koinInject
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SelectGameScreen(
     onNavigateToGame: (Constants.GameType) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    viewModel: SelectGameViewModel = koinViewModel()
 ) {
-    val analyticsManager: AnalyticsManager = koinInject()
-
-    LaunchedEffect(Unit) {
-        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT_GAME)
-    }
-
     Scaffold(
         topBar = {
             PrideTopAppBar(

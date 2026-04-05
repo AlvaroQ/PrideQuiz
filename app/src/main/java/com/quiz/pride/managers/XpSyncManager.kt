@@ -2,17 +2,13 @@ package com.quiz.pride.managers
 
 import android.content.Context
 import android.util.Log
-import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.quiz.pride.common.DataStoreKeys
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.quiz.data.repository.XpLeaderboardRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -21,22 +17,23 @@ import kotlinx.coroutines.launch
 private val Context.syncDataStore by preferencesDataStore(name = "xp_sync_preferences")
 
 /**
- * Manages XP synchronization between local DataStore and Firestore
+ * Manages XP synchronization between local DataStore and Firestore.
+ * El [applicationScope] se inyecta externamente para que su ciclo de vida
+ * sea gestionado por la Application y no por esta clase.
  */
 class XpSyncManager(
     private val context: Context,
     private val progressionManager: ProgressionManager,
     private val gameStatsManager: GameStatsManager,
     private val xpLeaderboardRepository: XpLeaderboardRepository,
-    private val networkManager: NetworkManager
+    private val networkManager: NetworkManager,
+    private val applicationScope: CoroutineScope
 ) {
     companion object {
         private const val TAG = "XpSyncManager"
-        private val LAST_SYNCED_TIME = longPreferencesKey("last_synced_time")
-        private val PENDING_SYNC = booleanPreferencesKey("pending_sync")
+        private val LAST_SYNCED_TIME = DataStoreKeys.XpSyncKeys.LAST_SYNCED_TIME
+        private val PENDING_SYNC = DataStoreKeys.XpSyncKeys.PENDING_SYNC
     }
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     val hasPendingSync: Flow<Boolean> = context.syncDataStore.data
         .map { it[PENDING_SYNC] ?: false }
@@ -49,7 +46,7 @@ class XpSyncManager(
      * Should be called from ResultViewModel after recording game result
      */
     fun triggerSync() {
-        scope.launch {
+        applicationScope.launch {
             if (networkManager.isNetworkAvailable()) {
                 performSync()
             } else {
@@ -64,7 +61,7 @@ class XpSyncManager(
      * Called when app resumes to sync any pending changes
      */
     fun syncIfNeeded() {
-        scope.launch {
+        applicationScope.launch {
             val pending = context.syncDataStore.data.first()[PENDING_SYNC] ?: false
             if (pending && networkManager.isNetworkAvailable()) {
                 performSync()
@@ -139,12 +136,4 @@ class XpSyncManager(
      * Get current user's UID
      */
     fun getCurrentUserId(): String? = Firebase.auth.currentUser?.uid
-
-    /**
-     * Cancel the internal CoroutineScope.
-     * Should be called when the application is terminating.
-     */
-    fun cancel() {
-        scope.cancel()
-    }
 }

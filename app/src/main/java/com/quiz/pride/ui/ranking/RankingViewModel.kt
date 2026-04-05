@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.ranking
 
+import arrow.core.getOrElse
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.User
 import com.quiz.domain.XpLeaderboardEntry
@@ -22,7 +23,9 @@ data class RankingUiState(
     val timedRankingList: List<User> = emptyList(),
     val xpLeaderboardList: List<XpLeaderboardEntry> = emptyList(),
     val selectedTabIndex: Int = 0,
-    val showRewardedAd: Boolean = false
+    val showRewardedAd: Boolean = false,
+    val showBannerAd: Boolean = false,
+    val hasError: Boolean = false
 )
 
 class RankingViewModel(
@@ -42,16 +45,22 @@ class RankingViewModel(
 
     private fun loadRanking() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, hasError = false) }
 
             val rankingDeferred = async { getRankingScore(RankingMode.NORMAL) }
             val timedRankingDeferred = async { getRankingScore(RankingMode.TIMED) }
             val xpLeaderboardDeferred = async { getXpLeaderboard() }
 
-            val ranking = rankingDeferred.await()
-            val timedRanking = timedRankingDeferred.await()
+            val rankingResult = rankingDeferred.await()
+            val timedRankingResult = timedRankingDeferred.await()
             val xpLeaderboard = xpLeaderboardDeferred.await()
             val showAd = !getPaymentDone()
+
+            // Los rankings usan getOrElse para degradar con lista vacia en caso de error
+            // sin bloquear toda la pantalla — el usuario igual ve lo que cargo
+            val ranking = rankingResult.getOrElse { emptyList() }
+            val timedRanking = timedRankingResult.getOrElse { emptyList() }
+            val hasError = rankingResult.isLeft() || timedRankingResult.isLeft()
 
             _uiState.update { state ->
                 state.copy(
@@ -59,13 +68,22 @@ class RankingViewModel(
                     rankingList = ranking,
                     timedRankingList = timedRanking,
                     xpLeaderboardList = xpLeaderboard,
-                    showRewardedAd = showAd
+                    showRewardedAd = showAd,
+                    showBannerAd = showAd,
+                    hasError = hasError
                 )
             }
         }
     }
 
     fun onTabSelected(tabIndex: Int) {
+        val tabName = when (tabIndex) {
+            0 -> "normal"
+            1 -> "timed"
+            2 -> "xp"
+            else -> "unknown"
+        }
+        analyticsManager.analyticsRankingTabSelected(tabName)
         _uiState.update { it.copy(selectedTabIndex = tabIndex) }
     }
 

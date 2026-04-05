@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.components
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -59,6 +60,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.ui.theme.GlowPink
@@ -73,8 +75,11 @@ import com.quiz.pride.ui.theme.GradientPositionTop
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.PrideRed
+import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.ui.theme.RainbowColors
 import com.quiz.pride.ui.theme.Shimmer
+import com.quiz.pride.ui.theme.StartGradientBottom
+import com.quiz.pride.ui.theme.StartGradientTop
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -654,5 +659,227 @@ fun AnimatedScreenBackground(
         )
 
         content()
+    }
+}
+
+// ============================================
+// PREVIEWS
+// ============================================
+
+@Preview(showBackground = true, name = "RainbowDivider - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "RainbowDivider - Dark")
+@Composable
+private fun RainbowDividerPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 24.dp)
+        ) {
+            RainbowDivider()
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "LoadingIndicator - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "LoadingIndicator - Dark")
+@Composable
+private fun LoadingIndicatorPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.size(200.dp)) {
+            LoadingIndicator()
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "PointsDisplay - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PointsDisplay - Dark")
+@Composable
+private fun PointsDisplayPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .background(GradientPositionTop)
+                .padding(16.dp)
+        ) {
+            PointsDisplay(points = 1250)
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "LifeIndicator - Full - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "LifeIndicator - Full - Dark")
+@Composable
+private fun LifeIndicatorFullPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .background(GradientPositionTop)
+                .padding(16.dp)
+        ) {
+            LifeIndicator(currentLives = 2, maxLives = 2)
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "LifeIndicator - Partial")
+@Composable
+private fun LifeIndicatorPartialPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .background(GradientPositionTop)
+                .padding(16.dp)
+        ) {
+            LifeIndicator(currentLives = 1, maxLives = 2)
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GameTopBar - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "GameTopBar - Dark")
+@Composable
+private fun GameTopBarPreview() {
+    PrideQuizTheme {
+        GameTopBar(
+            points = 750,
+            lives = 1,
+            maxLives = 2,
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "PrideTopAppBar - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PrideTopAppBar - Dark")
+@Composable
+private fun PrideTopAppBarPreview() {
+    PrideQuizTheme {
+        PrideTopAppBar(
+            title = "Configuracion",
+            onBackClick = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "PrideButton - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "PrideButton - Dark")
+@Composable
+private fun PrideButtonPreview() {
+    PrideQuizTheme {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            PrideButton(
+                text = "Jugar",
+                onClick = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            PrideButton(
+                text = "Deshabilitado",
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GlassCard - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "GlassCard - Dark")
+@Composable
+private fun GlassCardPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            GlassCard(onClick = {}) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Pride Quiz",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Juego de preguntas sobre comunidad LGBTQ+",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "SectionHeader - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "SectionHeader - Dark")
+@Composable
+private fun SectionHeaderPreview() {
+    PrideQuizTheme {
+        SectionHeader(text = "Modo Normal")
+    }
+}
+
+@Preview(showBackground = true, name = "EmptyState - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "EmptyState - Dark")
+@Composable
+private fun EmptyStatePreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.size(300.dp)) {
+            EmptyState(message = "No hay datos disponibles")
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "GradientCard - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "GradientCard - Dark")
+@Composable
+private fun GradientCardPreview() {
+    PrideQuizTheme {
+        Box(
+            modifier = Modifier
+                .size(200.dp)
+                .padding(16.dp)
+        ) {
+            GradientCard(
+                gradientColors = listOf(StartGradientTop, StartGradientBottom),
+                glowColor = GlowPink,
+                onClick = {}
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Jugar",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = false, name = "AnimatedScreenBackground")
+@Composable
+private fun AnimatedScreenBackgroundPreview() {
+    PrideQuizTheme {
+        AnimatedScreenBackground(
+            orbColor1 = NeonPink,
+            orbColor2 = NeonPurple
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Pride Quiz",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = White
+                )
+            }
+        }
     }
 }

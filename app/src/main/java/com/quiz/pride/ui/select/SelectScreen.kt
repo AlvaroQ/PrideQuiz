@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.select
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
@@ -31,7 +32,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -53,9 +53,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
-import com.quiz.pride.managers.AnalyticsManager
+import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.ui.components.AnimatedScreenBackground
-import org.koin.compose.koinInject
+import com.quiz.pride.ui.theme.PrideQuizTheme
+import org.koin.androidx.compose.koinViewModel
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
@@ -77,14 +78,9 @@ fun SelectScreen(
     onNavigateToSelectGame: () -> Unit,
     onNavigateToInfo: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    viewModel: SelectViewModel = koinViewModel()
 ) {
-    val analyticsManager: AnalyticsManager = koinInject()
-
-    LaunchedEffect(Unit) {
-        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)
-    }
-
     AnimatedScreenBackground(
         orbColor1 = NeonPink,
         orbColor2 = NeonPurple
@@ -220,6 +216,26 @@ fun SelectScreen(
     }
 }
 
+// Wrapper publico para preview — VibrantMenuCard es private
+@Composable
+internal fun VibrantMenuCardPreviewWrapper(
+    title: String,
+    description: String,
+    imageRes: Int,
+    gradientColors: List<Color>,
+    glowColor: Color,
+    onClick: () -> Unit
+) {
+    VibrantMenuCard(
+        title = title,
+        description = description,
+        imageRes = imageRes,
+        gradientColors = gradientColors,
+        glowColor = glowColor,
+        onClick = onClick
+    )
+}
+
 @Composable
 private fun VibrantMenuCard(
     title: String,
@@ -343,6 +359,106 @@ private fun VibrantMenuCard(
                         contentScale = ContentScale.Fit
                     )
                 }
+            }
+        }
+    }
+}
+
+// ============================================
+// PREVIEWS
+// ============================================
+
+@Preview(showBackground = true, name = "VibrantMenuCard - Start - Light")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "VibrantMenuCard - Start - Dark")
+@Composable
+private fun VibrantMenuCardStartPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            VibrantMenuCardPreviewWrapper(
+                title = "Jugar",
+                description = "Inicia un nuevo juego",
+                imageRes = R.drawable.image_play,
+                gradientColors = listOf(StartGradientTop, StartGradientBottom),
+                glowColor = GlowPink,
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "VibrantMenuCard - Learn")
+@Composable
+private fun VibrantMenuCardLearnPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            VibrantMenuCardPreviewWrapper(
+                title = "Aprender",
+                description = "Conoce mas sobre el movimiento",
+                imageRes = R.drawable.image_learn,
+                gradientColors = listOf(GlowBlue.copy(alpha = 0.8f), NeonPink.copy(alpha = 0.6f)),
+                glowColor = GlowBlue,
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "VibrantMenuCard - Settings")
+@Composable
+private fun VibrantMenuCardSettingsPreview() {
+    PrideQuizTheme {
+        Box(modifier = Modifier.padding(16.dp)) {
+            VibrantMenuCardPreviewWrapper(
+                title = "Ajustes",
+                description = "Configuracion del juego",
+                imageRes = R.drawable.image_settings,
+                gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
+                glowColor = GlowPurple,
+                onClick = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = false, name = "SelectScreen - Columna de Cards")
+@Composable
+private fun SelectScreenCardsPreview() {
+    PrideQuizTheme {
+        AnimatedScreenBackground(
+            orbColor1 = NeonPink,
+            orbColor2 = NeonPurple
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 48.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                VibrantMenuCardPreviewWrapper(
+                    title = "Jugar",
+                    description = "Inicia un nuevo juego",
+                    imageRes = R.drawable.image_play,
+                    gradientColors = listOf(StartGradientTop, StartGradientBottom),
+                    glowColor = GlowPink,
+                    onClick = {}
+                )
+                VibrantMenuCardPreviewWrapper(
+                    title = "Aprender",
+                    description = "Conoce mas sobre el movimiento",
+                    imageRes = R.drawable.image_learn,
+                    gradientColors = listOf(GlowBlue.copy(alpha = 0.8f), NeonPink.copy(alpha = 0.6f)),
+                    glowColor = GlowBlue,
+                    onClick = {}
+                )
+                VibrantMenuCardPreviewWrapper(
+                    title = "Ajustes",
+                    description = "Configuracion del juego",
+                    imageRes = R.drawable.image_settings,
+                    gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
+                    glowColor = GlowPurple,
+                    onClick = {}
+                )
             }
         }
     }

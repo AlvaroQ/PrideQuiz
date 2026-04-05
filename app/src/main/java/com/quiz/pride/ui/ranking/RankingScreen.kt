@@ -1,8 +1,6 @@
 package com.quiz.pride.ui.ranking
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,6 +35,7 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -63,12 +61,16 @@ import coil.compose.SubcomposeAsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import com.quiz.domain.User
 import com.quiz.domain.XpLeaderboardEntry
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
+import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.components.ShimmerRankingItem
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
@@ -82,8 +84,6 @@ import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -104,12 +104,12 @@ private fun UserAvatar(
 
     when {
         userImage != null && !userImage.startsWith("http") && userImage.length > 100 -> {
-            // Base64 image
-            val bitmap = try {
-                val imageBytes = Base64.decode(userImage, Base64.DEFAULT)
-                BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            } catch (e: Exception) {
-                null
+            // Base64 image - cacheado para evitar decode repetido en cada recomposicion
+            val bitmap = remember(userImage) {
+                runCatching {
+                    val bytes = Base64.decode(userImage, Base64.DEFAULT)
+                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                }.getOrNull()
             }
 
             if (bitmap != null) {
@@ -181,8 +181,10 @@ private val BronzeGlow = Color(0x80CD7F32)
 private fun formatTimestamp(timestamp: Long): String {
     if (timestamp == 0L) return ""
     return try {
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        sdf.format(Date(timestamp))
+        java.time.Instant.ofEpochMilli(timestamp)
+            .atZone(java.time.ZoneId.systemDefault())
+            .toLocalDate()
+            .format(java.time.format.DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault()))
     } catch (e: Exception) {
         ""
     }
@@ -218,12 +220,50 @@ fun RankingScreen(
             )
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
             AnimatedScreenBackground(
                 orbColor1 = NeonPink,
                 orbColor2 = NeonPurple
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
+                    // Banner de error sutil cuando algún ranking no cargo
+                    if (uiState.hasError) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = stringResource(R.string.error_ranking_partial),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TextButton(onClick = { viewModel.refreshRanking() }) {
+                                    Text(
+                                        text = stringResource(R.string.error_retry),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     // Tab Row
                     SecondaryTabRow(
                     selectedTabIndex = pagerState.currentPage,
@@ -310,7 +350,10 @@ fun RankingScreen(
                                     ) {
                                         itemsIndexed(
                                             items = rankingList,
-                                            key = { index, user -> "${page}_${user.name}_$index" }
+                                            // Key estable sin index ni score: el nombre identifica
+                                            // al usuario de forma unica. El prefijo de tab
+                                            // evita colision entre pestanas Classic y Timed.
+                                            key = { _, user -> "${page}_${user.name}" }
                                         ) { index, user ->
                                             VibrantRankingItem(
                                                 position = index + 1,
@@ -341,7 +384,8 @@ fun RankingScreen(
                                     ) {
                                         itemsIndexed(
                                             items = uiState.xpLeaderboardList,
-                                            key = { index, entry -> "xp_${entry.uid}_$index" }
+                                            // Key estable: uid del usuario sin incluir index
+                                            key = { _, entry -> "xp_${entry.uid}" }
                                         ) { index, entry ->
                                             XpLeaderboardItem(
                                                 position = index + 1,
@@ -354,11 +398,19 @@ fun RankingScreen(
                         }
                     }
                 }
-                }
+            } // cierra Column interna del AnimatedScreenBackground
+        } // cierra AnimatedScreenBackground
+        } // cierra Box(weight(1f))
+
+            // Banner publicitario al fondo (solo cuando el usuario no pago)
+            if (uiState.showBannerAd) {
+                BannerAdView(
+                    adUnitId = stringResource(R.string.BANNER_RANKING)
+                )
             }
-        }
-    }
-}
+        } // cierra Column exterior
+    } // cierra Scaffold
+} // cierra RankingScreen
 
 @Composable
 private fun VibrantRankingItem(
@@ -374,16 +426,9 @@ private fun VibrantRankingItem(
         else -> Triple(GradientPositionTop, GlowPurple, listOf(GradientPositionTop, GradientPositionBottom))
     }
 
-    val scale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = spring(),
-        label = "item_scale"
-    )
-
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .scale(scale)
             .shadow(
                 elevation = if (isTopThree) 16.dp else 8.dp,
                 shape = RoundedCornerShape(20.dp),
@@ -559,16 +604,9 @@ private fun XpLeaderboardItem(
         else -> Triple(GradientPositionTop, GlowPurple, listOf(GradientPositionTop, GradientPositionBottom))
     }
 
-    val scale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = spring(),
-        label = "xp_item_scale"
-    )
-
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .scale(scale)
             .shadow(
                 elevation = if (isTopThree) 16.dp else 8.dp,
                 shape = RoundedCornerShape(20.dp),

@@ -32,7 +32,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoStories
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -59,6 +58,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -69,6 +69,7 @@ import coil.compose.AsyncImage
 import com.quiz.domain.Pride
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
+import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.ShimmerInfoCard
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.LearnGradientBottom
@@ -122,7 +123,7 @@ fun InfoScreen(
             if (uiState.isLoading && uiState.prideList.isEmpty()) {
                 // Shimmer loading
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -134,7 +135,7 @@ fun InfoScreen(
                 // Actual content
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.weight(1f),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -167,6 +168,13 @@ fun InfoScreen(
                         }
                     }
                 }
+            }
+
+            // Banner publicitario al fondo (solo cuando el usuario no pago)
+            if (uiState.showBannerAd) {
+                BannerAdView(
+                    adUnitId = stringResource(R.string.BANNER_INFO)
+                )
             }
         }
     }
@@ -222,7 +230,7 @@ private fun LearnTopBar(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.AutoStories,
+                    painter = painterResource(id = R.drawable.ic_auto_stories),
                     contentDescription = null,
                     tint = textColor,
                     modifier = Modifier.size(24.dp)

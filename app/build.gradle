@@ -3,11 +3,12 @@ import groovy.xml.XmlParser
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
 
 android {
-    compileSdkVersion versions.compileSdk
+    compileSdk versions.compileSdk
 
     signingConfigs {
         config {
@@ -20,8 +21,8 @@ android {
 
     defaultConfig {
         applicationId names.applicationId
-        minSdkVersion versions.minSdk
-        targetSdkVersion versions.targetSdk
+        minSdk versions.minSdk
+        targetSdk versions.targetSdk
         versionCode versions.code
         versionName versions.name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -82,6 +83,19 @@ android {
         compose true
         buildConfig = true
     }
+
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+
     namespace 'com.quiz.pride'
 }
 
@@ -96,61 +110,97 @@ dependencies {
     // ==========================================
     // KOTLIN & COROUTINES
     // ==========================================
-    kotlinLibs.each { implementation it.value }
+    implementation libs.kotlin.stdlib
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.kotlinx.serialization.json
 
     // ==========================================
     // ANDROIDX CORE
     // ==========================================
-    androidxCoreLibs.each { implementation it.value }
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.preference.ktx
+    implementation libs.androidx.datastore.preferences
 
     // ==========================================
     // LIFECYCLE
     // ==========================================
-    lifecycleLibs.each { implementation it.value }
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.runtime.ktx
+    implementation libs.androidx.lifecycle.viewmodel.compose
+    implementation libs.androidx.lifecycle.runtime.compose
 
     // ==========================================
     // NAVIGATION
     // ==========================================
-    navigationLibs.each { implementation it.value }
+    implementation libs.androidx.navigation.compose
 
     // ==========================================
     // COMPOSE
     // ==========================================
-    implementation platform(composeBom)
-    androidTestImplementation platform(composeBom)
-    composeLibs.each { implementation it.value }
-    composeDebugLibs.each { debugImplementation it.value }
+    implementation platform(libs.compose.bom)
+    androidTestImplementation platform(libs.compose.bom)
+    implementation libs.compose.ui
+    implementation libs.compose.ui.graphics
+    implementation libs.compose.ui.tooling.preview
+    implementation libs.compose.material3
+    implementation libs.compose.material.icons.core
+    implementation libs.activity.compose
+    debugImplementation libs.compose.ui.tooling
+    debugImplementation libs.compose.ui.test.manifest
 
     // ==========================================
     // DEPENDENCY INJECTION (KOIN)
     // ==========================================
-    koinLibs.each { implementation it.value }
+    implementation libs.koin.android
+    implementation libs.koin.androidx.compose
 
     // ==========================================
     // FIREBASE
     // ==========================================
-    implementation platform(firebaseBom)
-    firebaseLibs.each { implementation it.value }
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.database
+    implementation libs.firebase.firestore
+    implementation libs.firebase.analytics
+    implementation libs.firebase.auth
+    implementation libs.firebase.crashlytics
+    implementation libs.guava.listenablefuture
 
     // ==========================================
     // ADS & BILLING
     // ==========================================
-    monetizationLibs.each { implementation it.value }
+    implementation libs.play.services.ads
+    implementation libs.billing.ktx
+    implementation libs.ump
 
     // ==========================================
     // IMAGE LOADING
     // ==========================================
-    imageLibs.each { implementation it.value }
+    implementation libs.coil.compose
 
     // ==========================================
     // NETWORKING
     // ==========================================
-    networkLibs.each { implementation it.value }
+    // Eliminado: Retrofit y OkHttp no se usan. El proyecto usa Firebase para toda la comunicacion de red.
+    // implementation libs.okhttp.logging.interceptor
+    // implementation libs.retrofit
+    // implementation libs.retrofit.converter.gson
 
     // ==========================================
     // UTILITIES
     // ==========================================
-    utilityLibs.each { implementation it.value }
+    implementation libs.arrow.core
+
+    // ==========================================
+    // TESTING
+    // ==========================================
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.mockk
+    testImplementation libs.turbine
+    testImplementation libs.koin.test
+    testImplementation libs.koin.test.junit4
 }
 // delete waring store com.google.android.gms:play-services-safetynet:17.0.0
 configurations.configureEach {

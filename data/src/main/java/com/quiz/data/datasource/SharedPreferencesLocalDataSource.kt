@@ -1,8 +1,9 @@
 package com.quiz.data.datasource
 
-interface SharedPreferencesLocalDataSource  {
+interface SharedPreferencesLocalDataSource {
 
-    var paymentDone: Boolean
-
-    var personalRecord: Int
+    fun getPaymentDone(): Boolean
+    fun setPaymentDone(value: Boolean)
+    fun getPersonalRecord(): Int
+    fun setPersonalRecord(value: Int)
 }

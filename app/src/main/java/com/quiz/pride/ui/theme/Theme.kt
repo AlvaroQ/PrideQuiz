@@ -11,6 +11,84 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+// Esquema de alto contraste oscuro — WCAG AAA (ratio minimo 7:1)
+private val HighContrastDarkColorScheme = darkColorScheme(
+    primary = HighContrastDarkPrimary,
+    onPrimary = HighContrastDarkOnPrimary,
+    primaryContainer = HighContrastDarkPrimaryContainer,
+    onPrimaryContainer = HighContrastDarkOnPrimaryContainer,
+
+    secondary = HighContrastDarkSecondary,
+    onSecondary = HighContrastDarkOnSecondary,
+    secondaryContainer = HighContrastDarkSecondaryContainer,
+    onSecondaryContainer = HighContrastDarkOnSecondaryContainer,
+
+    tertiary = HighContrastDarkTertiary,
+    onTertiary = HighContrastDarkOnTertiary,
+    tertiaryContainer = HighContrastDarkTertiaryContainer,
+    onTertiaryContainer = HighContrastDarkOnTertiaryContainer,
+
+    background = HighContrastDarkBackground,
+    onBackground = HighContrastDarkOnBackground,
+    surface = HighContrastDarkSurface,
+    onSurface = HighContrastDarkOnSurface,
+    surfaceVariant = HighContrastDarkSurfaceVariant,
+    onSurfaceVariant = HighContrastDarkOnSurface,
+
+    error = Color(0xFFFF6B6B),
+    onError = Color(0xFF000000),
+    errorContainer = Color(0xFF2A0000),
+    onErrorContainer = Color(0xFFFF6B6B),
+
+    outline = Color(0xFFFFFFFF),
+    outlineVariant = Color(0xFFAAAAAA),
+
+    inverseSurface = Color(0xFFFFFFFF),
+    inverseOnSurface = Color(0xFF000000),
+    inversePrimary = HighContrastDarkPrimary,
+
+    scrim = Color(0xFF000000)
+)
+
+// Esquema de alto contraste claro — WCAG AAA (ratio minimo 7:1)
+private val HighContrastLightColorScheme = lightColorScheme(
+    primary = HighContrastLightPrimary,
+    onPrimary = HighContrastLightOnPrimary,
+    primaryContainer = HighContrastLightPrimaryContainer,
+    onPrimaryContainer = HighContrastLightOnPrimaryContainer,
+
+    secondary = HighContrastLightSecondary,
+    onSecondary = HighContrastLightOnSecondary,
+    secondaryContainer = HighContrastLightSecondaryContainer,
+    onSecondaryContainer = HighContrastLightOnSecondaryContainer,
+
+    tertiary = HighContrastLightTertiary,
+    onTertiary = HighContrastLightOnTertiary,
+    tertiaryContainer = HighContrastLightTertiaryContainer,
+    onTertiaryContainer = HighContrastLightOnTertiaryContainer,
+
+    background = HighContrastLightBackground,
+    onBackground = HighContrastLightOnBackground,
+    surface = HighContrastLightSurface,
+    onSurface = HighContrastLightOnSurface,
+    surfaceVariant = HighContrastLightSurfaceVariant,
+    onSurfaceVariant = HighContrastLightOnSurface,
+
+    error = Color(0xFF8B0000),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFFFDDDD),
+    onErrorContainer = Color(0xFF4A0000),
+
+    outline = Color(0xFF000000),
+    outlineVariant = Color(0xFF555555),
+
+    inverseSurface = Color(0xFF000000),
+    inverseOnSurface = Color(0xFFFFFFFF),
+    inversePrimary = HighContrastLightPrimary,
+
+    scrim = Color(0x80000000)
+)
+
 // Vibrant Pride Light Color Scheme
 private val PrideLightColorScheme = lightColorScheme(
     // Primary - Vibrant Pink/Magenta with good contrast
@@ -107,10 +185,15 @@ private val PrideDarkColorScheme = darkColorScheme(
 fun PrideQuizTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false, // Disabled by default to show Pride colors
+    highContrast: Boolean = false,
+    largeText: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        // Dynamic colors are available on Android 12+
+        // Alto contraste tiene prioridad sobre dynamic colors
+        highContrast && darkTheme -> HighContrastDarkColorScheme
+        highContrast && !darkTheme -> HighContrastLightColorScheme
+        // Dynamic colors disponibles en Android 12+
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context)
@@ -120,9 +203,11 @@ fun PrideQuizTheme(
         else -> PrideLightColorScheme
     }
 
+    val typography = if (largeText) PrideLargeTypography else PrideTypography
+
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = PrideTypography,
+        typography = typography,
         shapes = PrideShapes,
         content = content
     )

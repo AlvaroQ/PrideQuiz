@@ -16,7 +16,8 @@ data class InfoUiState(
     val isLoading: Boolean = true,
     val prideList: List<Pride> = emptyList(),
     val showBannerAd: Boolean = true,
-    val currentPage: Int = 0
+    val currentPage: Int = 0,
+    val hasError: Boolean = false
 )
 
 class InfoViewModel(
@@ -35,39 +36,64 @@ class InfoViewModel(
 
     private fun loadInitialData() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, hasError = false) }
 
-            val initialList = getPrideList.invoke(0)
             val showAd = !getPaymentDone()
 
-            _uiState.update { state ->
-                state.copy(
-                    isLoading = false,
-                    prideList = initialList,
-                    showBannerAd = showAd,
-                    currentPage = 0
-                )
-            }
+            getPrideList.invoke(0).fold(
+                ifLeft = {
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            showBannerAd = showAd,
+                            hasError = true
+                        )
+                    }
+                },
+                ifRight = { initialList ->
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            prideList = initialList,
+                            showBannerAd = showAd,
+                            currentPage = 0,
+                            hasError = false
+                        )
+                    }
+                }
+            )
         }
     }
 
     fun loadMorePrideList() {
-        val currentState = _uiState.value
-        if (currentState.isLoading) return
-
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            // Lectura del estado DENTRO del launch para evitar race condition:
+            // si se llama dos veces rapido, ambas corutinas leen el estado actualizado
+            // y la segunda detecta isLoading = true y retorna sin cargar la misma pagina.
+            val currentState = _uiState.value
+            if (currentState.isLoading) return@launch
+
+            _uiState.update { it.copy(isLoading = true, hasError = false) }
 
             val nextPage = currentState.currentPage + 1
-            val newItems = getPrideList.invoke(nextPage)
 
-            _uiState.update { state ->
-                state.copy(
-                    isLoading = false,
-                    prideList = state.prideList + newItems,
-                    currentPage = nextPage
-                )
-            }
+            getPrideList.invoke(nextPage).fold(
+                ifLeft = {
+                    _uiState.update { state ->
+                        state.copy(isLoading = false, hasError = true)
+                    }
+                },
+                ifRight = { newItems ->
+                    _uiState.update { state ->
+                        state.copy(
+                            isLoading = false,
+                            prideList = state.prideList + newItems,
+                            currentPage = nextPage,
+                            hasError = false
+                        )
+                    }
+                }
+            )
         }
     }
 }

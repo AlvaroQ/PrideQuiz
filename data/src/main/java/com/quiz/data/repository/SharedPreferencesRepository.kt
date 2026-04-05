@@ -1,6 +1,8 @@
 package com.quiz.data.repository
 
 interface SharedPreferencesRepository {
-    var paymentDone: Boolean
-    var personalRecord: Int
+    fun getPaymentDone(): Boolean
+    fun setPaymentDone(value: Boolean)
+    fun getPersonalRecord(): Int
+    fun setPersonalRecord(value: Int)
 }

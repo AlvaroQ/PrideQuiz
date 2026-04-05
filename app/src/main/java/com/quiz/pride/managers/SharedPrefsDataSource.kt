@@ -6,16 +6,16 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.quiz.data.datasource.SharedPreferencesLocalDataSource
 
-open class SharedPrefsDataSource (context: Context): SharedPreferencesLocalDataSource {
+open class SharedPrefsDataSource(context: Context) : SharedPreferencesLocalDataSource {
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    override var paymentDone: Boolean
-        get() = sharedPreferences.getBoolean(PAYMENT_DONE, false)
-        set(value) = sharedPreferences.edit { putBoolean(PAYMENT_DONE, value) }
+    override fun getPaymentDone(): Boolean = sharedPreferences.getBoolean(PAYMENT_DONE, false)
 
-    override var personalRecord: Int
-        get() = sharedPreferences.getInt(RECORD_PERSONAL, 0)
-        set(value) = sharedPreferences.edit { putInt(RECORD_PERSONAL, value) }
+    override fun setPaymentDone(value: Boolean) = sharedPreferences.edit { putBoolean(PAYMENT_DONE, value) }
+
+    override fun getPersonalRecord(): Int = sharedPreferences.getInt(RECORD_PERSONAL, 0)
+
+    override fun setPersonalRecord(value: Int) = sharedPreferences.edit { putInt(RECORD_PERSONAL, value) }
 
     companion object {
         const val PAYMENT_DONE = "payment_done"

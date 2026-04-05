@@ -3,6 +3,7 @@ package com.quiz.pride.ui.leaderboard
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.XpLeaderboardEntry
 import com.quiz.pride.common.ComposeViewModel
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.XpSyncManager
 import com.quiz.usecases.GetXpLeaderboard
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,14 +21,15 @@ data class XpLeaderboardUiState(
 
 class XpLeaderboardViewModel(
     private val getXpLeaderboard: GetXpLeaderboard,
-    private val getUserGlobalRank: com.quiz.usecases.GetUserGlobalRank,
-    private val xpSyncManager: XpSyncManager
+    private val xpSyncManager: XpSyncManager,
+    private val analyticsManager: AnalyticsManager
 ) : ComposeViewModel() {
 
     private val _uiState = MutableStateFlow(XpLeaderboardUiState())
     val uiState: StateFlow<XpLeaderboardUiState> = _uiState.asStateFlow()
 
     init {
+        analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_XP_LEADERBOARD)
         loadLeaderboard()
     }
 
