@@ -13,6 +13,7 @@ import com.quiz.usecases.RankingMode
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -229,5 +230,36 @@ class RankingViewModelTest {
         advanceUntilIdle()
 
         assertTrue(viewModel.uiState.value.showRewardedAd)
+    }
+
+    // =========================================================
+    // Analytics — onTabSelected
+    // =========================================================
+
+    @Test
+    fun `onTabSelected trackea analytics con nombre de tab correcto`() {
+        viewModel.onTabSelected(0)
+        verify { analyticsManager.analyticsRankingTabSelected("normal") }
+
+        viewModel.onTabSelected(1)
+        verify { analyticsManager.analyticsRankingTabSelected("timed") }
+
+        viewModel.onTabSelected(2)
+        verify { analyticsManager.analyticsRankingTabSelected("xp") }
+    }
+
+    @Test
+    fun `onTabSelected con indice invalido trackea unknown`() {
+        viewModel.onTabSelected(99)
+        verify { analyticsManager.analyticsRankingTabSelected("unknown") }
+    }
+
+    @Test
+    fun `loadRanking con payment done tambien desactiva showBannerAd`() = runTest {
+        every { getPaymentDone.invoke() } returns true
+        viewModel = RankingViewModel(getRankingScore, getPaymentDone, getXpLeaderboard, analyticsManager)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.showBannerAd)
     }
 }

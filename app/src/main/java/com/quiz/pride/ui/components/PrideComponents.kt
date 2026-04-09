@@ -67,6 +67,7 @@ import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
 import com.quiz.pride.ui.theme.GradientBackgroundMid
+import com.quiz.pride.ui.theme.GradientBackgroundMidWarm
 import com.quiz.pride.ui.theme.GradientBackgroundStart
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
@@ -185,10 +186,12 @@ fun RainbowGradientBackground(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        GradientBackgroundStart,
-                        GradientBackgroundMid,
-                        GradientBackgroundEnd
+                    colorStops = arrayOf(
+                        0.0f to GradientBackgroundStart,
+                        0.35f to GradientBackgroundMid,
+                        0.65f to GradientBackgroundMidWarm,
+                        0.85f to GradientBackgroundEnd.copy(alpha = 0.8f),
+                        1.0f to GradientBackgroundEnd
                     )
                 )
             )
@@ -386,8 +389,8 @@ fun LifeIndicator(
                     .drawBehind {
                         if (isAlive) {
                             drawCircle(
-                                color = PrideRed.copy(alpha = 0.3f),
-                                radius = size.minDimension * 0.8f
+                                color = PrideRed.copy(alpha = 0.15f),
+                                radius = size.minDimension * 0.5f
                             )
                         }
                     }
@@ -617,10 +620,12 @@ fun AnimatedScreenBackground(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        GradientBackgroundStart,
-                        GradientBackgroundMid,
-                        GradientBackgroundEnd
+                    colorStops = arrayOf(
+                        0.0f to GradientBackgroundStart,
+                        0.35f to GradientBackgroundMid,
+                        0.65f to GradientBackgroundMidWarm,
+                        0.85f to GradientBackgroundEnd.copy(alpha = 0.8f),
+                        1.0f to GradientBackgroundEnd
                     )
                 )
             )

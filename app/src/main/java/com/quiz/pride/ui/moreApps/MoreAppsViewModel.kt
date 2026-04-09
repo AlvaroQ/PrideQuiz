@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.moreApps
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.App
 import com.quiz.pride.common.ComposeViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class MoreAppsUiState(
     val isLoading: Boolean = true,
     val appsList: List<App> = emptyList(),

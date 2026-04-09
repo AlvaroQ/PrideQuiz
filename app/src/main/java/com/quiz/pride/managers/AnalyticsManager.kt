@@ -27,6 +27,83 @@ class AnalyticsManager(context: Context) {
             .with("app_name", BuildConfig.APPLICATION_ID))
     }
 
+    /**
+     * Evento detallado de fin de partida — permite analizar:
+     * - Cuantas preguntas completa el usuario antes de perder
+     * - Accuracy por modo de juego
+     * - Tiempo promedio por partida
+     * - Ratio de partidas completadas vs abandonadas
+     */
+    fun analyticsGameCompleted(
+        gameMode: String,
+        questionsAnswered: Int,
+        correctAnswers: Int,
+        points: Int,
+        livesRemaining: Int,
+        bestStreak: Int,
+        timePlayedMs: Long,
+        usedExtraLife: Boolean
+    ) {
+        logEvent(Event("game_completed")
+            .with("uid", uid)
+            .with("game_mode", gameMode)
+            .with("questions_answered", questionsAnswered.toString())
+            .with("correct_answers", correctAnswers.toString())
+            .with("accuracy_percent", if (questionsAnswered > 0) ((correctAnswers * 100) / questionsAnswered).toString() else "0")
+            .with("points", points.toString())
+            .with("lives_remaining", livesRemaining.toString())
+            .with("best_streak", bestStreak.toString())
+            .with("time_played_ms", timePlayedMs.toString())
+            .with("used_extra_life", usedExtraLife.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cada respuesta individual — permite analizar:
+     * - Tiempo de respuesta por pregunta
+     * - Punto exacto donde el usuario empieza a fallar
+     * - Dificultad real de cada etapa
+     */
+    fun analyticsQuestionAnswered(
+        questionNumber: Int,
+        correct: Boolean,
+        timeToAnswerMs: Long,
+        gameMode: String,
+        currentStreak: Int
+    ) {
+        logEvent(Event("question_answered")
+            .with("uid", uid)
+            .with("question_number", questionNumber.toString())
+            .with("correct", correct.toString())
+            .with("time_to_answer_ms", timeToAnswerMs.toString())
+            .with("game_mode", gameMode)
+            .with("current_streak", currentStreak.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea sesion de la app — Firebase auto-trackea session_start,
+     * pero este evento permite medir engagement granular por sesion.
+     */
+    fun analyticsSessionInfo(gamesPlayedInSession: Int, sessionDurationMs: Long) {
+        logEvent(Event("session_engagement")
+            .with("uid", uid)
+            .with("games_played", gamesPlayedInSession.toString())
+            .with("session_duration_ms", sessionDurationMs.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Actualiza user properties para segmentacion en Firebase.
+     * Permite filtrar reportes por nivel, accuracy, modo preferido.
+     */
+    fun updateUserProperties(level: Int, totalGames: Int, accuracy: Float, favoriteMode: String) {
+        firebase.setUserProperty("player_level", level.toString())
+        firebase.setUserProperty("total_games_played", totalGames.toString())
+        firebase.setUserProperty("accuracy_percent", accuracy.toInt().toString())
+        firebase.setUserProperty("favorite_mode", favoriteMode)
+    }
+
     fun analyticsClicked(btnDescription: String) {
         logEvent(Event("clicked")
             .with("uid", uid)
@@ -118,20 +195,6 @@ class AnalyticsManager(context: Context) {
             .with("app_version", BuildConfig.VERSION_NAME))
     }
 
-    fun analyticsLevelUp(oldLevel: Int, newLevel: Int, totalXp: Long) {
-        logEvent(Event("level_up")
-            .with("uid", uid)
-            .with("old_level", oldLevel.toString())
-            .with("new_level", newLevel.toString())
-            .with("total_xp", totalXp.toString())
-            .with("app_version", BuildConfig.VERSION_NAME))
-    }
-
-    fun setUserProperties(level: Int, totalGames: Int) {
-        firebase.setUserProperty("player_level", level.toString())
-        firebase.setUserProperty("total_games", totalGames.toString())
-    }
-
     private fun logEvent(event: Event) {
         firebase.logEvent(event.eventName, event.bundle)
     }
@@ -166,6 +229,5 @@ class AnalyticsManager(context: Context) {
         const val BTN_RATE = "btn_rate"
         const val BTN_RANKING = "btn_ranking"
         const val BTN_SHARE = "btn_share"
-        const val BTN_REMOVE_ADS = "btn_remove_ads"
     }
 }

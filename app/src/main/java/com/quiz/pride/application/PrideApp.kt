@@ -1,25 +1,26 @@
 package com.quiz.pride.application
 
 import android.app.Application
-import coil.ImageLoader
-import coil.ImageLoaderFactory
-import coil.disk.DiskCache
-import coil.memory.MemoryCache
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.memory.MemoryCache
+import coil3.request.crossfade
+import okio.Path.Companion.toOkioPath
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.quiz.pride.BuildConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
-class PrideApp : Application(), ImageLoaderFactory {
+class PrideApp : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
         initializeKoin()
-        initializeFirebaseAuth()
+        // Firebase Auth se inicializa en MainActivity con callbacks completos
+        // (Crashlytics userId, Analytics uid). No duplicar aqui.
         // MobileAds NO se inicializa aqui — el consentimiento UMP debe resolverse primero.
         // La inicializacion se delega a MainActivity despues de mostrar el formulario de consentimiento.
         configureAdMobRequestConfiguration()
@@ -32,16 +33,16 @@ class PrideApp : Application(), ImageLoaderFactory {
      * - crossfade: transicion suave al cargar imagenes
      * Coil lo invoca una unica vez y reutiliza la instancia.
      */
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader.Builder(this)
+    override fun newImageLoader(context: android.content.Context): ImageLoader {
+        return ImageLoader.Builder(context)
             .memoryCache {
-                MemoryCache.Builder(this)
-                    .maxSizePercent(0.25)
+                MemoryCache.Builder()
+                    .maxSizePercent(context, 0.25)
                     .build()
             }
             .diskCache {
                 DiskCache.Builder()
-                    .directory(cacheDir.resolve("image_cache"))
+                    .directory(cacheDir.resolve("image_cache").toOkioPath())
                     .maxSizeBytes(50L * 1024 * 1024) // 50 MB
                     .build()
             }
@@ -83,9 +84,4 @@ class PrideApp : Application(), ImageLoaderFactory {
         }
     }
 
-    private fun initializeFirebaseAuth() {
-        if (Firebase.auth.currentUser == null) {
-            Firebase.auth.signInAnonymously()
-        }
-    }
 }

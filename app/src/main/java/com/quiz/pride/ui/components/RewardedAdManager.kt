@@ -125,7 +125,7 @@ class RewardedAdState(
 fun rememberRewardedAdState(
     adUnitId: String = LocalContext.current.getString(R.string.BONIFICADO_GAME)
 ): RewardedAdState {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
 
     val adState = remember(adUnitId) {
         RewardedAdState(context, adUnitId)

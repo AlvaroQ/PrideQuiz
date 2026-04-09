@@ -1,11 +1,11 @@
 import groovy.xml.XmlParser
 
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
 apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.crashlytics'
+apply plugin: 'io.github.takahirom.roborazzi'
 
 android {
     compileSdk versions.compileSdk
@@ -30,11 +30,11 @@ android {
 
     buildTypes {
         debug {
-            jniDebuggable true
-            debuggable true
-            minifyEnabled false
+            jniDebuggable = true
+            debuggable = true
+            minifyEnabled = false
             firebaseCrashlytics {
-                mappingFileUploadEnabled false
+                mappingFileUploadEnabled = false
             }
 
             resValue 'string', 'BANNER_GAME', getAdmobBannerTestId()
@@ -46,17 +46,17 @@ android {
             resValue 'string', 'BONIFICADO_GAME', getAdmobBonificadoTestId()
             resValue 'string', 'BONIFICADO_GAME_OVER', getAdmobBonificadoTestId()
             resValue 'string', 'BONIFICADO_SHOW_INFO', getAdmobBonificadoTestId()
-            enableUnitTestCoverage true
-            enableAndroidTestCoverage true
+            enableUnitTestCoverage = true
+            enableAndroidTestCoverage = true
         }
         release {
-            signingConfig signingConfigs.config
-            minifyEnabled true
-            shrinkResources true
+            signingConfig = signingConfigs.config
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            debuggable false
+            debuggable = false
             firebaseCrashlytics {
-                mappingFileUploadEnabled true
+                mappingFileUploadEnabled = true
             }
 
             resValue 'string', 'BANNER_GAME', getAdmobBannerGameId()
@@ -80,8 +80,9 @@ android {
         jvmToolchain(17)
     }
     buildFeatures {
-        compose true
+        compose = true
         buildConfig = true
+        resValues = true
     }
 
     bundle {
@@ -96,7 +97,19 @@ android {
         }
     }
 
-    namespace 'com.quiz.pride'
+    namespace = 'com.quiz.pride'
+
+    packaging {
+        resources {
+            excludes += ['META-INF/LICENSE.md', 'META-INF/LICENSE-notice.md']
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -178,6 +191,7 @@ dependencies {
     // IMAGE LOADING
     // ==========================================
     implementation libs.coil.compose
+    implementation libs.coil.network.okhttp
 
     // ==========================================
     // NETWORKING
@@ -201,6 +215,19 @@ dependencies {
     testImplementation libs.turbine
     testImplementation libs.koin.test
     testImplementation libs.koin.test.junit4
+    testImplementation libs.roborazzi
+    testImplementation libs.roborazzi.compose
+    testImplementation libs.roborazzi.junit.rule
+    testImplementation libs.robolectric
+    testImplementation platform(libs.compose.bom)
+    testImplementation 'androidx.compose.ui:ui-test-junit4'
+
+    // Compose UI Testing
+    androidTestImplementation platform(libs.compose.bom)
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'io.mockk:mockk-android:1.13.16'
+    debugImplementation libs.compose.ui.test.manifest
 }
 // delete waring store com.google.android.gms:play-services-safetynet:17.0.0
 configurations.configureEach {
@@ -297,5 +324,675 @@ def getAdmobBonificadoShowInfoId() {
     } catch(e) {
         println(e)
         return ""
+    }
+}
+
+// ==========================================
+// SCREENSHOT REPORT TASK
+// ==========================================
+tasks.register('generateScreenshotReport') {
+    description = 'Generates a professional HTML report from Roborazzi screenshots'
+    group = 'reporting'
+
+    def roborazziDir = file("${buildDir}/outputs/roborazzi")
+    def reportFile = file("${buildDir}/reports/screenshots/index.html")
+
+    doLast {
+        if (!roborazziDir.exists()) {
+            println "No screenshots found at: ${roborazziDir.absolutePath}"
+            println "Run './gradlew recordRoborazziDebug' first to generate screenshots."
+            return
+        }
+
+        def allFiles = roborazziDir.listFiles()
+        if (allFiles == null || allFiles.length == 0) {
+            println "Screenshot directory is empty. Run './gradlew recordRoborazziDebug' first."
+            return
+        }
+
+        def screenshots = allFiles.findAll { it.name.endsWith('.png') && !it.name.endsWith('_compare.png') }
+        def compares    = allFiles.findAll { it.name.endsWith('_compare.png') }
+
+        println "Found ${screenshots.size()} screenshot(s) and ${compares.size()} compare file(s)."
+
+        // -----------------------------------------------------------------
+        // Helper closures
+        // -----------------------------------------------------------------
+
+        // Convert camelCase or PascalCase string to "Title Case With Spaces"
+        def camelToTitle = { String s ->
+            s.replaceAll(/([A-Z])/, / $1/).trim().replaceAll(/\s+/, ' ')
+        }
+
+        // Detect theme from method name tokens
+        def detectTheme = { List<String> tokens ->
+            def joined = tokens.join('_').toLowerCase()
+            if (joined.contains('highcontrastlight') || joined.contains('highcontrast_light')) return 'HC Light'
+            if (joined.contains('highcontrastdark')  || joined.contains('highcontrast_dark'))  return 'HC Dark'
+            if (joined.contains('highcontrast'))                                                return 'HC'
+            if (joined.contains('largetext'))                                                   return 'Large Text'
+            if (joined.contains('temaoscuro') || joined.contains('dark'))                       return 'Dark'
+            if (joined.contains('temaclaro')  || joined.contains('light'))                      return 'Light'
+            return 'Default'
+        }
+
+        // Theme indicator tokens (used to split component name from theme)
+        def themeTokens = ['temaClaro', 'temaOscuro', 'highContrastLight', 'highContrastDark',
+                           'highContrast', 'largeText', 'light', 'dark', 'Light', 'Dark']
+
+        // Parse a screenshot File into a map with metadata
+        def parseScreenshot = { File f ->
+            // Strip full package prefix: com.quiz.pride.screenshots.
+            def prefix = 'com.quiz.pride.screenshots.'
+            def baseName = f.name.replaceAll(/\.png$/, '')
+            def withoutPrefix = baseName.startsWith(prefix) ? baseName.substring(prefix.length()) : baseName
+
+            // Split on first dot: ClassName.methodName
+            def dotIdx = withoutPrefix.indexOf('.')
+            def className  = dotIdx >= 0 ? withoutPrefix.substring(0, dotIdx)  : withoutPrefix
+            def methodName = dotIdx >= 0 ? withoutPrefix.substring(dotIdx + 1) : ''
+
+            // Class → human readable group (remove "ScreenshotTest" suffix, add spaces)
+            def groupName = camelToTitle(className.replaceAll(/ScreenshotTest$/, '').replaceAll(/Test$/, ''))
+
+            // Method → tokens by underscore
+            def tokens = methodName.split('_').toList()
+
+            // Find first theme-indicator token and split there
+            def themeStartIdx = tokens.size()
+            for (int i = 0; i < tokens.size(); i++) {
+                def t = tokens[i]
+                if (themeTokens.any { tk -> t.equalsIgnoreCase(tk) }) {
+                    themeStartIdx = i
+                    break
+                }
+            }
+            def componentTokens = tokens.subList(0, themeStartIdx)
+            def themeTokensList  = tokens.subList(themeStartIdx, tokens.size())
+
+            // Component name: split camelCase within each token, capitalize, join with separator
+            def componentName = componentTokens.collect { camelToTitle(it).split(/\s+/).collect { w -> w.capitalize() }.join(' ') }.join(' | ')
+            if (!componentName) componentName = groupName
+
+            def theme = detectTheme(themeTokensList)
+
+            // Check if a _compare.png exists for this screenshot (regression)
+            def compareFile = new File(roborazziDir, baseName + '_compare.png')
+            def hasRegression = compareFile.exists()
+
+            [
+                file         : f,
+                compareFile  : hasRegression ? compareFile : null,
+                group        : groupName.trim(),
+                component    : componentName.trim(),
+                theme        : theme,
+                hasRegression: hasRegression,
+                baseName     : baseName
+            ]
+        }
+
+        // Encode a File to a base64 data URI
+        def toBase64Uri = { File f ->
+            def bytes  = f.readBytes()
+            def b64    = bytes.encodeBase64().toString()
+            "data:image/png;base64,${b64}"
+        }
+
+        // Parse all screenshots
+        def parsed = screenshots.collect { parseScreenshot(it) }
+        parsed.sort { a, b -> a.group <=> b.group ?: a.component <=> b.component ?: a.theme <=> b.theme }
+
+        // Extract base component (before first |) for broader grouping
+        parsed.each { s ->
+            def parts = s.component.split(/\s*\|\s*/, 2)
+            s.baseComponent = parts[0].trim()
+            s.variant = parts.size() > 1 ? parts[1].trim() : ''
+        }
+
+        // Group by group → baseComponent → list of variants
+        def grouped = [:]
+        parsed.each { s ->
+            grouped.computeIfAbsent(s.group, { [:] })
+                   .computeIfAbsent(s.baseComponent, { [] })
+                   .add(s)
+        }
+
+        // Theme badge color mapping
+        def themeBadgeClass = { String theme ->
+            switch (theme) {
+                case 'Light':     return 'badge-light'
+                case 'Dark':      return 'badge-dark'
+                case ~/HC.*/    : return 'badge-hc'
+                case 'Large Text': return 'badge-large'
+                default:          return 'badge-default'
+            }
+        }
+
+        // Generate cards HTML for a list of variants (one component, multiple themes)
+        def buildComponentCards = { List<Map> variants ->
+            def sb = new StringBuilder()
+            sb << '<div class="component-row">'
+            variants.each { v ->
+                def imgSrc     = toBase64Uri(v.file)
+                def themeClass = v.theme.toLowerCase().replace(' ', '-')
+                def badgeClass = themeBadgeClass(v.theme)
+                def statusBadge = v.hasRegression
+                    ? '<span class="badge badge-fail">FAIL</span>'
+                    : '<span class="badge badge-pass">PASS</span>'
+
+                sb << """
+                <div class="card" data-theme="${themeClass}" data-group="${v.group}">
+                    <div class="card-img-wrap" onclick="openLightbox('${imgSrc}', '${v.component} — ${v.theme}')">
+                        <img src="${imgSrc}" alt="${v.component} ${v.theme}" loading="lazy" />
+                        <div class="card-overlay"><span>Ver tamanio completo</span></div>
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title">${v.variant ? v.variant : v.baseComponent}</div>
+                        <div class="card-badges">
+                            <span class="badge ${badgeClass}">${v.theme}</span>
+                            ${statusBadge}
+                        </div>
+                    </div>"""
+
+                if (v.hasRegression) {
+                    def cmpSrc = toBase64Uri(v.compareFile)
+                    sb << """
+                    <div class="regression-banner">
+                        <span class="regression-label">REGRESSION DETECTED</span>
+                        <div class="regression-images">
+                            <div class="regression-col">
+                                <span class="regression-col-label">Baseline</span>
+                                <img src="${imgSrc}" alt="Baseline" onclick="openLightbox('${imgSrc}', 'Baseline: ${v.component}')" />
+                            </div>
+                            <div class="regression-col">
+                                <span class="regression-col-label">Diff</span>
+                                <img src="${cmpSrc}" alt="Diff" onclick="openLightbox('${cmpSrc}', 'Diff: ${v.component}')" />
+                            </div>
+                        </div>
+                    </div>"""
+                }
+
+                sb << '</div>' // close .card
+            }
+            sb << '</div>' // close .component-row
+            sb.toString()
+        }
+
+        // Collect all unique themes for filter buttons
+        def allThemes = parsed.collect { it.theme }.unique().sort()
+
+        // Build filter buttons
+        def filterButtons = new StringBuilder()
+        filterButtons << '<button class="filter-btn active" data-filter="all" onclick="filterCards(\'all\', this)">All</button>'
+        allThemes.each { t ->
+            def themeClass = t.toLowerCase().replace(' ', '-')
+            filterButtons << "<button class=\"filter-btn\" data-filter=\"${themeClass}\" onclick=\"filterCards('${themeClass}', this)\">${t}</button>"
+        }
+
+        // Build main content
+        def mainContent = new StringBuilder()
+        grouped.each { groupName, components ->
+            mainContent << "<section class=\"group-section\">"
+            mainContent << "<h2 class=\"group-title\">${groupName}</h2>"
+            components.each { baseComponentName, variants ->
+                mainContent << "<div class=\"component-group\">"
+                mainContent << "<h3 class=\"component-name\">${baseComponentName}</h3>"
+                mainContent << buildComponentCards(variants)
+                mainContent << "</div>"
+            }
+            mainContent << "</section>"
+        }
+
+        def now         = new Date().format("MMMM d, yyyy 'at' HH:mm", TimeZone.getDefault())
+        def totalCount  = screenshots.size()
+        def failCount   = parsed.count { it.hasRegression }
+        def passCount   = totalCount - failCount
+
+        // -----------------------------------------------------------------
+        // HTML template
+        // -----------------------------------------------------------------
+        def html = """<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PrideQuiz — Screenshot Report</title>
+<style>
+/* ========== VARIABLES ========== */
+:root {
+  --pride-pink:   #DB2777;
+  --pride-purple: #7C3AED;
+  --pride-blue:   #2563EB;
+  --pride-cyan:   #0891B2;
+  --bg:           #FAFAFA;
+  --card-bg:      #FFFFFF;
+  --text:         #1F2937;
+  --text-muted:   #6B7280;
+  --border:       #E5E7EB;
+  --shadow:       0 2px 12px rgba(0,0,0,.08);
+  --shadow-hover: 0 8px 32px rgba(0,0,0,.16);
+  --radius:       16px;
+  --font:         -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #1A1A2E;
+    --card-bg:  #16213E;
+    --text:     #E5E7EB;
+    --text-muted: #9CA3AF;
+    --border:   #2D3748;
+    --shadow:        0 2px 12px rgba(0,0,0,.4);
+    --shadow-hover:  0 8px 32px rgba(0,0,0,.6);
+  }
+}
+
+/* ========== RESET ========== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+img { max-width: 100%; height: auto; display: block; }
+button { cursor: pointer; border: none; background: none; font-family: var(--font); }
+
+/* ========== PRIDE STRIPE ========== */
+.pride-stripe {
+  height: 6px;
+  background: linear-gradient(to right,
+    #E40303 0%, #E40303 16.6%,
+    #FF8C00 16.6%, #FF8C00 33.2%,
+    #FFED00 33.2%, #FFED00 49.8%,
+    #008026 49.8%, #008026 66.4%,
+    #004DFF 66.4%, #004DFF 83%,
+    #750787 83%, #750787 100%
+  );
+}
+
+/* ========== HEADER ========== */
+.header {
+  text-align: center;
+  padding: 28px 24px 20px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+}
+.header-title {
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--pride-pink), var(--pride-purple), var(--pride-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+.header-sub {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.stat-pill.pass { border-color: #10B981; color: #10B981; }
+.stat-pill.fail { border-color: #EF4444; color: #EF4444; }
+
+/* ========== FILTERS ========== */
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 24px 0;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--card-bg);
+  border: 2px solid var(--border);
+  color: var(--text-muted);
+  transition: all .2s ease;
+}
+.filter-btn:hover {
+  border-color: var(--pride-purple);
+  color: var(--pride-purple);
+}
+.filter-btn.active {
+  background: linear-gradient(135deg, var(--pride-pink), var(--pride-purple));
+  border-color: transparent;
+  color: #fff;
+}
+
+/* ========== MAIN ========== */
+.main { padding: 32px 24px 48px; max-width: 1800px; margin: 0 auto; }
+
+/* ========== GROUP SECTION ========== */
+.group-section { margin-bottom: 28px; }
+.group-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 24px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid transparent;
+  border-image: linear-gradient(to right, var(--pride-pink), var(--pride-purple), var(--pride-blue)) 1;
+  display: inline-block;
+  width: 100%;
+}
+.component-group { margin-bottom: 18px; }
+.component-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 8px;
+}
+
+/* ========== COMPONENT ROW (side-by-side) ========== */
+.component-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.component-row .card {
+  flex: 0 1 240px;
+}
+
+/* ========== CARD ========== */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-hover);
+}
+.card-img-wrap {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  max-height: 220px;
+  background: #F3F4F6;
+}
+@media (prefers-color-scheme: dark) {
+  .card-img-wrap { background: #0F172A; }
+}
+.card-img-wrap img {
+  width: 100%;
+  object-fit: contain;
+  transition: transform .2s ease;
+}
+.card-img-wrap:hover img { transform: scale(1.04); }
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.card-img-wrap:hover .card-overlay { opacity: 1; }
+.card-overlay span {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(0,0,0,.5);
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+.card-info {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ========== BADGES ========== */
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.badge-light   { background: #FEF3C7; color: #92400E; }
+.badge-dark    { background: #EDE9FE; color: #5B21B6; }
+.badge-hc      { background: #DBEAFE; color: #1E40AF; }
+.badge-large   { background: #D1FAE5; color: #065F46; }
+.badge-default { background: #F3F4F6; color: #374151; }
+.badge-pass    { background: #D1FAE5; color: #065F46; }
+.badge-fail    { background: #FEE2E2; color: #991B1B; }
+
+/* ========== REGRESSION ========== */
+.regression-banner {
+  background: #FEF2F2;
+  border-top: 2px solid #EF4444;
+  padding: 12px 16px 16px;
+}
+@media (prefers-color-scheme: dark) {
+  .regression-banner { background: #2D1515; }
+}
+.regression-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #EF4444;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+.regression-images {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.regression-col { display: flex; flex-direction: column; gap: 4px; }
+.regression-col-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.regression-col img {
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+.card[data-regression="true"] { border: 2px solid #EF4444; }
+
+/* ========== LIGHTBOX ========== */
+.lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.85);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 24px;
+  cursor: zoom-out;
+}
+.lightbox.open { display: flex; }
+.lightbox-inner {
+  position: relative;
+  max-width: min(90vw, 1100px);
+  max-height: 85vh;
+  cursor: default;
+}
+.lightbox-inner img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}
+.lightbox-caption {
+  color: #fff;
+  font-size: 0.9rem;
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 600;
+}
+.lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 32px; height: 32px;
+  background: rgba(255,255,255,.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.lightbox-close:hover { background: rgba(255,255,255,.3); }
+
+/* ========== FOOTER ========== */
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: var(--card-bg);
+}
+.footer a { color: var(--pride-blue); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* ========== HIDDEN ========== */
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="pride-stripe"></div>
+
+<header class="header">
+  <h1 class="header-title">PrideQuiz &mdash; Screenshot Report</h1>
+  <p class="header-sub">Generated ${now}</p>
+  <div class="stats-row">
+    <span class="stat-pill">${totalCount} screenshots</span>
+    <span class="stat-pill pass">${passCount} pass</span>
+    ${failCount > 0 ? "<span class=\"stat-pill fail\">${failCount} fail</span>" : ''}
+  </div>
+</header>
+
+<nav class="filters">
+  ${filterButtons.toString()}
+</nav>
+
+<main class="main">
+  ${mainContent.toString()}
+</main>
+
+<footer class="footer">
+  <p>PrideQuiz Screenshot Testing &middot; Roborazzi 1.59.0</p>
+  <p style="margin-top:6px">
+    <a href="../roborazzi/debug/index.html">Ver reporte nativo de Roborazzi</a>
+  </p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightboxOnOverlay(event)">
+  <div class="lightbox-inner" id="lightboxInner">
+    <button class="lightbox-close" onclick="closeLightbox()" aria-label="Cerrar">&times;</button>
+    <img id="lightboxImg" src="" alt="" />
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+</div>
+
+<script>
+  // ---- Lightbox ----
+  function openLightbox(src, caption) {
+    document.getElementById('lightboxImg').src = src;
+    document.getElementById('lightboxCaption').textContent = caption;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightboxImg').src = '';
+    document.body.style.overflow = '';
+  }
+  function closeLightboxOnOverlay(e) {
+    if (e.target === document.getElementById('lightbox')) closeLightbox();
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+
+  // ---- Filters ----
+  function filterCards(theme, btn) {
+    // Update active button
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+
+    // Show/hide cards
+    document.querySelectorAll('.card').forEach(function(card) {
+      if (theme === 'all') {
+        card.classList.remove('hidden');
+      } else {
+        if (card.dataset.theme === theme) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      }
+    });
+
+    // Hide component groups and sections that have no visible cards
+    document.querySelectorAll('.component-group').forEach(function(group) {
+      var visible = group.querySelectorAll('.card:not(.hidden)').length > 0;
+      group.classList.toggle('hidden', !visible);
+    });
+    document.querySelectorAll('.group-section').forEach(function(section) {
+      var visible = section.querySelectorAll('.component-group:not(.hidden)').length > 0;
+      section.classList.toggle('hidden', !visible);
+    });
+  }
+</script>
+
+</body>
+</html>"""
+
+        def reportDir = reportFile.parentFile
+        reportDir.mkdirs()
+        reportFile.text = html
+
+        println ""
+        println "  Screenshot report generated successfully!"
+        println "  Location : ${reportFile.absolutePath}"
+        println "  Total    : ${totalCount} screenshots (${passCount} pass, ${failCount} fail)"
+        println ""
     }
 }

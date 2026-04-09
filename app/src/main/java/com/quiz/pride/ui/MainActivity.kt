@@ -22,6 +22,7 @@ import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.ConsentManager
 import com.quiz.pride.managers.NetworkManager
 import com.quiz.pride.managers.NetworkState
+import com.quiz.pride.managers.OnboardingPreferences
 import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.navigation.OnboardingRoute
 import com.quiz.pride.navigation.PrideNavGraph
@@ -37,15 +38,22 @@ class MainActivity : ComponentActivity() {
     private val analyticsManager: AnalyticsManager by inject()
     private val networkManager: NetworkManager by inject()
     private val consentManager: ConsentManager by inject()
+    private val onboardingPreferences: OnboardingPreferences by inject()
 
     // Bandera para evitar mostrar el formulario de consentimiento mas de una vez por ciclo
     private var consentFormShownThisSession = false
+
+    // Session tracking para analytics de engagement
+    private var sessionStartTime = 0L
+    private var gamesPlayedInSession = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Enable edge-to-edge display
         enableEdgeToEdge()
+
+        sessionStartTime = System.currentTimeMillis()
 
         // Initialize Analytics first with current user or anonymous
         initializeAnalytics()
@@ -79,7 +87,7 @@ class MainActivity : ComponentActivity() {
         // Collect theme state
         val isDarkMode by themeManager.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
         val isDynamicColors by themeManager.isDynamicColorsEnabled.collectAsStateWithLifecycle(initialValue = true)
-        val isOnboardingCompleted by themeManager.isOnboardingCompleted.collectAsStateWithLifecycle(initialValue = true)
+        val isOnboardingCompleted by onboardingPreferences.isOnboardingCompleted.collectAsStateWithLifecycle(initialValue = true)
         // Collect accessibility settings
         val isHighContrast by themeManager.isHighContrastEnabled.collectAsStateWithLifecycle(initialValue = false)
         val isLargeText by themeManager.isLargeTextEnabled.collectAsStateWithLifecycle(initialValue = false)
@@ -110,7 +118,7 @@ class MainActivity : ComponentActivity() {
                         startDestination = startDestination,
                         onOnboardingComplete = {
                             coroutineScope.launch {
-                                themeManager.setOnboardingCompleted(true)
+                                onboardingPreferences.setOnboardingCompleted(true)
                             }
                         }
                     )
@@ -145,6 +153,20 @@ class MainActivity : ComponentActivity() {
                 (application as? PrideApp)?.initializeMobileAds()
             }
         )
+    }
+
+    override fun onStop() {
+        super.onStop()
+        // Enviar engagement de sesion cuando el usuario sale de la app
+        if (sessionStartTime > 0) {
+            val sessionDuration = System.currentTimeMillis() - sessionStartTime
+            analyticsManager.analyticsSessionInfo(gamesPlayedInSession, sessionDuration)
+        }
+    }
+
+    /** Llamar desde navigation cuando se inicia una partida para conteo de sesion */
+    fun incrementGamesPlayed() {
+        gamesPlayedInSession++
     }
 
     private fun initializeAnalytics() {

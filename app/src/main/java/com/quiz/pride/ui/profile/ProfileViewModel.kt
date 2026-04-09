@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.profile
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Achievement
 import com.quiz.domain.LevelInfo
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class ProfileUiState(
     val isLoading: Boolean = true,
     val userProfile: UserProfile = UserProfile(),

@@ -29,16 +29,8 @@ class SelectGameViewModelTest {
     }
 
     @Test
-    fun `init no registra otras pantallas que no sean SelectGame`() {
-        verify(exactly = 0) {
-            analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)
-        }
-        verify(exactly = 0) {
-            analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_GAME)
-        }
-        verify(exactly = 0) {
-            analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_RESULT)
-        }
+    fun `init registra exactamente una pantalla y ninguna otra`() {
+        verify(exactly = 1) { analyticsManager.analyticsScreenViewed(any()) }
     }
 
     @Test

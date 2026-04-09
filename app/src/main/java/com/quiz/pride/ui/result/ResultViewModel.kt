@@ -1,6 +1,8 @@
 package com.quiz.pride.ui.result
 
 import arrow.core.getOrElse
+import androidx.annotation.VisibleForTesting
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Achievement
 import com.quiz.domain.App
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class ResultUiState(
     val isLoading: Boolean = true,
     val appsList: List<App> = emptyList(),
@@ -91,7 +94,8 @@ class ResultViewModel(
      * Registra el juego completado en AdFrequencyManager y emite ShowInterstitialAd
      * si corresponde segun la frecuencia configurada.
      */
-    fun onScreenLoaded() {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun onScreenLoaded() {
         viewModelScope.launch {
             adFrequencyManager.recordGameCompleted()
             if (!getPaymentDone() && adFrequencyManager.shouldShowInterstitial()) {
@@ -159,7 +163,8 @@ class ResultViewModel(
      * Procesa el resultado del juego: stats, XP, logros y sincronizacion remota.
      * Delega en ProcessGameResultUseCase para mantener el ViewModel liviano.
      */
-    fun recordGameResult(
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun recordGameResult(
         gameMode: GameMode,
         correctAnswers: Int,
         totalQuestions: Int,
@@ -186,6 +191,16 @@ class ResultViewModel(
                     showLevelUpDialog = processed.xpGainResult.leveledUp
                 )
             }
+
+            // Actualizar user properties para segmentacion en Firebase
+            val xp = processed.xpGainResult
+            val accuracy = if (totalQuestions > 0) (correctAnswers.toFloat() / totalQuestions * 100) else 0f
+            analyticsManager.updateUserProperties(
+                level = xp.newLevel,
+                totalGames = totalQuestions,
+                accuracy = accuracy,
+                favoriteMode = gameMode.name
+            )
         }
     }
 
@@ -214,7 +229,8 @@ class ResultViewModel(
         }
     }
 
-    fun checkPersonalRecord(points: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun checkPersonalRecord(points: Int) {
         val currentRecord = getPersonalRecord.invoke()
         if (points > currentRecord) {
             setPersonalRecord.invoke(points)
@@ -224,7 +240,8 @@ class ResultViewModel(
         }
     }
 
-    fun checkWorldRecord(gamePoints: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun checkWorldRecord(gamePoints: Int) {
         viewModelScope.launch {
             // Si falla, no mostrar el dialog — mejor degradar que crashear
             val pointsLastClassified = getRecordScore(50).getOrElse { return@launch }
@@ -270,7 +287,8 @@ class ResultViewModel(
     /**
      * Check if the timed mode score qualifies for top 20
      */
-    fun checkTimedRanking(score: Int) {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    internal fun checkTimedRanking(score: Int) {
         viewModelScope.launch {
             // Si falla la consulta, asumir que califica (beneficio de la duda al usuario)
             val position20Score = getRecordScore(TOP_RANKING_LIMIT, RankingMode.TIMED).getOrElse { "" }

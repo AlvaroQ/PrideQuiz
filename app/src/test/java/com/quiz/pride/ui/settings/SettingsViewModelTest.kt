@@ -15,6 +15,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flowOf
@@ -243,5 +244,97 @@ class SettingsViewModelTest {
             assertTrue(event is SettingsEvent.PurchaseError)
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    // =========================================================
+    // PurchaseResult — cases faltantes
+    // =========================================================
+
+    @Test
+    fun `PurchaseResult AlreadyOwned guarda payment y emite PurchaseSuccess`() = runTest {
+        every { setPaymentDone.invoke(true) } just runs
+
+        viewModel.events.test {
+            purchaseResultFlow.emit(PurchaseResult.AlreadyOwned)
+            advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.showAds)
+            val event = awaitItem()
+            assertTrue(event is SettingsEvent.PurchaseSuccess)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `PurchaseResult Pending desactiva isPurchasing sin emitir evento`() = runTest {
+        viewModel.events.test {
+            purchaseResultFlow.emit(PurchaseResult.Pending)
+            advanceUntilIdle()
+
+            assertFalse(viewModel.uiState.value.isPurchasing)
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // =========================================================
+    // Restore Purchases
+    // =========================================================
+
+    @Test
+    fun `onRestorePurchases con AlreadyOwned emite RestoreSuccess`() = runTest {
+        every { setPaymentDone.invoke(true) } just runs
+
+        viewModel.events.test {
+            viewModel.onRestorePurchases()
+            purchaseResultFlow.emit(PurchaseResult.AlreadyOwned)
+            advanceUntilIdle()
+
+            val event = awaitItem()
+            assertTrue(event is SettingsEvent.RestoreSuccess)
+            assertFalse(viewModel.uiState.value.showAds)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onRestorePurchases sin compras emite RestoreNoPurchases`() = runTest {
+        viewModel.events.test {
+            viewModel.onRestorePurchases()
+            purchaseResultFlow.emit(PurchaseResult.Error("NO_PURCHASES_FOUND"))
+            advanceUntilIdle()
+
+            val event = awaitItem()
+            assertTrue(event is SettingsEvent.RestoreNoPurchases)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // =========================================================
+    // Consent + Analytics
+    // =========================================================
+
+    @Test
+    fun `resetAdConsent emite ConsentReset`() = runTest {
+        viewModel.events.test {
+            viewModel.resetAdConsent()
+            advanceUntilIdle()
+
+            val event = awaitItem()
+            assertTrue(event is SettingsEvent.ConsentReset)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onRateClicked trackea analytics`() {
+        viewModel.onRateClicked()
+        verify { analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE) }
+    }
+
+    @Test
+    fun `onShareClicked trackea analytics`() {
+        viewModel.onShareClicked()
+        verify { analyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE) }
     }
 }

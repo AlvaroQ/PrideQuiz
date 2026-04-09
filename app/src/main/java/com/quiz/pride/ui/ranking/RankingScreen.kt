@@ -56,8 +56,8 @@ import androidx.compose.ui.unit.dp
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.ui.graphics.asImageBitmap
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -316,7 +316,7 @@ fun RankingScreen(
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(8) {
+                            items(8, key = { "shimmer_${page}_$it" }) {
                                 ShimmerRankingItem()
                             }
                         }
@@ -350,10 +350,10 @@ fun RankingScreen(
                                     ) {
                                         itemsIndexed(
                                             items = rankingList,
-                                            // Key estable sin index ni score: el nombre identifica
-                                            // al usuario de forma unica. El prefijo de tab
-                                            // evita colision entre pestanas Classic y Timed.
-                                            key = { _, user -> "${page}_${user.name}" }
+                                            key = { index, user ->
+                                                val identifier = user.name.ifEmpty { "idx$index" }
+                                                "${page}_${identifier}"
+                                            }
                                         ) { index, user ->
                                             VibrantRankingItem(
                                                 position = index + 1,

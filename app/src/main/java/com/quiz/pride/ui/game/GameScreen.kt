@@ -88,8 +88,10 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import coil3.size.Size
 import android.content.res.Configuration
 import com.quiz.domain.Name
 import com.quiz.domain.Pride
@@ -850,7 +852,7 @@ private fun GameContent(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(question?.flag)
                                 .crossfade(200)
-                                .size(600, 400)
+                                .size(Size(600, 400))
                                 .build(),
                             contentDescription = stringResource(R.string.game_image),
                             modifier = Modifier.fillMaxSize(),
@@ -911,7 +913,7 @@ private fun GameContent(
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(question?.flag)
                                 .crossfade(200)
-                                .size(600, 400)
+                                .size(Size(600, 400))
                                 .build(),
                             contentDescription = stringResource(R.string.game_image),
                             modifier = Modifier.fillMaxSize(),

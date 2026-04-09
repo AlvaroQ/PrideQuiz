@@ -38,7 +38,10 @@ class BillingManager(private val context: Context) {
     private var billingClient: BillingClient? = null
     private var isReady = false
 
-    private val _purchaseResult = MutableSharedFlow<PurchaseResult>()
+    private val _purchaseResult = MutableSharedFlow<PurchaseResult>(
+        extraBufferCapacity = 1,
+        onBufferOverflow = kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
+    )
     val purchaseResult = _purchaseResult.asSharedFlow()
 
     private val purchasesUpdatedListener = PurchasesUpdatedListener { billingResult, purchases ->

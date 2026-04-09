@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.settings
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class SettingsUiState(
     val showAds: Boolean = true,
     val isPurchasing: Boolean = false
@@ -31,6 +33,7 @@ data class SettingsUiState(
  * Estado combinado de las 5 preferencias de tema/accesibilidad.
  * Se actualiza en un solo StateFlow para evitar 5 suscripciones independientes.
  */
+@Immutable
 data class SettingsPrefsState(
     val isDarkMode: Boolean = false,
     val isSoundEnabled: Boolean = true,

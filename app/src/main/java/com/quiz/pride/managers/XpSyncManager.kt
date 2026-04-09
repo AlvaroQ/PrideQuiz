@@ -35,12 +35,6 @@ class XpSyncManager(
         private val PENDING_SYNC = DataStoreKeys.XpSyncKeys.PENDING_SYNC
     }
 
-    val hasPendingSync: Flow<Boolean> = context.syncDataStore.data
-        .map { it[PENDING_SYNC] ?: false }
-
-    val lastSyncTime: Flow<Long> = context.syncDataStore.data
-        .map { it[LAST_SYNCED_TIME] ?: 0L }
-
     /**
      * Triggers a sync after game completion
      * Should be called from ResultViewModel after recording game result
@@ -54,30 +48,6 @@ class XpSyncManager(
                 markSyncPending(true)
                 Log.d(TAG, "Network not available, sync marked as pending")
             }
-        }
-    }
-
-    /**
-     * Called when app resumes to sync any pending changes
-     */
-    fun syncIfNeeded() {
-        applicationScope.launch {
-            val pending = context.syncDataStore.data.first()[PENDING_SYNC] ?: false
-            if (pending && networkManager.isNetworkAvailable()) {
-                performSync()
-            }
-        }
-    }
-
-    /**
-     * Force sync - can be called manually from UI
-     */
-    suspend fun forceSync(): Boolean {
-        return if (networkManager.isNetworkAvailable()) {
-            performSync()
-        } else {
-            markSyncPending(true)
-            false
         }
     }
 

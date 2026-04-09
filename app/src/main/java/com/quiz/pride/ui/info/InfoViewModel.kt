@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.info
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
 import com.quiz.pride.common.ComposeViewModel
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class InfoUiState(
     val isLoading: Boolean = true,
     val prideList: List<Pride> = emptyList(),

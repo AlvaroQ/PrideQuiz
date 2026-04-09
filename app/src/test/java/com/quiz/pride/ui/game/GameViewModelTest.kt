@@ -239,12 +239,12 @@ class GameViewModelTest {
             advanceUntilIdle()
         }
 
-        // Despues de 3 respuestas incorrectas debe haber emitido NavigateToResult
-        // Verificamos el estado final: 0 vidas y isLoading = false
+        // Despues de 3 respuestas incorrectas, con extraLivesUsed=0 < maxExtraLives=2
+        // y getPaymentDone=false, el VM debe mostrar el dialogo de vida extra
         val finalState = viewModel.uiState.value
         assertTrue(
-            "Debe tener 0 vidas o haber navegado. Lives: ${finalState.lives}",
-            finalState.lives <= 0 || finalState.showExtraLifeDialog
+            "Con vidas agotadas y extra lives disponibles debe mostrar el dialogo. Lives: ${finalState.lives}, showExtraLifeDialog: ${finalState.showExtraLifeDialog}",
+            finalState.showExtraLifeDialog
         )
     }
 
@@ -347,5 +347,82 @@ class GameViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(Int.MAX_VALUE, state.lives)
         assertTrue(state.isTimedMode)
+    }
+
+    // =========================================================
+    // retryCurrentStage
+    // =========================================================
+
+    @Test
+    fun `retryCurrentStage limpia hasError y genera nueva pregunta`() = runTest {
+        // Force an error
+        coEvery { getPrideById.invoke(any()) } returns Either.Left(RepositoryException.DataNotFoundException)
+        viewModel.initGame(Constants.GameType.NORMAL)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.hasError)
+
+        // Fix datasource and retry
+        coEvery { getPrideById.invoke(any()) } answers { Either.Right(buildPride(firstArg())) }
+        viewModel.retryCurrentStage()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.hasError)
+        assertNotNull(viewModel.uiState.value.question)
+    }
+
+    // =========================================================
+    // onExtraLifeAccepted / onExtraLifeDeclined
+    // =========================================================
+
+    @Test
+    fun `onExtraLifeAccepted restaura 1 vida e incrementa extraLivesUsed`() = runTest {
+        viewModel.initGame(Constants.GameType.NORMAL)
+        advanceUntilIdle()
+
+        viewModel.onExtraLifeAccepted()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.lives)
+        assertEquals(1, state.extraLivesUsed)
+        assertFalse(state.showExtraLifeDialog)
+    }
+
+    @Test
+    fun `onExtraLifeDeclined cierra dialog y emite NavigateToResult`() = runTest {
+        viewModel.initGame(Constants.GameType.NORMAL)
+        advanceUntilIdle()
+
+        viewModel.events.test {
+            viewModel.onExtraLifeDeclined()
+            advanceUntilIdle()
+
+            val event = awaitItem()
+            assertTrue(event is GameEvent.NavigateToResult)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // =========================================================
+    // SavedStateHandle restoration
+    // =========================================================
+
+    @Test
+    fun `init restaura estado desde SavedStateHandle tras process death`() = runTest {
+        val handle = SavedStateHandle(mapOf(
+            "points" to 15,
+            "lives" to 2,
+            "stage" to 8,
+            "correctAnswers" to 12,
+            "bestStreak" to 6
+        ))
+
+        val vm = GameViewModel(getPrideById, getPaymentDone, analyticsManager, themeManager, handle)
+
+        assertEquals(15, vm.uiState.value.points)
+        assertEquals(2, vm.uiState.value.lives)
+        assertEquals(8, vm.uiState.value.stage)
+        assertEquals(12, vm.uiState.value.correctAnswers)
+        assertEquals(6, vm.uiState.value.bestStreak)
     }
 }

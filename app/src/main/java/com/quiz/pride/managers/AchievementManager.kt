@@ -33,23 +33,6 @@ class AchievementManager(
             .toSet()
     }
 
-    suspend fun unlockAchievement(achievement: Achievement): Boolean {
-        val current = getUnlockedAchievements()
-        if (achievement in current) return false
-
-        val newSet = current + achievement
-        val idsStr = newSet.joinToString(",") { it.id }
-
-        context.progressionDataStore.edit { preferences ->
-            preferences[UNLOCKED_ACHIEVEMENTS] = idsStr
-        }
-
-        // Grant XP for achievement
-        progressionManager.addXp(achievement.xpReward.toLong())
-
-        return true
-    }
-
     suspend fun checkAndUnlockAchievements(): List<Achievement> {
         // Lectura unica del DataStore — incluye XP, achievements y estadisticas del jugador
         val prefs = context.progressionDataStore.data.first()

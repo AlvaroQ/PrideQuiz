@@ -9,15 +9,12 @@ import org.junit.Test
  * Tests de la logica pura de AdFrequencyManager.
  *
  * AdFrequencyManager requiere Context para DataStore, por lo que se testea
- * la logica de decision pura replicando el algoritmo de shouldShowInterstitial,
+ * la logica de decision pura via AdFrequencyManager.evaluateShouldShowInterstitial,
  * junto con la integridad de las constantes de configuracion.
- *
- * Este patron es identico al usado en ProgressionManagerTest: extraer y testear
- * la logica pura sin side-effects.
  */
 class AdFrequencyManagerTest {
 
-    // Constantes de configuracion (replica del companion object)
+    // Constantes de configuracion accesibles desde el companion object
     private val gamesBeforeFirstInterstitial = AdFrequencyManager.GAMES_BEFORE_FIRST_INTERSTITIAL
     private val gamesBetweenInterstitials = AdFrequencyManager.GAMES_BETWEEN_INTERSTITIALS
     private val maxInterstitialsPerSession = AdFrequencyManager.MAX_INTERSTITIALS_PER_SESSION
@@ -25,8 +22,8 @@ class AdFrequencyManagerTest {
     private val sessionTimeoutMinutes = AdFrequencyManager.SESSION_TIMEOUT_MINUTES
 
     /**
-     * Replica exacta del algoritmo shouldShowInterstitial del manager.
-     * Permite testear la logica pura sin necesitar Context/DataStore.
+     * Delega directamente a la funcion interna del companion object del manager.
+     * De esta forma, si la logica de produccion cambia, los tests lo detectan.
      */
     private fun shouldShowInterstitial(
         gamesSinceLast: Int,
@@ -34,27 +31,13 @@ class AdFrequencyManagerTest {
         lastInterstitialTimeMs: Long,
         totalGamesPlayed: Int,
         currentTimeMs: Long = System.currentTimeMillis()
-    ): Boolean {
-        // No exceder el maximo por sesion
-        if (interstitialsThisSession >= maxInterstitialsPerSession) {
-            return false
-        }
-
-        // Verificar cooldown
-        val timeSinceLastAd = currentTimeMs - lastInterstitialTimeMs
-        val cooldownMs = cooldownMinutes * 60 * 1000L
-        if (timeSinceLastAd < cooldownMs && lastInterstitialTimeMs > 0) {
-            return false
-        }
-
-        // Primera vez: esperar hasta GAMES_BEFORE_FIRST_INTERSTITIAL
-        if (totalGamesPlayed < gamesBeforeFirstInterstitial) {
-            return false
-        }
-
-        // Para los siguientes: cada GAMES_BETWEEN_INTERSTITIALS partidas
-        return gamesSinceLast >= gamesBetweenInterstitials
-    }
+    ): Boolean = AdFrequencyManager.evaluateShouldShowInterstitial(
+        gamesSinceLast = gamesSinceLast,
+        interstitialsThisSession = interstitialsThisSession,
+        lastInterstitialTimeMs = lastInterstitialTimeMs,
+        totalGamesPlayed = totalGamesPlayed,
+        currentTimeMs = currentTimeMs
+    )
 
     // =========================================================
     // Constantes de configuracion — integridad
@@ -318,36 +301,4 @@ class AdFrequencyManagerTest {
         assertTrue(result)
     }
 
-    // =========================================================
-    // Logica de contadores (simulacion de recordGameCompleted)
-    // =========================================================
-
-    @Test
-    fun `recordGameCompleted deberia incrementar gamesSinceLast en 1`() {
-        // Simulacion del comportamiento esperado de recordGameCompleted:
-        // cada llamada debe incrementar el contador en 1
-        var counter = 0
-        repeat(3) { counter++ }
-
-        assertEquals(3, counter)
-    }
-
-    @Test
-    fun `recordInterstitialShown deberia resetear gamesSinceLast a 0`() {
-        // Simulacion del comportamiento esperado de recordInterstitialShown:
-        // debe resetear el contador de partidas desde el ultimo anuncio
-        var counter = 5
-        counter = 0 // reset
-
-        assertEquals(0, counter)
-    }
-
-    @Test
-    fun `recordInterstitialShown deberia incrementar interstitialsThisSession en 1`() {
-        // Simulacion del comportamiento esperado
-        var sessionCount = 2
-        sessionCount++
-
-        assertEquals(3, sessionCount)
-    }
 }

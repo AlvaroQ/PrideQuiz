@@ -8,27 +8,15 @@ import org.junit.Test
 
 /**
  * Tests de la logica pura de ProgressionManager que no requiere Context ni DataStore.
- * Los metodos calculateLevel y getLevelInfo son pura logica matematica.
+ * calculateLevel vive en el companion object y es testeable directamente.
  */
 class ProgressionManagerTest {
 
-    // Usamos un objeto que solo expone la logica pura.
-    // ProgressionManager tiene Context en el constructor para DataStore,
-    // pero calculateLevel y getLevelInfo son funciones sin side-effects.
-    // Se testean directamente via reflexion o extrayendo la logica.
-
-    // Companion object con la logica: accesible directamente
+    // LEVEL_THRESHOLDS accesible desde el companion object
     private val thresholds = ProgressionManager.LEVEL_THRESHOLDS
 
-    // Replica de calculateLevel para poder testearla de forma aislada
-    private fun calculateLevel(xp: Long): Int {
-        for (i in thresholds.indices.reversed()) {
-            if (xp >= thresholds[i]) {
-                return i + 1
-            }
-        }
-        return 1
-    }
+    // Delega directamente al companion object del manager — sin duplicacion de logica
+    private fun calculateLevel(xp: Long): Int = ProgressionManager.calculateLevel(xp)
 
     // =========================================================
     // calculateLevel

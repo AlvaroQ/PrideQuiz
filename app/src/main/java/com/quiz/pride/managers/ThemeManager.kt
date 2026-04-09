@@ -31,7 +31,6 @@ class ThemeManager(private val context: Context) {
         private val DARK_MODE_KEY = DataStoreKeys.ThemeKeys.DARK_MODE
         private val SOUND_ENABLED_KEY = DataStoreKeys.ThemeKeys.SOUND_ENABLED
         private val DYNAMIC_COLORS_KEY = DataStoreKeys.ThemeKeys.DYNAMIC_COLORS
-        private val ONBOARDING_COMPLETED_KEY = DataStoreKeys.ThemeKeys.ONBOARDING_COMPLETED
         private val HIGH_CONTRAST_KEY = DataStoreKeys.ThemeKeys.HIGH_CONTRAST
         private val LARGE_TEXT_KEY = DataStoreKeys.ThemeKeys.LARGE_TEXT
     }
@@ -69,18 +68,6 @@ class ThemeManager(private val context: Context) {
     suspend fun setDynamicColorsEnabled(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[DYNAMIC_COLORS_KEY] = enabled
-        }
-    }
-
-    // Onboarding
-    val isOnboardingCompleted: Flow<Boolean> = context.dataStore.data
-        .map { preferences ->
-            preferences[ONBOARDING_COMPLETED_KEY] ?: false
-        }
-
-    suspend fun setOnboardingCompleted(completed: Boolean) {
-        context.dataStore.edit { preferences ->
-            preferences[ONBOARDING_COMPLETED_KEY] = completed
         }
     }
 

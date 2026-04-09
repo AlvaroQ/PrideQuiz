@@ -87,15 +87,22 @@ class ProgressionManager(private val context: Context) {
             264000L,
             277000L  // Level 50
         )
+
+        /**
+         * Logica pura de calculo de nivel a partir de XP acumulado.
+         * Extraida al companion para facilitar tests unitarios sin Context/DataStore.
+         */
+        fun calculateLevel(xp: Long): Int {
+            for (i in LEVEL_THRESHOLDS.indices.reversed()) {
+                if (xp >= LEVEL_THRESHOLDS[i]) {
+                    return i + 1
+                }
+            }
+            return 1
+        }
     }
 
     // ==================== USER PROFILE ====================
-
-    val userNickname: Flow<String> = context.progressionDataStore.data
-        .map { it[USER_NICKNAME] ?: "" }
-
-    val userImage: Flow<String> = context.progressionDataStore.data
-        .map { it[USER_IMAGE] ?: "" }
 
     suspend fun getUserProfile(): UserProfile {
         val prefs = context.progressionDataStore.data.first()
@@ -154,14 +161,7 @@ class ProgressionManager(private val context: Context) {
         )
     }
 
-    fun calculateLevel(xp: Long): Int {
-        for (i in LEVEL_THRESHOLDS.indices.reversed()) {
-            if (xp >= LEVEL_THRESHOLDS[i]) {
-                return i + 1
-            }
-        }
-        return 1
-    }
+    fun calculateLevel(xp: Long): Int = Companion.calculateLevel(xp)
 
     fun getTitleForLevel(level: Int): String {
         val resId = when {
@@ -197,11 +197,6 @@ class ProgressionManager(private val context: Context) {
             newLevel = newLevel,
             leveledUp = newLevel > oldLevel
         )
-    }
-
-    suspend fun getCurrentXp(): Long {
-        val prefs = context.progressionDataStore.data.first()
-        return prefs[TOTAL_XP] ?: 0L
     }
 
     /**

@@ -59,6 +59,19 @@
 -dontwarn org.junit.**
 -dontwarn org.hamcrest.**
 
+# Room (requerido por WorkManager que viene como dependencia transitiva de Firebase)
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-keep @androidx.room.Dao class *
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    abstract <methods>;
+}
+
+# WorkManager
+-keep class * extends androidx.work.Worker
+-keep class * extends androidx.work.ListenableWorker
+-keep class androidx.work.impl.** { *; }
+
 # Crashlitics
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.

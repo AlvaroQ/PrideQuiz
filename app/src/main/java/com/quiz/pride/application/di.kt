@@ -28,6 +28,7 @@ import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.BillingManager
 import com.quiz.pride.managers.ConsentManager
 import com.quiz.pride.managers.NetworkManager
+import com.quiz.pride.managers.OnboardingPreferences
 import com.quiz.pride.managers.AchievementManager
 import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
@@ -52,13 +53,11 @@ import com.quiz.usecases.GetPrideList
 import com.quiz.usecases.GetRankingScore
 import com.quiz.usecases.GetRecordScore
 import com.quiz.usecases.GetUserGlobalRank
-import com.quiz.usecases.GetUserXpEntry
 import com.quiz.usecases.GetXpLeaderboard
 import com.quiz.usecases.SaveTopScore
 import com.quiz.usecases.SetPaymentDone
 import com.quiz.usecases.SetPersonalRecord
 import com.quiz.usecases.ProcessGameResultUseCase
-import com.quiz.usecases.SyncUserXp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -87,6 +86,7 @@ val managerModule = module {
 
     single { AnalyticsManager(androidContext()) }
     single { ThemeManager(androidContext()) }
+    single { OnboardingPreferences(androidContext()) }
     // ConsentManager: singleton para gestionar el ciclo GDPR/UMP durante toda la sesion
     single { ConsentManager(androidContext()) }
     single { NetworkManager(androidContext(), get()) }
@@ -141,10 +141,8 @@ val useCaseModule = module {
     factory { ProcessGameResultUseCase(get()) }
 
     // XP Leaderboard use cases
-    factory { SyncUserXp(get()) }
     factory { GetXpLeaderboard(get()) }
     factory { GetUserGlobalRank(get()) }
-    factory { GetUserXpEntry(get()) }
 }
 
 // ViewModels con lifecycle-aware scope

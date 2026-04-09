@@ -33,15 +33,35 @@ class AdFrequencyManager(private val context: Context) {
         const val MAX_INTERSTITIALS_PER_SESSION = 4    // Max 4 per session
         const val COOLDOWN_MINUTES = 2                  // Min 2 min between ads
         const val SESSION_TIMEOUT_MINUTES = 30          // New session after 30 min
-    }
 
-    /**
-     * Flow of games played since last interstitial
-     */
-    val gamesSinceInterstitial: Flow<Int> = context.adFrequencyDataStore.data
-        .map { preferences ->
-            preferences[GAMES_SINCE_INTERSTITIAL] ?: 0
+        /**
+         * Logica pura de decision de mostrar interstitial, sin side-effects.
+         * Extraida del companion para facilitar tests unitarios sin Context/DataStore.
+         */
+        internal fun evaluateShouldShowInterstitial(
+            gamesSinceLast: Int,
+            interstitialsThisSession: Int,
+            lastInterstitialTimeMs: Long,
+            totalGamesPlayed: Int,
+            currentTimeMs: Long = System.currentTimeMillis()
+        ): Boolean {
+            if (interstitialsThisSession >= MAX_INTERSTITIALS_PER_SESSION) {
+                return false
+            }
+
+            val timeSinceLastAd = currentTimeMs - lastInterstitialTimeMs
+            val cooldownMs = COOLDOWN_MINUTES * 60 * 1000L
+            if (timeSinceLastAd < cooldownMs && lastInterstitialTimeMs > 0) {
+                return false
+            }
+
+            if (totalGamesPlayed < GAMES_BEFORE_FIRST_INTERSTITIAL) {
+                return false
+            }
+
+            return gamesSinceLast >= GAMES_BETWEEN_INTERSTITIALS
         }
+    }
 
     /**
      * Check if we should show an interstitial ad
@@ -121,21 +141,4 @@ class AdFrequencyManager(private val context: Context) {
         }
     }
 
-    /**
-     * Get current session stats for debugging
-     */
-    suspend fun getSessionStats(): SessionStats {
-        val preferences = context.adFrequencyDataStore.data.first()
-        return SessionStats(
-            gamesSinceInterstitial = preferences[GAMES_SINCE_INTERSTITIAL] ?: 0,
-            interstitialsThisSession = preferences[INTERSTITIALS_THIS_SESSION] ?: 0,
-            totalGamesPlayed = preferences[TOTAL_GAMES_PLAYED] ?: 0
-        )
-    }
-
-    data class SessionStats(
-        val gamesSinceInterstitial: Int,
-        val interstitialsThisSession: Int,
-        val totalGamesPlayed: Int
-    )
 }

@@ -2,8 +2,8 @@
 # ==========================================
 # BUILD TOOLS
 # ==========================================
-agp = "9.0.1"
-kotlin = "2.2.10"
+agp = "9.1.0"
+kotlin = "2.3.20"
 
 # ==========================================
 # ANDROID SDK
@@ -39,7 +39,7 @@ navigation = "2.9.7"
 # ==========================================
 # COMPOSE
 # ==========================================
-composeBom = "2026.01.01"
+composeBom = "2026.03.00"
 activityCompose = "1.12.4"
 
 # ==========================================
@@ -50,21 +50,21 @@ koin = "4.1.1"
 # ==========================================
 # FIREBASE
 # ==========================================
-firebaseBom = "34.9.0"
+firebaseBom = "34.11.0"
 googleServices = "4.4.4"
 firebaseCrashlyticsGradle = "3.0.6"
 
 # ==========================================
 # ADS & BILLING
 # ==========================================
-admob = "24.8.0"
+admob = "25.1.0"
 billing = "8.3.0"
 ump = "3.1.0"
 
 # ==========================================
 # IMAGE LOADING
 # ==========================================
-coil = "2.7.0"
+coil = "3.4.0"
 
 # ==========================================
 # NETWORKING
@@ -75,13 +75,15 @@ coil = "2.7.0"
 # ==========================================
 # UTILITIES
 # ==========================================
-arrow = "1.2.4"
+arrow = "2.2.2"
 guava = "9999.0-empty-to-avoid-conflict-with-guava"
 
 # ==========================================
 # QUALITY TOOLS
 # ==========================================
 detekt = "1.23.8"
+roborazzi = "1.59.0"
+robolectric = "4.14.1"
 
 # ==========================================
 # TESTING
@@ -169,7 +171,8 @@ ump = { group = "com.google.android.ump", name = "user-messaging-platform", vers
 # ==========================================
 # IMAGE LOADING
 # ==========================================
-coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 
 # ==========================================
 # NETWORKING
@@ -188,6 +191,10 @@ arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow"
 # QUALITY TOOLS
 # ==========================================
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+roborazzi = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
+roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }
+roborazzi-junit-rule = { module = "io.github.takahirom.roborazzi:roborazzi-junit-rule", version.ref = "roborazzi" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 # ==========================================
 # TESTING
@@ -209,3 +216,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsGradle" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }

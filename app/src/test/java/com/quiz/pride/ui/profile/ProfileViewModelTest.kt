@@ -8,6 +8,7 @@ import com.quiz.domain.PlayerStatistics
 import com.quiz.domain.UserProfile
 import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AchievementManager
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.XpSyncManager
@@ -16,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -42,6 +44,7 @@ class ProfileViewModelTest {
     private val achievementManager: AchievementManager = mockk()
     private val xpSyncManager: XpSyncManager = mockk()
     private val getUserGlobalRank: GetUserGlobalRank = mockk()
+    private val analyticsManager: AnalyticsManager = mockk(relaxed = true)
 
     private fun buildLevelInfo(level: Int = 5, xp: Long = 1000L) = LevelInfo(
         level = level,
@@ -86,7 +89,8 @@ class ProfileViewModelTest {
             gameStatsManager = gameStatsManager,
             achievementManager = achievementManager,
             xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank
+            getUserGlobalRank = getUserGlobalRank,
+            analyticsManager = analyticsManager
         )
     }
 
@@ -149,7 +153,8 @@ class ProfileViewModelTest {
             gameStatsManager = gameStatsManager,
             achievementManager = achievementManager,
             xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank
+            getUserGlobalRank = getUserGlobalRank,
+            analyticsManager = analyticsManager
         )
         advanceUntilIdle()
 
@@ -168,7 +173,8 @@ class ProfileViewModelTest {
             gameStatsManager = gameStatsManager,
             achievementManager = achievementManager,
             xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank
+            getUserGlobalRank = getUserGlobalRank,
+            analyticsManager = analyticsManager
         )
         advanceUntilIdle()
 
@@ -185,7 +191,8 @@ class ProfileViewModelTest {
             gameStatsManager = gameStatsManager,
             achievementManager = achievementManager,
             xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank
+            getUserGlobalRank = getUserGlobalRank,
+            analyticsManager = analyticsManager
         )
         advanceUntilIdle()
 
@@ -298,5 +305,31 @@ class ProfileViewModelTest {
         val state = viewModel.uiState.value
 
         assertEquals(Achievement.entries.size, state.allAchievements.size)
+    }
+
+    // =========================================================
+    // refreshData
+    // =========================================================
+
+    @Test
+    fun `refreshData actualiza perfil sin activar isLoading`() = runTest {
+        advanceUntilIdle()
+        // Change mock data
+        coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Updated", imageBase64 = "new")
+
+        viewModel.refreshData()
+        advanceUntilIdle()
+
+        assertEquals("Updated", viewModel.uiState.value.userProfile.nickname)
+        assertFalse(viewModel.uiState.value.isLoading)
+    }
+
+    // =========================================================
+    // Analytics
+    // =========================================================
+
+    @Test
+    fun `init registra SCREEN_PROFILE en analytics`() {
+        verify { analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_PROFILE) }
     }
 }

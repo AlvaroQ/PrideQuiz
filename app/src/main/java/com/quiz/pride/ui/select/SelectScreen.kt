@@ -50,28 +50,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
-import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.ui.components.AnimatedScreenBackground
-import com.quiz.pride.ui.theme.PrideQuizTheme
-import org.koin.androidx.compose.koinViewModel
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
+import com.quiz.pride.ui.theme.GradientPointsBottom
+import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.ui.theme.SettingsGradientBottom
 import com.quiz.pride.ui.theme.SettingsGradientTop
 import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
-import com.quiz.pride.ui.theme.White
-import com.quiz.pride.ui.theme.GradientPointsTop
-import com.quiz.pride.ui.theme.GradientPointsBottom
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SelectScreen(
@@ -92,25 +90,17 @@ fun SelectScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                .align(Alignment.BottomCenter)
-                .alpha(0.6f),
+                .alpha(0.6f)
+                .align(Alignment.BottomCenter),
             contentScale = ContentScale.Crop
         )
 
-        // Gradient overlay on background image
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)
                 .align(Alignment.BottomCenter)
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            GradientBackgroundEnd,
-                            Color.Transparent
-                        )
-                    )
-                )
+                .background(Color.Transparent),
         )
 
         // Profile button in top right

@@ -1,6 +1,7 @@
 package com.quiz.pride.ui.ranking
 
 import arrow.core.getOrElse
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.User
 import com.quiz.domain.XpLeaderboardEntry
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@Immutable
 data class RankingUiState(
     val isLoading: Boolean = true,
     val rankingList: List<User> = emptyList(),

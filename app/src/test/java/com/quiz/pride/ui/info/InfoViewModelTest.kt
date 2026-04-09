@@ -120,7 +120,7 @@ class InfoViewModelTest {
     }
 
     @Test
-    fun `loadMorePrideList no ejecuta si ya esta cargando (proteccion anti-double-call)`() = runTest {
+    fun `loadMorePrideList llamadas secuenciales acumulan paginas correctamente`() = runTest {
         // Realizamos la carga inicial
         advanceUntilIdle()
 

@@ -13,6 +13,7 @@ import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.ProgressionManager
+import com.quiz.pride.utils.Constants
 import com.quiz.usecases.GetAppsRecommended
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPersonalRecord
@@ -345,5 +346,221 @@ class ResultViewModelTest {
             expectNoEvents()
             cancelAndIgnoreRemainingEvents()
         }
+    }
+
+    @Test
+    fun `onScreenLoaded no emite interstitial cuando usuario pago`() = runTest {
+        every { getPaymentDone.invoke() } returns true
+        coEvery { adFrequencyManager.shouldShowInterstitial() } returns true
+        coEvery { adFrequencyManager.recordGameCompleted() } just runs
+
+        viewModel = ResultViewModel(
+            getAppsRecommended = getAppsRecommended,
+            saveTopScore = saveTopScore,
+            getRecordScore = getRecordScore,
+            getPersonalRecord = getPersonalRecord,
+            setPersonalRecord = setPersonalRecord,
+            getPaymentDone = getPaymentDone,
+            processGameResult = processGameResult,
+            progressionManager = progressionManager,
+            analyticsManager = analyticsManager,
+            adFrequencyManager = adFrequencyManager
+        )
+
+        viewModel.events.test {
+            viewModel.onScreenLoaded()
+            advanceUntilIdle()
+            expectNoEvents()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    // =========================================================
+    // onScreenInitialized
+    // =========================================================
+
+    @Test
+    fun `onScreenInitialized es idempotente — segunda llamada no reejecuta`() = runTest {
+        val xpResult = buildXpGainResult()
+        coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(xpResult, emptyList())
+        coEvery { getRecordScore.invoke(50L) } returns Either.Right("100")
+        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("100")
+
+        viewModel.onScreenInitialized(Constants.GameType.NORMAL, 10, 10, 8, 5, 60_000L)
+        advanceUntilIdle()
+        viewModel.onScreenInitialized(Constants.GameType.NORMAL, 10, 10, 8, 5, 60_000L)
+        advanceUntilIdle()
+
+        // processGameResult should be called only once
+        coVerify(exactly = 1) { processGameResult.invoke(any()) }
+    }
+
+    @Test
+    fun `onScreenInitialized TIMED llama checkTimedRanking y no checkWorldRecord`() = runTest {
+        val xpResult = buildXpGainResult()
+        coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(xpResult, emptyList())
+        coEvery { getRecordScore.invoke(any(), RankingMode.TIMED) } returns Either.Right("")
+        coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Test", imageBase64 = "")
+
+        viewModel.onScreenInitialized(Constants.GameType.TIMED, 15, 10, 8, 5, 60_000L)
+        advanceUntilIdle()
+
+        // Timed mode should show timed ranking dialog (empty position = qualifies)
+        assertTrue(viewModel.uiState.value.showTimedRankingDialog)
+        // Should NOT show world record dialog
+        assertFalse(viewModel.uiState.value.showWorldRecordDialog)
+    }
+
+    @Test
+    fun `onScreenInitialized NORMAL llama checkWorldRecord y checkPersonalRecord`() = runTest {
+        val xpResult = buildXpGainResult()
+        coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(xpResult, emptyList())
+        coEvery { getRecordScore.invoke(50L) } returns Either.Right("5")
+        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("5")
+        coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Test", imageBase64 = "")
+        every { getPersonalRecord.invoke() } returns 5
+
+        viewModel.onScreenInitialized(Constants.GameType.NORMAL, 20, 10, 8, 5, 60_000L)
+        advanceUntilIdle()
+
+        // Score 20 > position 50 score 5 → should show world record dialog
+        assertTrue(viewModel.uiState.value.showWorldRecordDialog)
+        // Personal record should be updated (20 > 5)
+        assertEquals("20", viewModel.uiState.value.personalRecord)
+    }
+
+    // =========================================================
+    // hasPaid state
+    // =========================================================
+
+    @Test
+    fun `init setea hasPaid true cuando getPaymentDone retorna true`() = runTest {
+        every { getPaymentDone.invoke() } returns true
+        viewModel = ResultViewModel(
+            getAppsRecommended = getAppsRecommended,
+            saveTopScore = saveTopScore,
+            getRecordScore = getRecordScore,
+            getPersonalRecord = getPersonalRecord,
+            setPersonalRecord = setPersonalRecord,
+            getPaymentDone = getPaymentDone,
+            processGameResult = processGameResult,
+            progressionManager = progressionManager,
+            analyticsManager = analyticsManager,
+            adFrequencyManager = adFrequencyManager
+        )
+        assertTrue(viewModel.uiState.value.hasPaid)
+    }
+
+    // =========================================================
+    // checkTimedRanking
+    // =========================================================
+
+    @Test
+    fun `checkTimedRanking muestra dialog cuando califica`() = runTest {
+        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("10")
+        coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Player", imageBase64 = "img")
+
+        viewModel.checkTimedRanking(15) // 15 > 10 → qualifies
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.showTimedRankingDialog)
+        assertEquals(15, viewModel.uiState.value.timedScore)
+    }
+
+    @Test
+    fun `checkTimedRanking no muestra dialog cuando no califica`() = runTest {
+        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("100")
+
+        viewModel.checkTimedRanking(15) // 15 < 100 → doesn't qualify
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.showTimedRankingDialog)
+    }
+
+    // =========================================================
+    // saveScore / saveTimedScore
+    // =========================================================
+
+    @Test
+    fun `saveTimedScore guarda y cierra dialog`() = runTest {
+        coEvery { progressionManager.saveUserProfile(any(), any()) } just runs
+        coEvery { saveTopScore.invoke(any(), any()) } returns Either.Right(mockk())
+
+        // Setup: show dialog first
+        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("")
+        coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "P", imageBase64 = "")
+        viewModel.checkTimedRanking(20)
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.showTimedRankingDialog)
+
+        // Act: save
+        viewModel.saveTimedScore("Nick", "img64")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.showTimedRankingDialog)
+        assertFalse(viewModel.uiState.value.isSavingTimedScore)
+        verify { analyticsManager.analyticsScoreSaved("timed_ranking", true) }
+    }
+
+    @Test
+    fun `dismissTimedRankingDialog cierra dialog y trackea analytics`() {
+        viewModel.dismissTimedRankingDialog()
+        assertFalse(viewModel.uiState.value.showTimedRankingDialog)
+        verify { analyticsManager.analyticsScoreSaved("timed_ranking", false) }
+    }
+
+    // =========================================================
+    // Analytics clicks
+    // =========================================================
+
+    @Test
+    fun `onPlayAgainClicked trackea analytics`() {
+        viewModel.onPlayAgainClicked()
+        verify { analyticsManager.analyticsClicked(AnalyticsManager.BTN_PLAY_AGAIN) }
+    }
+
+    @Test
+    fun `onRankingClicked trackea analytics`() {
+        viewModel.onRankingClicked()
+        verify { analyticsManager.analyticsClicked(AnalyticsManager.BTN_RANKING) }
+    }
+
+    @Test
+    fun `onInterstitialShown registra en adFrequencyManager`() = runTest {
+        coEvery { adFrequencyManager.recordInterstitialShown() } just runs
+        viewModel.onInterstitialShown()
+        advanceUntilIdle()
+        coVerify { adFrequencyManager.recordInterstitialShown() }
+    }
+
+    // =========================================================
+    // saveScore (world record)
+    // =========================================================
+
+    @Test
+    fun `saveScore guarda perfil y cierra dialog`() = runTest {
+        coEvery { progressionManager.saveUserProfile(any(), any()) } just runs
+        coEvery { saveTopScore.invoke(any()) } returns Either.Right(mockk())
+
+        viewModel.saveScore("WorldChamp", "avatar64")
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.value.showWorldRecordDialog)
+        assertFalse(viewModel.uiState.value.isSavingWorldRecord)
+        coVerify { progressionManager.saveUserProfile("WorldChamp", "avatar64") }
+        verify { analyticsManager.analyticsScoreSaved("world_record", true) }
+    }
+
+    @Test
+    fun `onWorldRecordDialogDismissed cierra dialog y trackea analytics`() {
+        viewModel.onWorldRecordDialogDismissed()
+        assertFalse(viewModel.uiState.value.showWorldRecordDialog)
+        verify { analyticsManager.analyticsScoreSaved("world_record", false) }
+    }
+
+    @Test
+    fun `onRateClicked trackea analytics`() {
+        viewModel.onRateClicked()
+        verify { analyticsManager.analyticsClicked(AnalyticsManager.BTN_RATE) }
     }
 }

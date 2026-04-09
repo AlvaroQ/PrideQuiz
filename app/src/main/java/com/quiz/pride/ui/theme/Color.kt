@@ -50,6 +50,7 @@ val GradientPrimaryEnd = Color(0xFFEC4899)
 // Vibrant Background Gradient
 val GradientBackgroundStart = Color(0xFF8B5CF6)  // Vivid Purple
 val GradientBackgroundMid = Color(0xFFEC4899)     // Pink
+val GradientBackgroundMidWarm = Color(0xFFF472B6) // Warm Pink (transicion suave)
 val GradientBackgroundEnd = Color(0xFFF97316)     // Orange
 
 // Card Gradients - Vibrant Menu Cards

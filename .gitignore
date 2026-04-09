@@ -118,6 +118,12 @@ capture/christmas/otro/pride/capturas/Screenshot_20220802-075742.png
 capture/ic_launcher_foreground.png
 capture/christmas/
 .claude/
+.atl/
 CLAUDE.md
 docs/
 *-adminsdk-*.json
+
+# Tests de regresion visual (Appium + Percy)
+appium-visual-tests/node_modules/
+appium-visual-tests/allure-results/
+appium-visual-tests/allure-report/

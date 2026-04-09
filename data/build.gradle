@@ -11,6 +11,11 @@ dependencies {
 
     // Utilities
     implementation libs.arrow.core
+
+    // Testing
+    testImplementation libs.junit
+    testImplementation libs.kotlinx.coroutines.test
+    testImplementation libs.mockk
 }
 
 java {

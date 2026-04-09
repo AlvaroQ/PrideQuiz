@@ -121,7 +121,7 @@ class InterstitialAdState(
 fun rememberInterstitialAdState(
     adUnitId: String = LocalContext.current.getString(R.string.BONIFICADO_GAME_OVER)
 ): InterstitialAdState {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
 
     val adState = remember(adUnitId) {
         InterstitialAdState(context, adUnitId)

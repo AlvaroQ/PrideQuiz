@@ -89,20 +89,6 @@ class NetworkManager(
             initialValue = if (isNetworkAvailable()) NetworkState.Available else NetworkState.Unavailable
         )
 
-    /**
-     * Get the current connection type
-     */
-    fun getConnectionType(): ConnectionType {
-        val network = connectivityManager.activeNetwork ?: return ConnectionType.None
-        val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return ConnectionType.None
-
-        return when {
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> ConnectionType.Wifi
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> ConnectionType.Cellular
-            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> ConnectionType.Ethernet
-            else -> ConnectionType.Other
-        }
-    }
 }
 
 /**
@@ -111,15 +97,4 @@ class NetworkManager(
 sealed class NetworkState {
     data object Available : NetworkState()
     data object Unavailable : NetworkState()
-}
-
-/**
- * Represents the type of network connection
- */
-sealed class ConnectionType {
-    data object Wifi : ConnectionType()
-    data object Cellular : ConnectionType()
-    data object Ethernet : ConnectionType()
-    data object Other : ConnectionType()
-    data object None : ConnectionType()
 }

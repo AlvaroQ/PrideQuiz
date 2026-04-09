@@ -1,5 +1,6 @@
 package com.quiz.pride.ui.game
 
+import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Collections
 
+@Immutable
 data class GameUiState(
     val isLoading: Boolean = true,
     val question: Pride? = null,
@@ -77,6 +79,8 @@ class GameViewModel(
 
     private val randomCountries: MutableSet<Int> = Collections.synchronizedSet(mutableSetOf())
     private var startTime = System.currentTimeMillis()
+    private var questionStartTime = System.currentTimeMillis()
+    private var currentGameMode: String = "NORMAL"
     private var timerJob: Job? = null
 
     // Restaurar estado critico del juego tras process death
@@ -132,6 +136,7 @@ class GameViewModel(
                 timeRemaining = Constants.TIMED_MODE_TOTAL_SECONDS
             )
         }
+        currentGameMode = gameType.name
         analyticsManager.analyticsGameModeSelected(gameType.name)
         startTime = System.currentTimeMillis()
         if (isTimedMode) startTimer()
@@ -203,6 +208,7 @@ class GameViewModel(
                     correctOptionIndex = correctPosition
                 )
             }
+            questionStartTime = System.currentTimeMillis()
         }
     }
 
@@ -216,6 +222,16 @@ class GameViewModel(
         if (state.selectedAnswer != null) return
 
         val isCorrect = index == state.correctOptionIndex
+        val timeToAnswer = System.currentTimeMillis() - questionStartTime
+
+        // Trackear cada respuesta para análisis de funnel y dificultad
+        analyticsManager.analyticsQuestionAnswered(
+            questionNumber = state.stage,
+            correct = isCorrect,
+            timeToAnswerMs = timeToAnswer,
+            gameMode = currentGameMode,
+            currentStreak = if (isCorrect) state.currentStreak + 1 else 0
+        )
 
         if (isCorrect) {
             val newStreak = state.currentStreak + 1
@@ -313,9 +329,23 @@ class GameViewModel(
 
     private suspend fun emitNavigateToResult() {
         val state = _uiState.value
-        analyticsManager.analyticsGameFinished(state.points.toString())
         timerJob?.cancel()
         val timePlayed = System.currentTimeMillis() - startTime
+
+        // Evento legacy (backward compatible)
+        analyticsManager.analyticsGameFinished(state.points.toString())
+
+        // Evento detallado para análisis de funnel de juego
+        analyticsManager.analyticsGameCompleted(
+            gameMode = currentGameMode,
+            questionsAnswered = state.stage,
+            correctAnswers = state.correctAnswers,
+            points = state.points,
+            livesRemaining = if (state.isTimedMode) -1 else state.lives,
+            bestStreak = state.bestStreak,
+            timePlayedMs = timePlayed,
+            usedExtraLife = state.extraLivesUsed > 0
+        )
         _events.emit(
             GameEvent.NavigateToResult(
                 points = state.points,
