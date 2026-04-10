@@ -17,8 +17,6 @@
     <string name="normal_description">Devinez le drapeau par son nom</string>
     <string name="advance">Avancé</string>
     <string name="advance_description">Devinez le drapeau par sa description</string>
-    <string name="expert">Expert</string>
-    <string name="expert_description">Devinez le drapeau sans indices</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
@@ -123,8 +121,6 @@
     <!-- Game screen -->
     <string name="life">vie</string>
     <string name="points">Points\n%d</string>
-    <string name="expert_question">Quel est ce drapeau ?</string>
-
     <!-- Info screen -->
     <string name="info_title">Informations générales</string>
     <string name="locale">fr</string>
@@ -135,9 +131,9 @@
     <string name="onboarding_learn_title">Apprenez en jouant</string>
     <string name="onboarding_learn_desc">Découvrez la signification et l\'histoire de chaque drapeau de la fierté. Le savoir, c\'est le pouvoir !</string>
     <string name="onboarding_play_title">Relevez le défi</string>
-    <string name="onboarding_play_desc">Commencez par le mode Normal et progressez jusqu\'à l\'Expert. Combien de drapeaux pouvez-vous reconnaître ?</string>
+    <string name="onboarding_play_desc">Commencez par le mode Normal et progressez. Combien de drapeaux pouvez-vous reconnaître ?</string>
     <string name="onboarding_modes_title">Trois modes de jeu</string>
-    <string name="onboarding_modes_desc">Normal : Associer les drapeaux aux noms\nAvancé : Deviner par description\nExpert : Le défi ultime !</string>
+    <string name="onboarding_modes_desc">Normal : Associez drapeaux et noms\nAvancé : Devinez par la description\nChronom. : Course contre la montre !</string>
     <string name="onboarding_skip">Passer</string>
     <string name="onboarding_next">Suivant</string>
     <string name="onboarding_get_started">Commencer</string>
@@ -256,8 +252,6 @@
     <string name="achievement_level_25_desc">Atteindre le niveau 25</string>
     <string name="achievement_level_50_title">Légende de la fierté</string>
     <string name="achievement_level_50_desc">Atteindre le niveau 50</string>
-    <string name="achievement_expert_master_title">Maître expert</string>
-    <string name="achievement_expert_master_desc">Terminez 25 parties en mode Expert</string>
     <string name="achievement_speed_demon_title">Démon de vitesse</string>
     <string name="achievement_speed_demon_desc">Terminez 10 parties en mode chrono</string>
     <string name="achievement_dedicated_title">Dédié</string>

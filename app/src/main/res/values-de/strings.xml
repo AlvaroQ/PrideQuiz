@@ -17,8 +17,6 @@
     <string name="normal_description">Errate die Flagge anhand ihres Namens</string>
     <string name="advance">Fortgeschritten</string>
     <string name="advance_description">Errate die Flagge anhand ihrer Beschreibung</string>
-    <string name="expert">Experte</string>
-    <string name="expert_description">Errate die Flagge ohne Hinweise</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
@@ -123,8 +121,6 @@
     <!-- Game screen -->
     <string name="life">Leben</string>
     <string name="points">Punkte\n%d</string>
-    <string name="expert_question">Welche Flagge ist das?</string>
-
     <!-- Info screen -->
     <string name="info_title">Allgemeine Informationen</string>
     <string name="locale">de</string>
@@ -135,9 +131,9 @@
     <string name="onboarding_learn_title">Spielend lernen</string>
     <string name="onboarding_learn_desc">Entdecke die Bedeutung und Geschichte jeder Pride-Flagge. Wissen ist Macht!</string>
     <string name="onboarding_play_title">Fordere dich heraus</string>
-    <string name="onboarding_play_desc">Beginne mit dem normalen Modus und arbeite dich bis zum Experten vor. Wie viele Flaggen erkennst du?</string>
+    <string name="onboarding_play_desc">Starte mit dem Normalmodus und arbeite dich hoch. Wie viele Flaggen kannst du erkennen?</string>
     <string name="onboarding_modes_title">Drei Spielmodi</string>
-    <string name="onboarding_modes_desc">Normal: Flaggen Namen zuordnen\nFortgeschritten: Nach Beschreibung raten\nExperte: Die ultimative Herausforderung!</string>
+    <string name="onboarding_modes_desc">Normal: Flaggen den Namen zuordnen\nFortgeschritten: Durch Beschreibung erraten\nZeitmodus: Gegen die Uhr!</string>
     <string name="onboarding_skip">Überspringen</string>
     <string name="onboarding_next">Weiter</string>
     <string name="onboarding_get_started">Los geht\'s</string>
@@ -256,8 +252,6 @@
     <string name="achievement_level_25_desc">Level 25 erreichen</string>
     <string name="achievement_level_50_title">Pride-Legende</string>
     <string name="achievement_level_50_desc">Level 50 erreichen</string>
-    <string name="achievement_expert_master_title">Experten-Meister</string>
-    <string name="achievement_expert_master_desc">25 Experten-Spiele abschließen</string>
     <string name="achievement_speed_demon_title">Blitz-Spieler</string>
     <string name="achievement_speed_demon_desc">10 Zeitlimit-Spiele abschließen</string>
     <string name="achievement_dedicated_title">Engagiert</string>

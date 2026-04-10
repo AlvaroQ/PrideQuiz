@@ -17,8 +17,6 @@
     <string name="normal_description">Adivinhe a bandeira pelo seu nome</string>
     <string name="advance">Avançado</string>
     <string name="advance_description">Adivinhe a bandeira pela sua descrição</string>
-    <string name="expert">Especialista</string>
-    <string name="expert_description">Adivinhe a bandeira sem pistas</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Versão</string>
@@ -123,8 +121,6 @@
     <!-- Game screen -->
     <string name="life">vida</string>
     <string name="points">Pontos\n%d</string>
-    <string name="expert_question">Qual é esta bandeira?</string>
-
     <!-- Info screen -->
     <string name="info_title">Informação geral</string>
     <string name="locale">pt</string>
@@ -135,9 +131,9 @@
     <string name="onboarding_learn_title">Aprende a jogar</string>
     <string name="onboarding_learn_desc">Descobre o significado e a história de cada bandeira do Pride. O conhecimento é poder!</string>
     <string name="onboarding_play_title">Desafia-te a ti mesmo</string>
-    <string name="onboarding_play_desc">Começa no modo Normal e vai até ao Especialista. Quantas bandeiras consegues reconhecer?</string>
+    <string name="onboarding_play_desc">Comece com o modo Normal e vá progredindo. Quantas bandeiras você consegue reconhecer?</string>
     <string name="onboarding_modes_title">Três modos de jogo</string>
-    <string name="onboarding_modes_desc">Normal: Associar bandeiras a nomes\nAvançado: Adivinhar pela descrição\nEspecialista: O desafio máximo!</string>
+    <string name="onboarding_modes_desc">Normal: Associe bandeiras a nomes\nAvançado: Adivinhe pela descrição\nContrarrelógio: Contra o tempo!</string>
     <string name="onboarding_skip">Saltar</string>
     <string name="onboarding_next">Seguinte</string>
     <string name="onboarding_get_started">Começar</string>
@@ -256,8 +252,6 @@
     <string name="achievement_level_25_desc">Alcançar nível 25</string>
     <string name="achievement_level_50_title">Lenda do Pride</string>
     <string name="achievement_level_50_desc">Alcançar nível 50</string>
-    <string name="achievement_expert_master_title">Mestre especialista</string>
-    <string name="achievement_expert_master_desc">Completa 25 jogos no modo Especialista</string>
     <string name="achievement_speed_demon_title">Demônio da velocidade</string>
     <string name="achievement_speed_demon_desc">Completa 10 jogos no modo contra o relógio</string>
     <string name="achievement_dedicated_title">Dedicado</string>

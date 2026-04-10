@@ -49,14 +49,11 @@ import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
 import com.quiz.pride.ui.theme.AdvanceGradientTop
-import com.quiz.pride.ui.theme.ExpertGradientBottom
-import com.quiz.pride.ui.theme.ExpertGradientTop
-import com.quiz.pride.ui.theme.GradientBackgroundEnd
+import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NormalGradientBottom
 import com.quiz.pride.ui.theme.NormalGradientTop
 import com.quiz.pride.ui.theme.TimedGradientBottom
@@ -81,35 +78,19 @@ fun SelectGameScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             AnimatedScreenBackground(
-                orbColor1 = NeonGreen,
-                orbColor2 = NeonOrange
+                orbColor1 = NeonPink,
+                orbColor2 = NeonPurple
             ) {
-            // Background image with overlay
+            // Background image — same as SelectScreen for seamless transition
             Image(
                 painter = painterResource(R.drawable.protest),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
+                    .height(300.dp)
                     .align(Alignment.BottomCenter)
-                    .alpha(0.5f),
+                    .alpha(0.6f),
                 contentScale = ContentScale.Crop
-            )
-
-            // Gradient overlay on background image
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                GradientBackgroundEnd,
-                                Color.Transparent
-                            )
-                        )
-                    )
             )
 
             Column(
@@ -157,18 +138,6 @@ fun SelectGameScreen(
                     gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
                     glowColor = NeonOrange.copy(alpha = 0.5f),
                     onClick = { onNavigateToGame(Constants.GameType.ADVANCE) }
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Expert difficulty - Red
-                VibrantDifficultyCard(
-                    title = stringResource(R.string.expert),
-                    description = stringResource(R.string.expert_description),
-                    imageRes = R.drawable.expert,
-                    gradientColors = listOf(ExpertGradientTop, ExpertGradientBottom),
-                    glowColor = NeonPink.copy(alpha = 0.5f),
-                    onClick = { onNavigateToGame(Constants.GameType.EXPERT) }
                 )
 
                 Spacer(modifier = Modifier.height(20.dp))

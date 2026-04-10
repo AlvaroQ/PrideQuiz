@@ -17,8 +17,6 @@
     <string name="normal_description">Guess the flag by its name</string>
     <string name="advance">Advance</string>
     <string name="advance_description">Guess the flag by its description</string>
-    <string name="expert">Expert</string>
-    <string name="expert_description">Guess the flag with no hints</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
@@ -123,8 +121,6 @@
     <!-- Game screen -->
     <string name="life">life</string>
     <string name="points">Points\n%d</string>
-    <string name="expert_question">Which flag is it?</string>
-
     <!-- Info screen -->
     <string name="info_title">General info</string>
     <string name="locale">en</string>
@@ -135,9 +131,9 @@
     <string name="onboarding_learn_title">Learn While Playing</string>
     <string name="onboarding_learn_desc">Discover the meaning and history behind each pride flag. Knowledge is power!</string>
     <string name="onboarding_play_title">Challenge Yourself</string>
-    <string name="onboarding_play_desc">Start with Normal mode and work your way up to Expert. How many flags can you recognize?</string>
+    <string name="onboarding_play_desc">Start with Normal mode and work your way up. How many flags can you recognize?</string>
     <string name="onboarding_modes_title">Three Game Modes</string>
-    <string name="onboarding_modes_desc">Normal: Match flags to names\nAdvance: Guess by description\nExpert: Ultimate challenge!</string>
+    <string name="onboarding_modes_desc">Normal: Match flags to names\nAdvance: Guess by description\nTimed: Race against the clock!</string>
     <string name="onboarding_skip">Skip</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_get_started">Get Started</string>
@@ -256,8 +252,6 @@
     <string name="achievement_level_25_desc">Reach level 25</string>
     <string name="achievement_level_50_title">Pride Legend</string>
     <string name="achievement_level_50_desc">Reach level 50</string>
-    <string name="achievement_expert_master_title">Expert Master</string>
-    <string name="achievement_expert_master_desc">Complete 25 expert games</string>
     <string name="achievement_speed_demon_title">Speed Demon</string>
     <string name="achievement_speed_demon_desc">Complete 10 timed mode games</string>
     <string name="achievement_dedicated_title">Dedicated</string>
