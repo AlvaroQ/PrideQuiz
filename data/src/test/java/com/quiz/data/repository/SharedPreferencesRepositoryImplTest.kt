@@ -84,7 +84,7 @@ class SharedPreferencesRepositoryImplTest {
 
     @Test
     fun `getPersonalRecord retorna el valor almacenado en el datasource`() {
-        every { localDataSource.getPersonalRecord() } returns 850
+        every { localDataSource.getPersonalRecord("") } returns 850
 
         val result = repository.getPersonalRecord()
 
@@ -93,7 +93,7 @@ class SharedPreferencesRepositoryImplTest {
 
     @Test
     fun `getPersonalRecord retorna 0 como valor por defecto cuando no hay record`() {
-        every { localDataSource.getPersonalRecord() } returns 0
+        every { localDataSource.getPersonalRecord("") } returns 0
 
         val result = repository.getPersonalRecord()
 
@@ -102,7 +102,7 @@ class SharedPreferencesRepositoryImplTest {
 
     @Test
     fun `getPersonalRecord retorna valor maximo posible sin problemas`() {
-        every { localDataSource.getPersonalRecord() } returns Int.MAX_VALUE
+        every { localDataSource.getPersonalRecord("") } returns Int.MAX_VALUE
 
         val result = repository.getPersonalRecord()
 
@@ -111,11 +111,31 @@ class SharedPreferencesRepositoryImplTest {
 
     @Test
     fun `getPersonalRecord delega al datasource`() {
-        every { localDataSource.getPersonalRecord() } returns 0
+        every { localDataSource.getPersonalRecord("") } returns 0
 
         repository.getPersonalRecord()
 
-        verify { localDataSource.getPersonalRecord() }
+        verify { localDataSource.getPersonalRecord("") }
+    }
+
+    @Test
+    fun `getPersonalRecord con gameMode NORMAL usa clave especifica`() {
+        every { localDataSource.getPersonalRecord("NORMAL") } returns 500
+
+        val result = repository.getPersonalRecord("NORMAL")
+
+        assertEquals(500, result)
+        verify { localDataSource.getPersonalRecord("NORMAL") }
+    }
+
+    @Test
+    fun `getPersonalRecord con gameMode TIMED usa clave especifica`() {
+        every { localDataSource.getPersonalRecord("TIMED") } returns 30
+
+        val result = repository.getPersonalRecord("TIMED")
+
+        assertEquals(30, result)
+        verify { localDataSource.getPersonalRecord("TIMED") }
     }
 
     // =========================================================
@@ -126,14 +146,14 @@ class SharedPreferencesRepositoryImplTest {
     fun `setPersonalRecord delega el valor al datasource`() {
         repository.setPersonalRecord(750)
 
-        verify { localDataSource.setPersonalRecord(750) }
+        verify { localDataSource.setPersonalRecord(750, "") }
     }
 
     @Test
     fun `setPersonalRecord con valor cero delega al datasource`() {
         repository.setPersonalRecord(0)
 
-        verify { localDataSource.setPersonalRecord(0) }
+        verify { localDataSource.setPersonalRecord(0, "") }
     }
 
     @Test
@@ -141,14 +161,28 @@ class SharedPreferencesRepositoryImplTest {
         repository.setPersonalRecord(500)
         repository.setPersonalRecord(900)
 
-        verify(exactly = 1) { localDataSource.setPersonalRecord(500) }
-        verify(exactly = 1) { localDataSource.setPersonalRecord(900) }
+        verify(exactly = 1) { localDataSource.setPersonalRecord(500, "") }
+        verify(exactly = 1) { localDataSource.setPersonalRecord(900, "") }
     }
 
     @Test
     fun `setPersonalRecord con valor maximo delega correctamente`() {
         repository.setPersonalRecord(Int.MAX_VALUE)
 
-        verify { localDataSource.setPersonalRecord(Int.MAX_VALUE) }
+        verify { localDataSource.setPersonalRecord(Int.MAX_VALUE, "") }
+    }
+
+    @Test
+    fun `setPersonalRecord con gameMode ADVANCE usa clave especifica`() {
+        repository.setPersonalRecord(300, "ADVANCE")
+
+        verify { localDataSource.setPersonalRecord(300, "ADVANCE") }
+    }
+
+    @Test
+    fun `setPersonalRecord con gameMode EXPERT usa clave especifica`() {
+        repository.setPersonalRecord(150, "EXPERT")
+
+        verify { localDataSource.setPersonalRecord(150, "EXPERT") }
     }
 }

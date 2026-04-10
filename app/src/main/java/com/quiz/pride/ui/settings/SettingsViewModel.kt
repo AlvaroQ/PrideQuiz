@@ -67,7 +67,7 @@ class SettingsViewModel(
     val events = _events.asSharedFlow()
 
     // Flag para distinguir restore de compra nueva en el handler de purchaseResult
-    private var isRestoringPurchases = false
+    @Volatile private var isRestoringPurchases = false
 
     // Todas las preferencias de tema y accesibilidad combinadas en un solo StateFlow.
     // Reduce 5 suscripciones independientes a 1 sola lectura del DataStore de ThemeManager.

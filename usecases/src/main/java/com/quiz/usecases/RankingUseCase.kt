@@ -16,9 +16,16 @@ class GetRankingScore(private val rankingRepository: RankingRepository) {
 }
 
 class GetRecordScore(private val rankingRepository: RankingRepository) {
-    suspend operator fun invoke(limit: Long, mode: RankingMode = RankingMode.NORMAL): Either<RepositoryException, String> =
+    // gameMode: filtra records por modo de juego dentro de la coleccion clasica ("NORMAL", "ADVANCE", "EXPERT").
+    // String vacio = sin filtro (backward compatible con entradas legacy sin gameMode).
+    // Para RankingMode.TIMED el gameMode se ignora (usa coleccion separada ranking-pride-timed).
+    suspend operator fun invoke(
+        limit: Int,
+        mode: RankingMode = RankingMode.NORMAL,
+        gameMode: String = ""
+    ): Either<RepositoryException, String> =
         when (mode) {
-            RankingMode.NORMAL -> rankingRepository.getWorldRecords(limit)
+            RankingMode.NORMAL -> rankingRepository.getWorldRecords(limit, gameMode)
             RankingMode.TIMED -> rankingRepository.getTimedWorldRecords(limit)
         }
 }

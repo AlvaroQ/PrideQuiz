@@ -45,17 +45,11 @@ fun BannerAdView(
         }
     }
 
-    // Destruir el AdView cuando el composable sale de la composicion
+    // Cargar, gestionar ciclo de vida y destruir el AdView en un unico efecto
+    val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(adView) {
         adView.loadAd(AdRequest.Builder().build())
-        onDispose {
-            adView.destroy()
-        }
-    }
 
-    // Pausar/reanudar el AdView segun el ciclo de vida de la Activity
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle, adView) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_PAUSE -> adView.pause()
@@ -63,8 +57,12 @@ fun BannerAdView(
                 else -> {}
             }
         }
-        lifecycle.addObserver(observer)
-        onDispose { lifecycle.removeObserver(observer) }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            adView.destroy()
+        }
     }
 
     Box(

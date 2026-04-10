@@ -1,14 +1,14 @@
 package com.quiz.pride.utils
 
 object Constants {
-    const val TOTAL_PRIDES = 110
+    const val TOTAL_PRIDES = 163
     const val TOTAL_ITEM_EACH_LOAD = 15
     const val PATH_REFERENCE_PRIDE = "newQuiz/pride/"
     const val PATH_REFERENCE_APPS = "newQuiz/apps"
     const val COLLECTION_RANKING = "ranking-pride"
     const val COLLECTION_RANKING_TIMED = "ranking-pride-timed"
     const val COLLECTION_XP_LEADERBOARD = "xp-leaderboard"
-    const val TOP_RANKING_LIMIT = 20L
+    const val TOP_RANKING_LIMIT = 20
     enum class GameType { NORMAL, ADVANCE, EXPERT, TIMED }
 
     // Timed mode configuration

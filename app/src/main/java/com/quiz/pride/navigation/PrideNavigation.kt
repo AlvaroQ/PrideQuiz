@@ -19,7 +19,9 @@ import com.quiz.pride.ui.result.ResultScreen
 import com.quiz.pride.ui.select.SelectGameScreen
 import com.quiz.pride.ui.select.SelectScreen
 import com.quiz.pride.ui.settings.SettingsScreen
+import com.quiz.pride.ui.MainActivity
 import com.quiz.pride.utils.Constants
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.serialization.Serializable
 
 // ==========================================
@@ -162,11 +164,13 @@ fun PrideNavGraph(
         // Pantalla de juego
         composable<GameRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<GameRoute>()
-            val gameType = Constants.GameType.valueOf(route.gameType)
+            val gameType = runCatching { Constants.GameType.valueOf(route.gameType) }.getOrElse { Constants.GameType.NORMAL }
+            val context = LocalContext.current
 
             GameScreen(
                 gameType = gameType,
                 onNavigateToResult = { points, totalQuestions, correctAnswers, bestStreak, timePlayed ->
+                    (context as? MainActivity)?.incrementGamesPlayed()
                     navController.navigate(
                         ResultRoute(
                             points = points,
@@ -191,7 +195,7 @@ fun PrideNavGraph(
         // Pantalla de resultado
         composable<ResultRoute> { backStackEntry ->
             val route = backStackEntry.toRoute<ResultRoute>()
-            val resultGameType = Constants.GameType.valueOf(route.gameType)
+            val resultGameType = runCatching { Constants.GameType.valueOf(route.gameType) }.getOrElse { Constants.GameType.NORMAL }
 
             ResultScreen(
                 points = route.points,
@@ -258,6 +262,11 @@ fun PrideNavGraph(
             ProfileScreen(
                 onNavigateBack = {
                     navController.popBackStack()
+                },
+                onNavigateToLeaderboard = {
+                    navController.navigate(RankingRoute) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }

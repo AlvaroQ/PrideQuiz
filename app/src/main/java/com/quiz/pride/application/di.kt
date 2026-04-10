@@ -160,8 +160,10 @@ val viewModelModule = module {
             getPaymentDone = get(),
             processGameResult = get(),
             progressionManager = get(),
+            gameStatsManager = get(),
             analyticsManager = get(),
-            adFrequencyManager = get()
+            adFrequencyManager = get(),
+            savedStateHandle = get()
         )
     }
     viewModel { RankingViewModel(get(), get(), get(), get()) }

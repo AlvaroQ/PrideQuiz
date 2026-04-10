@@ -10,7 +10,9 @@ class SharedPreferencesRepositoryImpl(
 
     override fun setPaymentDone(value: Boolean) = sharedPreferencesLocalDataSource.setPaymentDone(value)
 
-    override fun getPersonalRecord(): Int = sharedPreferencesLocalDataSource.getPersonalRecord()
+    override fun getPersonalRecord(gameMode: String): Int =
+        sharedPreferencesLocalDataSource.getPersonalRecord(gameMode)
 
-    override fun setPersonalRecord(value: Int) = sharedPreferencesLocalDataSource.setPersonalRecord(value)
+    override fun setPersonalRecord(value: Int, gameMode: String) =
+        sharedPreferencesLocalDataSource.setPersonalRecord(value, gameMode)
 }

@@ -47,7 +47,7 @@ class XpLeaderboardDataSourceImpl(
                 }
                 .addOnFailureListener { e ->
                     continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
         }
     }
@@ -67,7 +67,7 @@ class XpLeaderboardDataSourceImpl(
                 }
                 .addOnFailureListener { e ->
                     continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
         }
     }
@@ -86,7 +86,7 @@ class XpLeaderboardDataSourceImpl(
                 }
                 .addOnFailureListener { e ->
                     continuation.resumeWith(Result.success(emptyList()))
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
         }
     }
@@ -104,7 +104,7 @@ class XpLeaderboardDataSourceImpl(
                 }
                 .addOnFailureListener { e ->
                     continuation.resumeWith(Result.success(RepositoryException.NoConnectionException.left()))
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(e.cause))
+                    FirebaseCrashlytics.getInstance().recordException(e)
                 }
         }
     }
