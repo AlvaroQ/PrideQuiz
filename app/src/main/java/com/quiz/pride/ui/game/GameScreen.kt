@@ -1,8 +1,10 @@
 package com.quiz.pride.ui.game
 
+import android.app.Activity
 import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.activity.compose.BackHandler
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -101,17 +103,24 @@ import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.RewardedAdState
 import com.quiz.pride.ui.components.findActivity
 import com.quiz.pride.ui.components.rememberRewardedAdState
-import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GlassWhite
+import com.quiz.pride.ui.theme.AuroraWashBlue
+import com.quiz.pride.ui.theme.AuroraWashPink
+import com.quiz.pride.ui.theme.AuroraWashViolet
+import com.quiz.pride.ui.theme.ButtonAccentA
+import com.quiz.pride.ui.theme.ButtonAccentB
+import com.quiz.pride.ui.theme.ButtonAccentC
+import com.quiz.pride.ui.theme.ButtonAccentD
+import com.quiz.pride.ui.theme.ButtonTintA
+import com.quiz.pride.ui.theme.ButtonTintB
+import com.quiz.pride.ui.theme.ButtonTintC
+import com.quiz.pride.ui.theme.ButtonTintD
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
-import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientGameBottom
 import com.quiz.pride.ui.theme.GradientGameTop
 import com.quiz.pride.ui.theme.GradientPointsBottom
-import com.quiz.pride.ui.theme.GradientPointsTop
-import com.quiz.pride.ui.theme.GradientPositionBottom
 import com.quiz.pride.ui.theme.GradientPositionTop
+import com.quiz.pride.ui.theme.IridescentColors
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
@@ -119,8 +128,15 @@ import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.PrideRed
+import com.quiz.pride.ui.theme.RainbowProgressFill
 import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.ResponseFail
+import com.quiz.pride.ui.theme.SpectrumSurface
+import com.quiz.pride.ui.theme.SpectrumSurfaceElevated
+import com.quiz.pride.ui.theme.SpectrumSurfaceLight
+import com.quiz.pride.ui.theme.SpectrumSurfaceLightElevated
+import com.quiz.pride.ui.theme.TopBarSurface
+import com.quiz.pride.ui.theme.TopBarSurfaceLight
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.TrackScreenTime
@@ -233,17 +249,25 @@ fun GameScreen(
         colorScheme.background.luminance() < 0.5f
     }
 
-    // Theme-aware background gradient — remember evita crear un nuevo Brush en cada recomposicion
+    // Force light status bar icons on dark backgrounds so they're visible
+    val activity = context as? Activity
+    LaunchedEffect(isDarkTheme) {
+        activity?.window?.let { window ->
+            WindowInsetsControllerCompat(window, window.decorView).isAppearanceLightStatusBars = !isDarkTheme
+        }
+    }
+
+    // Spectrum theme background — warm midnight (dark) / gentle lavender (light)
     val gameBackgroundGradient = remember(isDarkTheme) {
         if (isDarkTheme) {
             Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
         } else {
             Brush.verticalGradient(
                 listOf(
-                    Color(0xFFE8F5E9),
-                    Color(0xFFF3E5F5),
-                    Color(0xFFFCE4EC),
-                    Color(0xFFE3F2FD)
+                    SpectrumSurfaceLight,
+                    SpectrumSurfaceLightElevated,
+                    Color(0xFFF5F0FF),
+                    SpectrumSurfaceLight
                 )
             )
         }
@@ -349,50 +373,72 @@ fun GameScreen(
 }
 
 /**
- * Orbs decorativos con animacion flotante.
- * La InfiniteTransition vive aqui adentro para que SOLO este composable
- * se recomponga cada frame — el resto de la pantalla queda estable.
+ * Aurora washes atmosfericos — anchos, suaves, como luz boreal detras de las superficies.
+ * Tres washes cromáticos (pink, violet, blue) que flotan lento, creando profundidad.
+ * La InfiniteTransition vive aqui para aislar la recomposicion por frame.
  */
 @Composable
 private fun GameBackgroundOrbs() {
-    val infiniteTransition = rememberInfiniteTransition(label = "game_bg")
-    val glowOffset by infiniteTransition.animateFloat(
+    val infiniteTransition = rememberInfiniteTransition(label = "aurora")
+    val driftA by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 30f,
+        targetValue = 40f,
         animationSpec = infiniteRepeatable(
-            animation = tween(4000, easing = FastOutSlowInEasing),
+            animation = tween(6000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "glow_offset"
+        label = "drift_a"
+    )
+    val driftB by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 25f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(8000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "drift_b"
     )
 
-    // Box contenedor necesario para que .align() tenga un BoxScope valido
     Box(modifier = Modifier.fillMaxSize()) {
+        // Pink aurora wash — bottom left, wide
         Box(
             modifier = Modifier
-                .size(180.dp)
-                .offset(x = (-60).dp, y = 50.dp + glowOffset.dp)
-                .alpha(0.2f)
+                .size(320.dp)
+                .offset(x = (-100).dp, y = 120.dp + driftA.dp)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
-                            colors = listOf(NeonPink, Color.Transparent)
+                            colors = listOf(AuroraWashPink, Color.Transparent)
                         ),
                         radius = size.minDimension / 2
                     )
                 }
         )
-
+        // Violet aurora wash — top right
         Box(
             modifier = Modifier
-                .size(150.dp)
+                .size(280.dp)
                 .align(Alignment.TopEnd)
-                .offset(x = 60.dp, y = 100.dp - glowOffset.dp)
-                .alpha(0.15f)
+                .offset(x = 80.dp, y = 40.dp - driftB.dp)
                 .drawBehind {
                     drawCircle(
                         brush = Brush.radialGradient(
-                            colors = listOf(NeonBlue, Color.Transparent)
+                            colors = listOf(AuroraWashViolet, Color.Transparent)
+                        ),
+                        radius = size.minDimension / 2
+                    )
+                }
+        )
+        // Blue aurora wash — center bottom, subtle
+        Box(
+            modifier = Modifier
+                .size(240.dp)
+                .align(Alignment.BottomCenter)
+                .offset(y = 60.dp + driftA.dp * 0.5f)
+                .drawBehind {
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(AuroraWashBlue, Color.Transparent)
                         ),
                         radius = size.minDimension / 2
                     )
@@ -418,20 +464,21 @@ private fun EnhancedGameTopBar(
     val livesDescription = stringResource(R.string.accessibility_lives_remaining, lives)
     val scoreDescription = stringResource(R.string.accessibility_current_score, points)
 
+    val colorScheme = MaterialTheme.colorScheme
+    val isDark = remember(colorScheme.background) { colorScheme.background.luminance() < 0.5f }
+    val topBarBg = if (isDark) TopBarSurface else TopBarSurfaceLight
+    val onTopBar = if (isDark) White else Color(0xFF1F2937)
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(
-                Brush.horizontalGradient(
-                    listOf(GradientPositionTop, GradientPositionBottom)
-                )
-            )
+            .background(topBarBg)
             .windowInsetsPadding(WindowInsets.statusBars)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
@@ -441,37 +488,28 @@ private fun EnhancedGameTopBar(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = null,
-                    tint = White
+                    tint = onTopBar
                 )
             }
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
 
-            // Points with glow effect
-            Box(
+            // Points — clean, no glow, editorial
+            Text(
+                text = "$points pts",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = GradientPointsBottom,
+                style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .weight(1f)
                     .semantics { contentDescription = scoreDescription }
-            ) {
-                Text(
-                    text = "$points pts",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = GradientPointsBottom,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        shadow = Shadow(
-                            color = GradientPointsTop,
-                            offset = Offset(0f, 0f),
-                            blurRadius = 8f
-                        )
-                    )
-                )
-            }
+            )
 
             // Streak indicator
             if (currentStreak >= 3) {
                 StreakIndicator(streak = currentStreak)
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(8.dp))
             }
 
             // Timer for timed mode OR Lives indicator for normal modes
@@ -486,29 +524,103 @@ private fun EnhancedGameTopBar(
             }
         }
 
-        // Progress bar
-        LinearProgressIndicator(
-            progress = { progress },
+        // Rainbow progress capsule — the ONE place where full pride spectrum appears
+        RainbowProgressCapsule(
+            progress = progress,
+            label = "$stage / $totalStages",
+            isDark = isDark,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(6.dp)
                 .padding(horizontal = 16.dp)
-                .clip(RoundedCornerShape(3.dp))
-                .semantics { contentDescription = progressDescription },
-            color = NeonGreen,
-            trackColor = White.copy(alpha = 0.2f),
-            strokeCap = StrokeCap.Round
+                .padding(bottom = 10.dp)
+                .semantics { contentDescription = progressDescription }
+        )
+    }
+}
+
+/**
+ * Capsule progress bar con fill rainbow pride y shimmer sweep.
+ * El label de progreso se muestra centrado SOBRE la capsule.
+ */
+@Composable
+private fun RainbowProgressCapsule(
+    progress: Float,
+    label: String,
+    isDark: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress.coerceIn(0f, 1f),
+        animationSpec = tween(600, easing = FastOutSlowInEasing),
+        label = "progress_fill"
+    )
+
+    // Shimmer sweep across the fill
+    val infiniteTransition = rememberInfiniteTransition(label = "progress_shimmer")
+    val shimmerOffset by infiniteTransition.animateFloat(
+        initialValue = -0.3f,
+        targetValue = 1.3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer_sweep"
+    )
+
+    val capsuleHeight = 22.dp
+    val trackColor = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
+    val labelColor = if (isDark) White.copy(alpha = 0.9f) else Color(0xFF1F2937).copy(alpha = 0.8f)
+
+    Box(
+        modifier = modifier
+            .height(capsuleHeight)
+            .clip(RoundedCornerShape(11.dp)),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        // Track background
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(trackColor, RoundedCornerShape(11.dp))
         )
 
-        // Stage indicator
-        Text(
-            text = "$stage / $totalStages",
-            style = MaterialTheme.typography.bodySmall,
-            color = White.copy(alpha = 0.7f),
+        // Rainbow fill with shimmer
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            textAlign = TextAlign.End
+                .fillMaxHeight()
+                .fillMaxWidth(animatedProgress)
+                .clip(RoundedCornerShape(11.dp))
+                .drawBehind {
+                    // Rainbow gradient fill
+                    drawRect(
+                        brush = Brush.horizontalGradient(RainbowProgressFill)
+                    )
+                    // Shimmer sweep overlay
+                    val shimmerWidth = size.width * 0.3f
+                    val shimmerX = size.width * shimmerOffset
+                    drawRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.White.copy(alpha = 0.35f),
+                                Color.Transparent
+                            ),
+                            startX = shimmerX - shimmerWidth,
+                            endX = shimmerX + shimmerWidth
+                        )
+                    )
+                }
+        )
+
+        // Label centered on the full capsule
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 0.5.sp
+            ),
+            color = labelColor,
+            modifier = Modifier.align(Alignment.Center)
         )
     }
 }
@@ -797,53 +909,64 @@ private fun GameContent(
     onAnswerSelected: (Int) -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val questionTextColor = colorScheme.onSurface
 
-    // Theme-aware question box colors
-    val questionBoxBackground = if (isDarkTheme) {
-        Brush.linearGradient(
-            colors = listOf(
-                DarkSurfaceVariant,
-                DarkSurfaceVariant.copy(alpha = 0.8f)
-            )
-        )
-    } else {
-        Brush.linearGradient(
-            colors = listOf(
-                Color.White,
-                Color.White.copy(alpha = 0.9f)
-            )
-        )
+    // Iridescent border alpha — softer in light mode
+    val iridescentBorderColors = remember(isDarkTheme) {
+        IridescentColors.map { it.copy(alpha = if (isDarkTheme) 0.5f else 0.35f) }
     }
 
-    val questionTextColor = colorScheme.onSurface
+    // Question box surface — warm glass with spotlight
+    val questionBoxBg = remember(isDarkTheme) {
+        if (isDarkTheme) {
+            Brush.radialGradient(
+                colors = listOf(SpectrumSurfaceElevated, SpectrumSurface),
+                radius = 600f
+            )
+        } else {
+            Brush.radialGradient(
+                colors = listOf(Color.White, SpectrumSurfaceLightElevated),
+                radius = 600f
+            )
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Question area (35%)
+        // Question area (35%) — "the stage"
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.35f)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .drawBehind {
+                    // Chromatic shadow — iridescent glow below the card
+                    drawRoundRect(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                AuroraWashPink.copy(alpha = 0.4f),
+                                AuroraWashViolet.copy(alpha = 0.3f),
+                                AuroraWashBlue.copy(alpha = 0.3f)
+                            )
+                        ),
+                        topLeft = androidx.compose.ui.geometry.Offset(8.dp.toPx(), 6.dp.toPx()),
+                        size = androidx.compose.ui.geometry.Size(size.width - 16.dp.toPx(), size.height),
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(24.dp.toPx())
+                    )
+                }
                 .clip(RoundedCornerShape(24.dp))
-                .background(questionBoxBackground)
+                .background(questionBoxBg)
                 .border(
-                    width = 2.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            NeonPurple.copy(alpha = if (isDarkTheme) 0.5f else 0.4f),
-                            NeonPink.copy(alpha = if (isDarkTheme) 0.3f else 0.25f)
-                        )
-                    ),
+                    width = 1.5.dp,
+                    brush = Brush.sweepGradient(iridescentBorderColors),
                     shape = RoundedCornerShape(24.dp)
                 )
-                .padding(16.dp),
+                .padding(20.dp),
             contentAlignment = Alignment.Center
         ) {
             when (gameType) {
                 Constants.GameType.NORMAL -> {
-                    // Show flag image with glow
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -851,11 +974,11 @@ private fun GameContent(
                                 drawCircle(
                                     brush = Brush.radialGradient(
                                         colors = listOf(
-                                            GlowPink.copy(alpha = 0.3f),
+                                            GlowPink.copy(alpha = 0.2f),
                                             Color.Transparent
                                         )
                                     ),
-                                    radius = size.minDimension / 1.5f
+                                    radius = size.minDimension / 1.3f
                                 )
                             }
                     ) {
@@ -872,39 +995,17 @@ private fun GameContent(
                     }
                 }
                 Constants.GameType.ADVANCE -> {
-                    // Show description with styling
                     Text(
                         text = question?.description?.EN ?: "",
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.Medium,
-                            shadow = if (isDarkTheme) Shadow(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                offset = Offset(1f, 1f),
-                                blurRadius = 3f
-                            ) else null
-                        ),
-                        textAlign = TextAlign.Center,
-                        color = questionTextColor
-                    )
-                }
-                Constants.GameType.EXPERT -> {
-                    // Show name only with neon effect
-                    Text(
-                        text = stringResource(R.string.expert_question),
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            shadow = Shadow(
-                                color = NeonPink.copy(alpha = if (isDarkTheme) 0.8f else 0.5f),
-                                offset = Offset(0f, 0f),
-                                blurRadius = 10f
-                            )
+                            lineHeight = 26.sp
                         ),
                         textAlign = TextAlign.Center,
                         color = questionTextColor
                     )
                 }
                 Constants.GameType.TIMED -> {
-                    // Timed mode shows flag image like NORMAL mode
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -912,11 +1013,11 @@ private fun GameContent(
                                 drawCircle(
                                     brush = Brush.radialGradient(
                                         colors = listOf(
-                                            GlowBlue.copy(alpha = 0.3f),
+                                            GlowBlue.copy(alpha = 0.2f),
                                             Color.Transparent
                                         )
                                     ),
-                                    radius = size.minDimension / 1.5f
+                                    radius = size.minDimension / 1.3f
                                 )
                             }
                     ) {
@@ -935,90 +1036,52 @@ private fun GameContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
-        // Answer options area (65%)
-        Box(
+        // Answer options — 4 full-width stacked buttons
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.65f)
                 .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp)
+                .padding(bottom = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // First row of options
-                Row(
+            repeat(4) { index ->
+                VibrantAnswerButton(
+                    option = options.getOrNull(index),
+                    gameType = gameType,
+                    isSelected = selectedAnswer == index,
+                    isCorrect = selectedAnswer != null && correctOptionIndex == index,
+                    isWrong = selectedAnswer == index && correctOptionIndex != index,
+                    enabled = selectedAnswer == null,
+                    buttonIndex = index,
+                    isDarkTheme = isDarkTheme,
+                    onClick = { onAnswerSelected(index) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    VibrantAnswerButton(
-                        option = options.getOrNull(0),
-                        gameType = gameType,
-                        isSelected = selectedAnswer == 0,
-                        isCorrect = selectedAnswer != null && correctOptionIndex == 0,
-                        isWrong = selectedAnswer == 0 && correctOptionIndex != 0,
-                        enabled = selectedAnswer == null,
-                        buttonIndex = 0,
-                        isDarkTheme = isDarkTheme,
-                        onClick = { onAnswerSelected(0) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    VibrantAnswerButton(
-                        option = options.getOrNull(1),
-                        gameType = gameType,
-                        isSelected = selectedAnswer == 1,
-                        isCorrect = selectedAnswer != null && correctOptionIndex == 1,
-                        isWrong = selectedAnswer == 1 && correctOptionIndex != 1,
-                        enabled = selectedAnswer == null,
-                        buttonIndex = 1,
-                        isDarkTheme = isDarkTheme,
-                        onClick = { onAnswerSelected(1) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-
-                // Second row of options
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    VibrantAnswerButton(
-                        option = options.getOrNull(2),
-                        gameType = gameType,
-                        isSelected = selectedAnswer == 2,
-                        isCorrect = selectedAnswer != null && correctOptionIndex == 2,
-                        isWrong = selectedAnswer == 2 && correctOptionIndex != 2,
-                        enabled = selectedAnswer == null,
-                        buttonIndex = 2,
-                        isDarkTheme = isDarkTheme,
-                        onClick = { onAnswerSelected(2) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    VibrantAnswerButton(
-                        option = options.getOrNull(3),
-                        gameType = gameType,
-                        isSelected = selectedAnswer == 3,
-                        isCorrect = selectedAnswer != null && correctOptionIndex == 3,
-                        isWrong = selectedAnswer == 3 && correctOptionIndex != 3,
-                        enabled = selectedAnswer == null,
-                        buttonIndex = 3,
-                        isDarkTheme = isDarkTheme,
-                        onClick = { onAnswerSelected(3) },
-                        modifier = Modifier.weight(1f)
-                    )
-                }
+                        .weight(1f)
+                )
             }
         }
     }
 }
 
+/**
+ * Spectrum Answer Button — editorial chromatic design.
+ *
+ * Each button owns a color from the pride spectrum. The rainbow isn't decoration —
+ * it's the DIVERSITY of the four buttons together forming the spectrum.
+ *
+ * Design layers (bottom to top):
+ * 1. Chromatic drop shadow (button's accent color, offset down)
+ * 2. Warm glass surface with subtle accent tint
+ * 3. Iridescent border (thin, refined — intensifies on interaction)
+ * 4. Glass highlight (top → transparent → subtle shadow)
+ * 5. Left accent strip with option label (A/B/C/D)
+ * 6. Content (text or flag image)
+ * 7. Feedback icon overlay (check/cross on correct/wrong)
+ */
 @Composable
 private fun VibrantAnswerButton(
     option: Pride?,
@@ -1043,12 +1106,33 @@ private fun VibrantAnswerButton(
         else -> answerDescription
     }
 
-    // Smooth scale animation
+    // --- Color identity per button (from pride spectrum) ---
+    val accentColor = when (buttonIndex) {
+        0 -> ButtonAccentA  // Rose
+        1 -> ButtonAccentB  // Sky
+        2 -> ButtonAccentC  // Violet
+        3 -> ButtonAccentD  // Emerald
+        else -> ButtonAccentA
+    }
+
+    val surfaceTint = when (buttonIndex) {
+        0 -> ButtonTintA
+        1 -> ButtonTintB
+        2 -> ButtonTintC
+        3 -> ButtonTintD
+        else -> ButtonTintA
+    }
+
+    val optionLabel = when (buttonIndex) {
+        0 -> "A"; 1 -> "B"; 2 -> "C"; 3 -> "D"; else -> "A"
+    }
+
+    // --- Animations ---
     val scale by animateFloatAsState(
         targetValue = when {
             isCorrect -> 1.02f
-            isWrong -> 0.96f
-            isSelected -> 0.95f
+            isWrong -> 0.97f
+            isSelected -> 0.96f
             else -> 1f
         },
         animationSpec = spring(
@@ -1058,121 +1142,89 @@ private fun VibrantAnswerButton(
         label = "answer_scale"
     )
 
-    // Different neon colors for each button
-    val buttonAccentColor = when (buttonIndex) {
-        0 -> NeonPink
-        1 -> NeonBlue
-        2 -> NeonPurple
-        3 -> NeonGreen
-        else -> NeonPink
-    }
-
-    val buttonGlowColor = buttonAccentColor.copy(alpha = 0.4f)
-
-    // Theme-aware default background
-    val defaultBackground = if (isDarkTheme) {
-        DarkSurfaceVariant.copy(alpha = 0.95f)
-    } else {
-        Color.White.copy(alpha = 0.95f)
-    }
-
-    // Smooth background color transition
-    val backgroundColor by animateColorAsState(
+    val borderAlpha by animateFloatAsState(
         targetValue = when {
-            isCorrect -> ResponseCorrect.copy(alpha = 0.85f)
-            isWrong -> ResponseFail.copy(alpha = 0.85f)
-            isSelected -> buttonAccentColor.copy(alpha = 0.3f)
-            else -> defaultBackground
+            isCorrect || isWrong -> 1f
+            isSelected -> 0.9f
+            else -> 0.35f
         },
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "answer_bg"
+        animationSpec = tween(400, easing = FastOutSlowInEasing),
+        label = "border_alpha"
     )
 
-    // Theme-aware text color
-    val textColor = if (isDarkTheme || isCorrect || isWrong || isSelected) {
-        White
-    } else {
-        colorScheme.onSurface
-    }
-
-    // Smooth border color transition
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            isCorrect -> NeonGreen
-            isWrong -> ResponseFail
-            isSelected -> buttonAccentColor
-            else -> buttonAccentColor.copy(alpha = 0.4f)
-        },
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "answer_border"
-    )
-
-    // Border width animation
     val borderWidth by animateFloatAsState(
         targetValue = when {
-            isCorrect || isWrong -> 3f
-            isSelected -> 2.5f
-            else -> 1.5f
+            isCorrect || isWrong -> 2.5f
+            isSelected -> 2f
+            else -> 1f
         },
         animationSpec = tween(300),
         label = "border_width"
     )
 
-    // Glow intensity animation
     val glowAlpha by animateFloatAsState(
         targetValue = when {
-            isCorrect -> 0.8f
-            isWrong -> 0.6f
-            isSelected -> 0.5f
-            else -> 0.2f
+            isCorrect -> 0.5f
+            isWrong -> 0.35f
+            isSelected -> 0.3f
+            else -> 0.1f
         },
         animationSpec = tween(400),
         label = "glow_alpha"
     )
 
-    // Overlay alpha for feedback
-    val overlayAlpha by animateFloatAsState(
-        targetValue = when {
-            isCorrect -> 0.15f
-            isWrong -> 0.1f
-            else -> 0f
-        },
-        animationSpec = tween(500),
-        label = "overlay_alpha"
-    )
-
-    // Text/content alpha
     val contentAlpha by animateFloatAsState(
-        targetValue = if (!enabled && !isCorrect && !isWrong) 0.6f else 1f,
+        targetValue = if (!enabled && !isCorrect && !isWrong) 0.5f else 1f,
         animationSpec = tween(300),
         label = "content_alpha"
     )
+
+    // --- Border color logic ---
+    val borderColor by animateColorAsState(
+        targetValue = when {
+            isCorrect -> ResponseCorrect
+            isWrong -> ResponseFail
+            isSelected -> accentColor
+            else -> accentColor.copy(alpha = borderAlpha)
+        },
+        animationSpec = tween(400, easing = FastOutSlowInEasing),
+        label = "answer_border"
+    )
+
+    // --- Surface background ---
+    val surfaceBg = when {
+        isCorrect -> if (isDarkTheme) ResponseCorrect.copy(alpha = 0.2f) else ResponseCorrect.copy(alpha = 0.15f)
+        isWrong -> if (isDarkTheme) ResponseFail.copy(alpha = 0.15f) else ResponseFail.copy(alpha = 0.1f)
+        isSelected -> accentColor.copy(alpha = if (isDarkTheme) 0.2f else 0.15f)
+        else -> Color.Transparent
+    }
+    val animatedSurfaceBg by animateColorAsState(
+        targetValue = surfaceBg,
+        animationSpec = tween(400, easing = FastOutSlowInEasing),
+        label = "surface_bg"
+    )
+
+    // --- Text color ---
+    val textColor = when {
+        isCorrect -> if (isDarkTheme) White else Color(0xFF065F46)
+        isWrong -> if (isDarkTheme) White else Color(0xFF991B1B)
+        isDarkTheme -> White
+        else -> colorScheme.onSurface
+    }
+
+    val buttonShape = RoundedCornerShape(20.dp)
 
     Box(
         modifier = modifier
             .fillMaxHeight()
             .scale(scale)
-            .clip(RoundedCornerShape(20.dp))
+            .clip(buttonShape)
             .drawBehind {
-                // Outer glow effect
+                // Chromatic drop shadow — uses the button's own accent color
                 drawRoundRect(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            when {
-                                isCorrect -> NeonGreen.copy(alpha = glowAlpha)
-                                isWrong -> ResponseFail.copy(alpha = glowAlpha)
-                                else -> buttonAccentColor.copy(alpha = glowAlpha * 0.5f)
-                            },
-                            Color.Transparent
-                        ),
-                        radius = size.maxDimension * 0.8f
-                    ),
+                    color = accentColor.copy(alpha = glowAlpha),
+                    topLeft = androidx.compose.ui.geometry.Offset(0f, 3.dp.toPx()),
+                    size = size,
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx())
                 )
             }
@@ -1181,106 +1233,102 @@ private fun VibrantAnswerButton(
                 enabled = enabled,
                 onClick = onClick,
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null // Remove default ripple
+                indication = null
             )
     ) {
-        // Main card background
+        // Layer 1: Warm glass surface with chromatic tint
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    color = backgroundColor,
-                    shape = RoundedCornerShape(20.dp)
+                    color = if (isDarkTheme) SpectrumSurface else Color.White,
+                    shape = buttonShape
                 )
+                .background(surfaceTint, buttonShape)
+                .background(animatedSurfaceBg, buttonShape)
                 .border(
                     width = borderWidth.dp,
-                    brush = Brush.linearGradient(
-                        colors = listOf(
-                            borderColor,
-                            borderColor.copy(alpha = 0.7f)
-                        )
-                    ),
-                    shape = RoundedCornerShape(20.dp)
+                    color = borderColor,
+                    shape = buttonShape
                 )
         ) {
-            // Gradient overlay for depth
+            // Layer 2: Glass highlight — subtle top shine
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                Color.White.copy(alpha = 0.08f),
+                                Color.White.copy(alpha = if (isDarkTheme) 0.07f else 0.4f),
                                 Color.Transparent,
-                                Color.Black.copy(alpha = 0.05f)
+                                Color.Black.copy(alpha = 0.03f)
                             )
                         ),
-                        shape = RoundedCornerShape(20.dp)
+                        shape = buttonShape
                     )
             )
 
-            // Success/Error overlay with smooth gradient
-            if (isCorrect || isWrong) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(
-                                    if (isCorrect) NeonGreen.copy(alpha = overlayAlpha)
-                                    else ResponseFail.copy(alpha = overlayAlpha),
-                                    Color.Transparent
-                                )
-                            ),
-                            shape = RoundedCornerShape(20.dp)
+            // Layer 3: Left accent strip with option label
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(32.dp)
+                    .align(Alignment.CenterStart)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                accentColor.copy(alpha = if (isDarkTheme) 0.25f else 0.15f),
+                                accentColor.copy(alpha = if (isDarkTheme) 0.12f else 0.08f)
+                            )
                         )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = optionLabel,
+                    color = if (isDarkTheme) accentColor else accentColor.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 14.sp,
+                    letterSpacing = 0.5.sp
                 )
             }
 
-            // Content
+            // Layer 4: Content area (offset right to account for accent strip)
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp)
+                    .padding(start = 36.dp, end = 12.dp, top = 8.dp, bottom = 8.dp)
                     .alpha(contentAlpha),
                 contentAlignment = Alignment.Center
             ) {
                 when (gameType) {
                     Constants.GameType.NORMAL, Constants.GameType.TIMED -> {
-                        // Show text name for NORMAL and TIMED modes
                         Text(
                             text = option?.name?.EN ?: "",
                             style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                shadow = if (isDarkTheme || isCorrect || isWrong) Shadow(
-                                    color = when {
-                                        isCorrect -> NeonGreen.copy(alpha = 0.8f)
-                                        isWrong -> ResponseFail.copy(alpha = 0.5f)
-                                        else -> buttonAccentColor.copy(alpha = 0.5f)
-                                    },
-                                    offset = Offset(0f, 0f),
-                                    blurRadius = if (isCorrect || isWrong) 12f else 6f
-                                ) else null
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 16.sp,
+                                letterSpacing = 0.3.sp,
+                                lineHeight = 20.sp
                             ),
                             textAlign = TextAlign.Center,
                             color = textColor
                         )
                     }
-                    Constants.GameType.ADVANCE, Constants.GameType.EXPERT -> {
-                        // Show flag image for ADVANCE and EXPERT modes
+                    Constants.GameType.ADVANCE -> {
                         AsyncImage(
                             model = option?.flag,
                             contentDescription = null,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .alpha(if (isWrong && !isCorrect) 0.7f else 1f),
+                                .alpha(if (isWrong && !isCorrect) 0.6f else 1f),
                             contentScale = ContentScale.Fit
                         )
                     }
                 }
             }
 
-            // Animated check/cross icon overlay for feedback
+            // Layer 5: Feedback icon (check/cross) — uses icon + color, not just color
             AnimatedVisibility(
                 visible = isCorrect || isWrong,
                 enter = scaleIn(
@@ -1294,15 +1342,10 @@ private fun VibrantAnswerButton(
             ) {
                 Box(
                     modifier = Modifier
-                        .padding(8.dp)
-                        .size(28.dp)
+                        .padding(6.dp)
+                        .size(26.dp)
                         .background(
-                            color = if (isCorrect) NeonGreen else ResponseFail,
-                            shape = CircleShape
-                        )
-                        .border(
-                            width = 2.dp,
-                            color = White.copy(alpha = 0.3f),
+                            color = if (isCorrect) ResponseCorrect else ResponseFail,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -1311,7 +1354,7 @@ private fun VibrantAnswerButton(
                         text = if (isCorrect) "✓" else "✗",
                         color = White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 13.sp
                     )
                 }
             }

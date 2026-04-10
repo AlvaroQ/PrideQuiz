@@ -203,8 +203,8 @@ private val GoldColor   = Color(0xFFFFD700)
 private val GoldGlow    = Color(0x80FFD700)
 private val SilverColor = Color(0xFFE8E8E8)
 private val SilverGlow  = Color(0x80E8E8E8)
-private val BronzeColor = Color(0xFFCD7F32)
-private val BronzeGlow  = Color(0x80CD7F32)
+private val BronzeColor = Color(0xFFE8943A)
+private val BronzeGlow  = Color(0x99E8943A)
 
 private fun medalEmoji(position: Int) = when (position) {
     1 -> "\uD83E\uDD47" // 🥇
@@ -337,13 +337,13 @@ private fun PodiumSlot(
             modifier = Modifier
                 .background(
                     brush = Brush.horizontalGradient(
-                        listOf(color.copy(alpha = 0.25f), color.copy(alpha = 0.10f))
+                        listOf(color.copy(alpha = 0.35f), color.copy(alpha = 0.18f))
                     ),
                     shape = RoundedCornerShape(8.dp)
                 )
                 .border(
                     width = 1.dp,
-                    color = color.copy(alpha = 0.5f),
+                    color = color.copy(alpha = 0.6f),
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(horizontal = 10.dp, vertical = 4.dp),
@@ -368,14 +368,14 @@ private fun PodiumSlot(
                 .height(podiumHeight)
                 .background(
                     brush = Brush.verticalGradient(
-                        listOf(color.copy(alpha = 0.30f), color.copy(alpha = 0.10f))
+                        listOf(color.copy(alpha = 0.45f), color.copy(alpha = 0.20f))
                     ),
                     shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                 )
                 .border(
                     width = 1.dp,
                     brush = Brush.verticalGradient(
-                        listOf(color.copy(alpha = 0.6f), Color.Transparent)
+                        listOf(color.copy(alpha = 0.7f), Color.Transparent)
                     ),
                     shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                 ),
@@ -386,7 +386,7 @@ private fun PodiumSlot(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.ExtraBold
                 ),
-                color = color.copy(alpha = 0.7f)
+                color = color.copy(alpha = 0.85f)
             )
         }
     }
@@ -472,7 +472,7 @@ private fun ClassicModeFilterRow(
     onFilterSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val filters = listOf("" to "Legacy", "NORMAL" to "Normal", "ADVANCE" to "Advanced", "EXPERT" to "Expert")
+    val filters = listOf("" to "Legacy", "NORMAL" to "Normal", "ADVANCE" to "Advanced")
 
     Row(
         modifier = modifier

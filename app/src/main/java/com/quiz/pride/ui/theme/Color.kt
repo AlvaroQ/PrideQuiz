@@ -70,15 +70,12 @@ val NormalGradientBottom = Color(0xFF22C55E)
 val AdvanceGradientTop = Color(0xFFFBBF24)    // Yellow
 val AdvanceGradientBottom = Color(0xFFF59E0B) // Amber
 
-val ExpertGradientTop = Color(0xFFF87171)     // Red
-val ExpertGradientBottom = Color(0xFFEF4444)
-
 val TimedGradientTop = Color(0xFF06B6D4)      // Cyan
 val TimedGradientBottom = Color(0xFF0891B2)   // Dark Cyan
 
-// Game Screen Gradient
-val GradientGameTop = Color(0xFF1E1B4B)       // Deep Indigo
-val GradientGameBottom = Color(0xFF312E81)    // Indigo
+// Game Screen Gradient — Warm midnight (NOT cold indigo)
+val GradientGameTop = Color(0xFF13111F)       // Warm midnight
+val GradientGameBottom = Color(0xFF1B1830)    // Warm midnight plum
 
 // Position/Ranking Gradient
 val GradientPositionTop = Color(0xFFD946EF)   // Fuchsia
@@ -137,6 +134,63 @@ val Overlay = Color(0x80000000)               // 50% black overlay
 val GlowPink = Color(0x40EC4899)
 val GlowPurple = Color(0x40A855F7)
 val GlowBlue = Color(0x404FACFE)
+
+// Premium glass effects
+val GlassHighlight = Color(0x1AFFFFFF)    // 10% white for glass top highlight
+val GlassShadow = Color(0x0D000000)       // 5% black for glass bottom
+val PremiumGlow = Color(0x33B24BF3)       // Purple glow for question frame shadow
+
+// ============================================
+// SPECTRUM THEME — "Fiesta + Prisma + Aurora"
+// ============================================
+
+// Warm atmospheric surfaces (plum/wine undertone, NOT cold blue)
+val SpectrumSurface = Color(0xFF1E1A35)           // Warm glass surface
+val SpectrumSurfaceElevated = Color(0xFF262245)   // Elevated warm
+val SpectrumSurfaceLight = Color(0xFFF8F6FF)      // Light mode: barely lavender
+val SpectrumSurfaceLightElevated = Color(0xFFF0ECFA) // Light mode: gentle violet tint
+
+// Iridescent border palette — pride spectrum for prismatic edges
+val IridescentColors = listOf(
+    Color(0xFFFF6B9D),  // Pink
+    Color(0xFFA855F7),  // Violet
+    Color(0xFF60A5FA),  // Blue
+    Color(0xFF34D399),  // Emerald
+    Color(0xFFFBBF24),  // Amber
+    Color(0xFFFF6B6B)   // Coral
+)
+
+// Rainbow progress fill — celebratory, the ONE place full spectrum appears
+val RainbowProgressFill = listOf(
+    Color(0xFFEF4444),  // Red
+    Color(0xFFF97316),  // Orange
+    Color(0xFFFBBF24),  // Yellow
+    Color(0xFF22C55E),  // Green
+    Color(0xFF3B82F6),  // Blue
+    Color(0xFF8B5CF6),  // Violet
+    Color(0xFFEC4899)   // Pink (loops back for continuity)
+)
+
+// Button chromatic identities — warm tints, each button owns a color
+val ButtonAccentA = Color(0xFFFF6B9D)     // Rose
+val ButtonAccentB = Color(0xFF60A5FA)     // Sky
+val ButtonAccentC = Color(0xFFA855F7)     // Violet
+val ButtonAccentD = Color(0xFF34D399)     // Emerald
+
+// Button surface tints — very subtle, atmospheric
+val ButtonTintA = Color(0x12FF6B9D)       // 7% rose
+val ButtonTintB = Color(0x1260A5FA)       // 7% sky
+val ButtonTintC = Color(0x12A855F7)       // 7% violet
+val ButtonTintD = Color(0x1234D399)       // 7% emerald
+
+// Aurora glow washes — wide, soft, atmospheric (for background orbs)
+val AuroraWashPink = Color(0x25EC4899)    // 15% pink
+val AuroraWashViolet = Color(0x20A855F7)  // 12% violet
+val AuroraWashBlue = Color(0x1860A5FA)    // 10% blue
+
+// Top bar — warm translucent
+val TopBarSurface = Color(0xCC1E1A35)     // 80% warm surface
+val TopBarSurfaceLight = Color(0xCCF8F6FF) // 80% light surface
 
 // ============================================
 // HIGH CONTRAST COLORS — WCAG AAA (7:1 ratio)
