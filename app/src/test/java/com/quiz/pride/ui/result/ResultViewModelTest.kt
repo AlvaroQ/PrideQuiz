@@ -12,6 +12,7 @@ import com.quiz.domain.XpGainResult
 import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.utils.Constants
 import com.quiz.usecases.GetAppsRecommended
@@ -54,6 +55,7 @@ class ResultViewModelTest {
     private val getPaymentDone: GetPaymentDone = mockk()
     private val processGameResult: ProcessGameResultUseCase = mockk()
     private val progressionManager: ProgressionManager = mockk()
+    private val gameStatsManager: GameStatsManager = mockk(relaxed = true)
     private val analyticsManager: AnalyticsManager = mockk(relaxed = true)
     private val adFrequencyManager: AdFrequencyManager = mockk()
 
@@ -74,11 +76,12 @@ class ResultViewModelTest {
     private fun setupDefaultMocks() {
         val apps = listOf(buildApp("App 1"), buildApp("App 2"))
         coEvery { getAppsRecommended.invoke() } returns Either.Right(apps)
-        coEvery { getRecordScore.invoke(1L) } returns Either.Right("50")
-        coEvery { getRecordScore.invoke(1L, RankingMode.NORMAL) } returns Either.Right("50")
+        // Fix 1: loadData llama getRecordScore con gameMode="NORMAL" (currentGameType default)
+        coEvery { getRecordScore.invoke(1, RankingMode.NORMAL, "NORMAL") } returns Either.Right("50")
         every { getPaymentDone.invoke() } returns false
-        every { getPersonalRecord.invoke() } returns 0
-        every { setPersonalRecord.invoke(any()) } just runs
+        // Fix 2: getPersonalRecord y setPersonalRecord ahora reciben gameMode
+        every { getPersonalRecord.invoke(any()) } returns 0
+        every { setPersonalRecord.invoke(any(), any()) } just runs
         coEvery { adFrequencyManager.recordGameCompleted() } just runs
         coEvery { adFrequencyManager.shouldShowInterstitial() } returns false
     }
@@ -96,6 +99,7 @@ class ResultViewModelTest {
             getPaymentDone = getPaymentDone,
             processGameResult = processGameResult,
             progressionManager = progressionManager,
+            gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
             adFrequencyManager = adFrequencyManager
         )
@@ -128,6 +132,7 @@ class ResultViewModelTest {
             getPaymentDone = getPaymentDone,
             processGameResult = processGameResult,
             progressionManager = progressionManager,
+            gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
             adFrequencyManager = adFrequencyManager
         )
@@ -140,8 +145,7 @@ class ResultViewModelTest {
 
     @Test
     fun `loadData con Either Left en worldRecord usa valor por defecto`() = runTest {
-        coEvery { getRecordScore.invoke(1L) } returns Either.Left(RepositoryException.NoConnectionException)
-        coEvery { getRecordScore.invoke(1L, RankingMode.NORMAL) } returns Either.Left(RepositoryException.NoConnectionException)
+        coEvery { getRecordScore.invoke(1, RankingMode.NORMAL, "NORMAL") } returns Either.Left(RepositoryException.NoConnectionException)
 
         viewModel = ResultViewModel(
             getAppsRecommended = getAppsRecommended,
@@ -152,6 +156,7 @@ class ResultViewModelTest {
             getPaymentDone = getPaymentDone,
             processGameResult = processGameResult,
             progressionManager = progressionManager,
+            gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
             adFrequencyManager = adFrequencyManager
         )
@@ -168,31 +173,32 @@ class ResultViewModelTest {
 
     @Test
     fun `checkPersonalRecord actualiza el record cuando el nuevo es mayor`() = runTest {
-        every { getPersonalRecord.invoke() } returns 10
+        // Fix 2: ahora el record es por gameMode (default NORMAL en el ViewModel)
+        every { getPersonalRecord.invoke("NORMAL") } returns 10
 
         viewModel.checkPersonalRecord(25)
 
-        verify { setPersonalRecord.invoke(25) }
+        verify { setPersonalRecord.invoke(25, "NORMAL") }
         assertEquals("25", viewModel.uiState.value.personalRecord)
     }
 
     @Test
     fun `checkPersonalRecord no actualiza el record cuando el nuevo es menor`() = runTest {
-        every { getPersonalRecord.invoke() } returns 100
+        every { getPersonalRecord.invoke("NORMAL") } returns 100
 
         viewModel.checkPersonalRecord(30)
 
-        verify(exactly = 0) { setPersonalRecord.invoke(any()) }
+        verify(exactly = 0) { setPersonalRecord.invoke(any(), any()) }
         assertEquals("100", viewModel.uiState.value.personalRecord)
     }
 
     @Test
     fun `checkPersonalRecord no actualiza el record cuando son iguales`() = runTest {
-        every { getPersonalRecord.invoke() } returns 50
+        every { getPersonalRecord.invoke("NORMAL") } returns 50
 
         viewModel.checkPersonalRecord(50)
 
-        verify(exactly = 0) { setPersonalRecord.invoke(any()) }
+        verify(exactly = 0) { setPersonalRecord.invoke(any(), any()) }
         assertEquals("50", viewModel.uiState.value.personalRecord)
     }
 
@@ -202,9 +208,9 @@ class ResultViewModelTest {
 
     @Test
     fun `checkWorldRecord muestra dialog cuando el puntaje califica`() = runTest {
+        // Fix 1: checkWorldRecord filtra por gameMode (default NORMAL)
         // Posicion 50 tiene score 20, usuario tiene 30 — califica
-        coEvery { getRecordScore.invoke(50L) } returns Either.Right("20")
-        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("20")
+        coEvery { getRecordScore.invoke(50, gameMode = "NORMAL") } returns Either.Right("20")
         coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Test", imageBase64 = "")
 
         viewModel.checkWorldRecord(30)
@@ -217,8 +223,7 @@ class ResultViewModelTest {
     @Test
     fun `checkWorldRecord no muestra dialog cuando el puntaje no califica`() = runTest {
         // Posicion 50 tiene score 100, usuario tiene 30 — no califica
-        coEvery { getRecordScore.invoke(50L) } returns Either.Right("100")
-        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("100")
+        coEvery { getRecordScore.invoke(50, gameMode = "NORMAL") } returns Either.Right("100")
 
         viewModel.checkWorldRecord(30)
         advanceUntilIdle()
@@ -228,8 +233,7 @@ class ResultViewModelTest {
 
     @Test
     fun `checkWorldRecord no muestra dialog cuando getRecordScore falla`() = runTest {
-        coEvery { getRecordScore.invoke(50L) } returns Either.Left(RepositoryException.NoConnectionException)
-        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Left(RepositoryException.NoConnectionException)
+        coEvery { getRecordScore.invoke(50, gameMode = "NORMAL") } returns Either.Left(RepositoryException.NoConnectionException)
 
         viewModel.checkWorldRecord(999)
         advanceUntilIdle()
@@ -363,6 +367,7 @@ class ResultViewModelTest {
             getPaymentDone = getPaymentDone,
             processGameResult = processGameResult,
             progressionManager = progressionManager,
+            gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
             adFrequencyManager = adFrequencyManager
         )
@@ -383,8 +388,7 @@ class ResultViewModelTest {
     fun `onScreenInitialized es idempotente — segunda llamada no reejecuta`() = runTest {
         val xpResult = buildXpGainResult()
         coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(xpResult, emptyList())
-        coEvery { getRecordScore.invoke(50L) } returns Either.Right("100")
-        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("100")
+        coEvery { getRecordScore.invoke(50, gameMode = "NORMAL") } returns Either.Right("100")
 
         viewModel.onScreenInitialized(Constants.GameType.NORMAL, 10, 10, 8, 5, 60_000L)
         advanceUntilIdle()
@@ -415,10 +419,10 @@ class ResultViewModelTest {
     fun `onScreenInitialized NORMAL llama checkWorldRecord y checkPersonalRecord`() = runTest {
         val xpResult = buildXpGainResult()
         coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(xpResult, emptyList())
-        coEvery { getRecordScore.invoke(50L) } returns Either.Right("5")
-        coEvery { getRecordScore.invoke(50L, RankingMode.NORMAL) } returns Either.Right("5")
+        // Fix 1+2: checkWorldRecord filtra por gameMode="NORMAL", checkPersonalRecord usa gameMode="NORMAL"
+        coEvery { getRecordScore.invoke(50, gameMode = "NORMAL") } returns Either.Right("5")
         coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Test", imageBase64 = "")
-        every { getPersonalRecord.invoke() } returns 5
+        every { getPersonalRecord.invoke("NORMAL") } returns 5
 
         viewModel.onScreenInitialized(Constants.GameType.NORMAL, 20, 10, 8, 5, 60_000L)
         advanceUntilIdle()
@@ -445,6 +449,7 @@ class ResultViewModelTest {
             getPaymentDone = getPaymentDone,
             processGameResult = processGameResult,
             progressionManager = progressionManager,
+            gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
             adFrequencyManager = adFrequencyManager
         )
@@ -457,7 +462,7 @@ class ResultViewModelTest {
 
     @Test
     fun `checkTimedRanking muestra dialog cuando califica`() = runTest {
-        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("10")
+        coEvery { getRecordScore.invoke(20, RankingMode.TIMED) } returns Either.Right("10")
         coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "Player", imageBase64 = "img")
 
         viewModel.checkTimedRanking(15) // 15 > 10 → qualifies
@@ -469,7 +474,7 @@ class ResultViewModelTest {
 
     @Test
     fun `checkTimedRanking no muestra dialog cuando no califica`() = runTest {
-        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("100")
+        coEvery { getRecordScore.invoke(20, RankingMode.TIMED) } returns Either.Right("100")
 
         viewModel.checkTimedRanking(15) // 15 < 100 → doesn't qualify
         advanceUntilIdle()
@@ -487,7 +492,7 @@ class ResultViewModelTest {
         coEvery { saveTopScore.invoke(any(), any()) } returns Either.Right(mockk())
 
         // Setup: show dialog first
-        coEvery { getRecordScore.invoke(20L, RankingMode.TIMED) } returns Either.Right("")
+        coEvery { getRecordScore.invoke(20, RankingMode.TIMED) } returns Either.Right("")
         coEvery { progressionManager.getUserProfile() } returns UserProfile(nickname = "P", imageBase64 = "")
         viewModel.checkTimedRanking(20)
         advanceUntilIdle()
@@ -506,7 +511,7 @@ class ResultViewModelTest {
     fun `dismissTimedRankingDialog cierra dialog y trackea analytics`() {
         viewModel.dismissTimedRankingDialog()
         assertFalse(viewModel.uiState.value.showTimedRankingDialog)
-        verify { analyticsManager.analyticsScoreSaved("timed_ranking", false) }
+        verify { analyticsManager.analyticsScoreDialogDismissed("timed_ranking") }
     }
 
     // =========================================================
@@ -555,7 +560,7 @@ class ResultViewModelTest {
     fun `onWorldRecordDialogDismissed cierra dialog y trackea analytics`() {
         viewModel.onWorldRecordDialogDismissed()
         assertFalse(viewModel.uiState.value.showWorldRecordDialog)
-        verify { analyticsManager.analyticsScoreSaved("world_record", false) }
+        verify { analyticsManager.analyticsScoreDialogDismissed("world_record") }
     }
 
     @Test

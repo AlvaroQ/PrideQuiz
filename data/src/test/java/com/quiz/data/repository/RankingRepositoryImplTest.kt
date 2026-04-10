@@ -142,9 +142,9 @@ class RankingRepositoryImplTest {
 
     @Test
     fun `getWorldRecords retorna Right con datos cuando datasource tiene exito`() = runTest {
-        coEvery { firestoreDataSource.getWorldRecords(10L) } returns Either.Right("1000")
+        coEvery { firestoreDataSource.getWorldRecords(10, "") } returns Either.Right("1000")
 
-        val result = repository.getWorldRecords(10L)
+        val result = repository.getWorldRecords(10)
 
         assertTrue(result.isRight())
         assertEquals("1000", (result as Either.Right).value)
@@ -152,20 +152,41 @@ class RankingRepositoryImplTest {
 
     @Test
     fun `getWorldRecords retorna Left cuando datasource falla`() = runTest {
-        coEvery { firestoreDataSource.getWorldRecords(10L) } returns Either.Left(RepositoryException.DataNotFoundException)
+        coEvery { firestoreDataSource.getWorldRecords(10, "") } returns Either.Left(RepositoryException.DataNotFoundException)
 
-        val result = repository.getWorldRecords(10L)
+        val result = repository.getWorldRecords(10)
 
         assertTrue(result.isLeft())
     }
 
     @Test
     fun `getWorldRecords delega limit exacto al datasource`() = runTest {
-        coEvery { firestoreDataSource.getWorldRecords(5L) } returns Either.Right("500")
+        coEvery { firestoreDataSource.getWorldRecords(5, "") } returns Either.Right("500")
 
-        repository.getWorldRecords(5L)
+        repository.getWorldRecords(5)
 
-        coVerify { firestoreDataSource.getWorldRecords(5L) }
+        coVerify { firestoreDataSource.getWorldRecords(5, "") }
+    }
+
+    @Test
+    fun `getWorldRecords con gameMode filtra por modo correctamente`() = runTest {
+        coEvery { firestoreDataSource.getWorldRecords(20, "NORMAL") } returns Either.Right("750")
+
+        val result = repository.getWorldRecords(20, "NORMAL")
+
+        assertTrue(result.isRight())
+        assertEquals("750", (result as Either.Right).value)
+        coVerify { firestoreDataSource.getWorldRecords(20, "NORMAL") }
+    }
+
+    @Test
+    fun `getWorldRecords sin gameMode no filtra — backward compatible`() = runTest {
+        coEvery { firestoreDataSource.getWorldRecords(50, "") } returns Either.Right("400")
+
+        val result = repository.getWorldRecords(50, "")
+
+        assertTrue(result.isRight())
+        coVerify { firestoreDataSource.getWorldRecords(50, "") }
     }
 
     // =========================================================
@@ -279,9 +300,9 @@ class RankingRepositoryImplTest {
 
     @Test
     fun `getTimedWorldRecords retorna Right con datos cuando datasource tiene exito`() = runTest {
-        coEvery { firestoreDataSource.getTimedWorldRecords(10L) } returns Either.Right("45")
+        coEvery { firestoreDataSource.getTimedWorldRecords(10) } returns Either.Right("45")
 
-        val result = repository.getTimedWorldRecords(10L)
+        val result = repository.getTimedWorldRecords(10)
 
         assertTrue(result.isRight())
         assertEquals("45", (result as Either.Right).value)
@@ -289,20 +310,20 @@ class RankingRepositoryImplTest {
 
     @Test
     fun `getTimedWorldRecords retorna Left cuando datasource falla`() = runTest {
-        coEvery { firestoreDataSource.getTimedWorldRecords(10L) } returns Either.Left(RepositoryException.DataNotFoundException)
+        coEvery { firestoreDataSource.getTimedWorldRecords(10) } returns Either.Left(RepositoryException.DataNotFoundException)
 
-        val result = repository.getTimedWorldRecords(10L)
+        val result = repository.getTimedWorldRecords(10)
 
         assertTrue(result.isLeft())
     }
 
     @Test
     fun `getTimedWorldRecords delega limit exacto al datasource`() = runTest {
-        coEvery { firestoreDataSource.getTimedWorldRecords(3L) } returns Either.Right("30")
+        coEvery { firestoreDataSource.getTimedWorldRecords(3) } returns Either.Right("30")
 
-        repository.getTimedWorldRecords(3L)
+        repository.getTimedWorldRecords(3)
 
-        coVerify { firestoreDataSource.getTimedWorldRecords(3L) }
+        coVerify { firestoreDataSource.getTimedWorldRecords(3) }
     }
 
     // =========================================================

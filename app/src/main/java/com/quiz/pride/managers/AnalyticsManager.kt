@@ -12,19 +12,13 @@ class AnalyticsManager(context: Context) {
     var uid: String = ""
 
     fun analyticsScreenViewed(screenTitle: String) {
-        logEvent(Event("screen_viewed")
-            .with("uid", uid)
-            .with("screen_title", screenTitle)
-            .with("app_version", BuildConfig.VERSION_NAME)
-            .with("app_name", BuildConfig.APPLICATION_ID))
-    }
-
-    fun analyticsGameFinished(points: String) {
-        logEvent(Event("game_finished")
-            .with("uid", uid)
-            .with("points", points)
-            .with("app_version", BuildConfig.VERSION_NAME)
-            .with("app_name", BuildConfig.APPLICATION_ID))
+        val bundle = Bundle().apply {
+            putString(FirebaseAnalytics.Param.SCREEN_NAME, screenTitle)
+            putString(FirebaseAnalytics.Param.SCREEN_CLASS, screenTitle)
+            putString("uid", uid)
+            putString("app_version", BuildConfig.VERSION_NAME)
+        }
+        firebase.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle)
     }
 
     /**
@@ -158,6 +152,40 @@ class AnalyticsManager(context: Context) {
             .with("app_version", BuildConfig.VERSION_NAME))
     }
 
+    fun analyticsSaveScoreAttempt(gameMode: String, score: Int, isDoubled: Boolean) {
+        val bundle = Bundle().apply {
+            putString("game_mode", gameMode)
+            putInt("score", score)
+            putBoolean("is_doubled", isDoubled)
+            putString("uid", uid)
+            putString("app_version", BuildConfig.VERSION_NAME)
+        }
+        firebase.logEvent("save_score_attempt", bundle)
+    }
+
+    fun analyticsSaveScoreResult(gameMode: String, score: Int, success: Boolean, errorMessage: String = "") {
+        val bundle = Bundle().apply {
+            putString("game_mode", gameMode)
+            putInt("score", score)
+            putBoolean("success", success)
+            if (errorMessage.isNotEmpty()) putString("error_message", errorMessage)
+            putString("uid", uid)
+            putString("app_version", BuildConfig.VERSION_NAME)
+        }
+        firebase.logEvent("save_score_result", bundle)
+    }
+
+    fun analyticsRankingQualified(gameMode: String, score: Int, rankingPosition: String) {
+        val bundle = Bundle().apply {
+            putString("game_mode", gameMode)
+            putInt("score", score)
+            putString("ranking_position", rankingPosition)
+            putString("uid", uid)
+            putString("app_version", BuildConfig.VERSION_NAME)
+        }
+        firebase.logEvent("ranking_qualified", bundle)
+    }
+
     fun analyticsPurchaseIntent(product: String) {
         logEvent(Event("purchase_intent")
             .with("uid", uid)
@@ -192,6 +220,94 @@ class AnalyticsManager(context: Context) {
         logEvent(Event("ranking_tab_selected")
             .with("uid", uid)
             .with("tab", tab)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    fun analyticsRankingFilterSelected(filter: String) {
+        logEvent(Event("ranking_filter_selected")
+            .with("filter", filter.ifEmpty { "all" })
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    fun analyticsRankingLoadError(mode: String, errorMessage: String = "") {
+        logEvent(Event("ranking_load_error")
+            .with("mode", mode)
+            .with("error_message", errorMessage)
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    fun analyticsRankingRetry() {
+        logEvent(Event("ranking_retry")
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    fun analyticsPointsDoubled(originalPoints: Int, doubledPoints: Int, gameMode: String) {
+        logEvent(Event("points_doubled")
+            .with("original_points", originalPoints.toString())
+            .with("doubled_points", doubledPoints.toString())
+            .with("game_mode", gameMode)
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    fun analyticsScoreDialogDismissed(rankingType: String) {
+        logEvent(Event("score_dialog_dismissed")
+            .with("ranking_type", rankingType)
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuanto tiempo permanece el usuario en una pantalla.
+     * Llamar al salir de la pantalla (onDispose/onCleared).
+     */
+    fun analyticsScreenTimeSpent(screenName: String, durationMs: Long) {
+        if (durationMs < 500) return // Ignorar navegaciones instantaneas
+        logEvent(Event("screen_time_spent")
+            .with("screen_name", screenName)
+            .with("duration_ms", durationMs.toString())
+            .with("duration_seconds", (durationMs / 1000).toString())
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea que flag/simbolo lee el usuario en la pantalla Info.
+     */
+    fun analyticsInfoItemViewed(itemName: String, itemIndex: Int, itemType: String) {
+        logEvent(Event("info_item_viewed")
+            .with("item_name", itemName)
+            .with("item_index", itemIndex.toString())
+            .with("item_type", itemType)
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea la profundidad de scroll en el ranking.
+     */
+    fun analyticsRankingScrollDepth(tab: String, maxPositionSeen: Int, totalItems: Int) {
+        logEvent(Event("ranking_scroll_depth")
+            .with("tab", tab)
+            .with("max_position_seen", maxPositionSeen.toString())
+            .with("total_items", totalItems.toString())
+            .with("scroll_percent", if (totalItems > 0) ((maxPositionSeen * 100) / totalItems).toString() else "0")
+            .with("uid", uid)
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea que hace el usuario ante un error state (retry, abandon, ignore).
+     */
+    fun analyticsErrorAction(screen: String, action: String, errorType: String = "") {
+        logEvent(Event("error_action")
+            .with("screen", screen)
+            .with("action", action)
+            .with("error_type", errorType)
+            .with("uid", uid)
             .with("app_version", BuildConfig.VERSION_NAME))
     }
 

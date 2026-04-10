@@ -89,9 +89,11 @@ import com.quiz.domain.LevelInfo
 import com.quiz.domain.PlayerStatistics
 import com.quiz.domain.UserProfile
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.PrideTopAppBar
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
@@ -102,6 +104,7 @@ import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.White
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 import java.io.ByteArrayOutputStream
 
@@ -112,6 +115,9 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val analyticsManager: AnalyticsManager = koinInject()
+
+    TrackScreenTime(AnalyticsManager.SCREEN_PROFILE, analyticsManager)
 
     // Detect theme
     val colorScheme = MaterialTheme.colorScheme

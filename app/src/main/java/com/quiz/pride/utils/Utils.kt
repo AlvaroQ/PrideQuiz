@@ -1,23 +1,10 @@
 package com.quiz.pride.utils
 
-import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import com.quiz.pride.BuildConfig
-import com.quiz.pride.R
-
-fun log(tag: String?, msg: String?, error: Throwable? = null) {
-    if (BuildConfig.BUILD_TYPE != "release") {
-        if (error != null) {
-            Log.e(tag, msg, error)
-        } else {
-            Log.d(tag, msg!!)
-        }
-    }
-}
 
 fun rateApp(context: Context) {
     val uri: Uri = Uri.parse("market://details?id=${BuildConfig.APPLICATION_ID}")

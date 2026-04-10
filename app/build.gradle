@@ -37,6 +37,7 @@ android {
                 mappingFileUploadEnabled = false
             }
 
+            resValue 'string', 'admob_app_id', getAdmobAppId()
             resValue 'string', 'BANNER_GAME', getAdmobBannerTestId()
             resValue 'string', 'BANNER_RANKING', getAdmobBannerTestId()
             resValue 'string', 'BANNER_INFO', getAdmobBannerTestId()
@@ -59,6 +60,7 @@ android {
                 mappingFileUploadEnabled = true
             }
 
+            resValue 'string', 'admob_app_id', getAdmobAppId()
             resValue 'string', 'BANNER_GAME', getAdmobBannerGameId()
             resValue 'string', 'BANNER_RANKING', getAdmobBannerRankingId()
             resValue 'string', 'BANNER_INFO', getAdmobBannerInfoId()
@@ -133,7 +135,7 @@ dependencies {
     // ==========================================
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
-    implementation libs.androidx.preference.ktx
+    // androidx-preference-ktx removed: zero imports, DataStore replaces it
     implementation libs.androidx.datastore.preferences
 
     // ==========================================
@@ -205,6 +207,12 @@ dependencies {
     // UTILITIES
     // ==========================================
     implementation libs.arrow.core
+    implementation libs.timber
+
+    // ==========================================
+    // SECURITY
+    // ==========================================
+    implementation libs.androidx.security.crypto
 
     // ==========================================
     // TESTING
@@ -233,10 +241,21 @@ dependencies {
 configurations.configureEach {
     exclude group: 'com.google.android.gms', module: 'play-services-safetynet'
 }
+// APPLICATION ID (same for debug and release)
+def getAdmobAppId() {
+    try {
+        def stringsFile = file("./secrets/secrets.xml")
+        return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_id' }.text()
+    } catch(e) {
+        println(e)
+        return ""
+    }
+}
+
 // KEYS ADMOB TEST
 def getAdmobBannerTestId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_test_id' }.text()
     } catch(e) {
         println(e)
@@ -245,7 +264,7 @@ def getAdmobBannerTestId() {
 }
 def getAdmobBonificadoTestId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_test_id' }.text()
     } catch(e) {
         println(e)
@@ -256,7 +275,7 @@ def getAdmobBonificadoTestId() {
 // KEYS ADMOB PRODUCTION
 def getAdmobBannerGameId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_game' }.text()
     } catch(e) {
         println(e)
@@ -265,7 +284,7 @@ def getAdmobBannerGameId() {
 }
 def getAdmobBannerRankingId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_ranking' }.text()
     } catch(e) {
         println(e)
@@ -274,7 +293,7 @@ def getAdmobBannerRankingId() {
 }
 def getAdmobBannerInfoId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_info' }.text()
     } catch(e) {
         println(e)
@@ -283,7 +302,7 @@ def getAdmobBannerInfoId() {
 }
 def getAdmobBannerPreferencesId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_preferences' }.text()
     } catch(e) {
         println(e)
@@ -292,7 +311,7 @@ def getAdmobBannerPreferencesId() {
 }
 def getAdmobBannerMoreAppsId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_banner_more_apps' }.text()
     } catch(e) {
         println(e)
@@ -301,7 +320,7 @@ def getAdmobBannerMoreAppsId() {
 }
 def getAdmobBonificadoGameId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_game' }.text()
     } catch(e) {
         println(e)
@@ -310,7 +329,7 @@ def getAdmobBonificadoGameId() {
 }
 def getAdmobBonificadoGameOverId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_game_over' }.text()
     } catch(e) {
         println(e)
@@ -319,7 +338,7 @@ def getAdmobBonificadoGameOverId() {
 }
 def getAdmobBonificadoShowInfoId() {
     try {
-        def stringsFile = file("./src/main/res/values/secrets.xml")
+        def stringsFile = file("./secrets/secrets.xml")
         return new XmlParser().parse(stringsFile).string.find { it.@name.equals 'admob_bonificado_show_info' }.text()
     } catch(e) {
         println(e)

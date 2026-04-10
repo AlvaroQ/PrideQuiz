@@ -1,7 +1,7 @@
 package com.quiz.pride.managers
 
 import android.content.Context
-import android.util.Log
+import timber.log.Timber
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import com.quiz.pride.common.DataStoreKeys
@@ -30,7 +30,6 @@ class XpSyncManager(
     private val applicationScope: CoroutineScope
 ) {
     companion object {
-        private const val TAG = "XpSyncManager"
         private val LAST_SYNCED_TIME = DataStoreKeys.XpSyncKeys.LAST_SYNCED_TIME
         private val PENDING_SYNC = DataStoreKeys.XpSyncKeys.PENDING_SYNC
     }
@@ -46,7 +45,7 @@ class XpSyncManager(
             } else {
                 // Mark as pending for when network becomes available
                 markSyncPending(true)
-                Log.d(TAG, "Network not available, sync marked as pending")
+                Timber.d("Network not available, sync marked as pending")
             }
         }
     }
@@ -54,7 +53,7 @@ class XpSyncManager(
     private suspend fun performSync(): Boolean {
         val uid = Firebase.auth.currentUser?.uid
         if (uid == null) {
-            Log.w(TAG, "No user UID available, skipping sync")
+            Timber.w("No user UID available, skipping sync")
             return false
         }
 
@@ -64,7 +63,7 @@ class XpSyncManager(
 
             // Only sync if user has a nickname set
             if (entry.nickname.isBlank()) {
-                Log.d(TAG, "No nickname set, skipping sync")
+                Timber.d("No nickname set, skipping sync")
                 return false
             }
 
@@ -72,19 +71,19 @@ class XpSyncManager(
 
             result.fold(
                 ifLeft = { error ->
-                    Log.e(TAG, "Sync failed: $error")
+                    Timber.e("Sync failed: $error")
                     markSyncPending(true)
                     false
                 },
                 ifRight = {
-                    Log.d(TAG, "Sync successful for user: ${entry.nickname}")
+                    Timber.d("Sync successful for user: ${entry.nickname}")
                     markSyncPending(false)
                     updateLastSyncTime()
                     true
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "Sync error", e)
+            Timber.e(e, "Sync error")
             markSyncPending(true)
             false
         }

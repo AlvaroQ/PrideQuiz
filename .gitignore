@@ -1,6 +1,9 @@
 *.iml
 *.xcf
 .gradle
+node_modules/
+package.json
+package-lock.json
 /local.properties
 /.idea/caches
 /.idea/libraries
@@ -18,6 +21,7 @@ local.properties
 .idea/
 firma/
 app/src/main/res/values/secrets.xml
+app/secrets/secrets.xml
 app/google-services.json
 app/release/app-release.aab
 assets/

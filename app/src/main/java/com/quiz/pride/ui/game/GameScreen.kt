@@ -96,6 +96,7 @@ import android.content.res.Configuration
 import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.R
+import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.LoadingIndicator
 import com.quiz.pride.ui.components.RewardedAdState
 import com.quiz.pride.ui.components.findActivity
@@ -121,10 +122,12 @@ import com.quiz.pride.ui.theme.PrideRed
 import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.White
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.utils.Constants
 import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.ui.theme.PrideQuizTheme
-import kotlinx.coroutines.flow.collectLatest
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -136,6 +139,9 @@ fun GameScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val analyticsManager: AnalyticsManager = koinInject()
+
+    TrackScreenTime(AnalyticsManager.SCREEN_GAME, analyticsManager)
     val soundEnabled by viewModel.isSoundEnabled.collectAsStateWithLifecycle()
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -178,7 +184,7 @@ fun GameScreen(
     val successSoundId = remember { soundPool.load(context, R.raw.success, 1) }
     val failSoundId = remember { soundPool.load(context, R.raw.fail, 1) }
 
-    remember(soundPool) {
+    DisposableEffect(soundPool) {
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) {
                 when (sampleId) {
@@ -187,16 +193,14 @@ fun GameScreen(
                 }
             }
         }
-        null
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { soundPool.release() }
+        onDispose {
+            soundPool.release()
+        }
     }
 
     // Handle one-time events
     LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
+        viewModel.events.collect { event ->
             when (event) {
                 is GameEvent.NavigateToResult -> {
                     hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -257,6 +261,13 @@ fun GameScreen(
                 timeRemaining = uiState.timeRemaining,
                 onBackClick = { viewModel.showExitDialog() }
             )
+        },
+        bottomBar = {
+            if (uiState.showBannerAd) {
+                BannerAdView(
+                    adUnitId = stringResource(R.string.BANNER_GAME)
+                )
+            }
         }
     ) { paddingValues ->
         Box(
@@ -690,8 +701,8 @@ private fun HeartIcon(index: Int, isAlive: Boolean) {
             .drawBehind {
                 if (isAlive) {
                     drawCircle(
-                        color = PrideRed.copy(alpha = 0.3f),
-                        radius = size.minDimension * 0.9f
+                        color = PrideRed.copy(alpha = 0.2f),
+                        radius = size.minDimension * 0.55f
                     )
                 }
             }

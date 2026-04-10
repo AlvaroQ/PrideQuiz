@@ -76,6 +76,12 @@ coil = "3.4.0"
 # UTILITIES
 # ==========================================
 arrow = "2.2.2"
+timber = "5.0.1"
+
+# ==========================================
+# SECURITY
+# ==========================================
+securityCrypto = "1.1.0-alpha06"
 guava = "9999.0-empty-to-avoid-conflict-with-guava"
 
 # ==========================================
@@ -99,6 +105,8 @@ junit = "4.13.2"
 # ==========================================
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+google-services = { group = "com.google.gms", name = "google-services", version.ref = "googleServices" }
+firebase-crashlytics-gradle = { group = "com.google.firebase", name = "firebase-crashlytics-gradle", version.ref = "firebaseCrashlyticsGradle" }
 
 # ==========================================
 # KOTLIN & COROUTINES
@@ -186,6 +194,12 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 # UTILITIES
 # ==========================================
 arrow-core = { group = "io.arrow-kt", name = "arrow-core", version.ref = "arrow" }
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+
+# ==========================================
+# SECURITY
+# ==========================================
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "securityCrypto" }
 
 # ==========================================
 # QUALITY TOOLS

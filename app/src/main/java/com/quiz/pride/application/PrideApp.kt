@@ -13,11 +13,15 @@ import com.quiz.pride.BuildConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import timber.log.Timber
 
 class PrideApp : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
         initializeKoin()
         // Firebase Auth se inicializa en MainActivity con callbacks completos
         // (Crashlytics userId, Analytics uid). No duplicar aqui.
@@ -71,7 +75,14 @@ class PrideApp : Application(), SingletonImageLoader.Factory {
      * GDPR haya sido resuelto (desde MainActivity via ConsentManager).
      */
     fun initializeMobileAds() {
-        MobileAds.initialize(this)
+        MobileAds.initialize(this) { initializationStatus ->
+            initializationStatus.adapterStatusMap.forEach { (adapter, status) ->
+                if (status.initializationState == com.google.android.gms.ads.initialization.AdapterStatus.State.NOT_READY) {
+                    com.google.firebase.crashlytics.FirebaseCrashlytics.getInstance()
+                        .log("AdMob adapter not ready: $adapter — ${status.description}")
+                }
+            }
+        }
     }
 
     private fun initializeKoin() {

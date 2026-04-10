@@ -54,7 +54,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
@@ -69,6 +71,7 @@ import com.quiz.pride.ui.theme.SettingsGradientBottom
 import com.quiz.pride.ui.theme.SettingsGradientTop
 import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -79,6 +82,9 @@ fun SelectScreen(
     onNavigateToProfile: () -> Unit = {},
     viewModel: SelectViewModel = koinViewModel()
 ) {
+    val analyticsManager: AnalyticsManager = koinInject()
+    TrackScreenTime(AnalyticsManager.SCREEN_SELECT, analyticsManager)
+
     AnimatedScreenBackground(
         orbColor1 = NeonPink,
         orbColor2 = NeonPurple

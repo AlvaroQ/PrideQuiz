@@ -8,8 +8,8 @@ import com.quiz.domain.Pride
 
 class PrideByIdRepositoryImpl(private val dataBaseSource: DataBaseSource) : PrideByIdRepository {
 
-    // Cache de paginas: page -> lista de Prides
-    private val pageCache = mutableMapOf<Int, List<Pride>>()
+    // Cache de paginas: page -> lista de Prides (thread-safe)
+    private val pageCache = java.util.concurrent.ConcurrentHashMap<Int, List<Pride>>()
 
     override suspend fun getPrideById(id: Int): Either<RepositoryException, Pride> {
         return try {

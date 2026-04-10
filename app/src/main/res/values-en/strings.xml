@@ -10,10 +10,20 @@
     <string name="settings">Settings</string>
     <string name="settings_description">Delete sound or ads</string>
 
+    <!-- Select Game screen -->
+    <string name="select_difficulty">Select Difficulty</string>
+    <string name="choose_level">Choose your level</string>
+    <string name="normal">Normal</string>
+    <string name="normal_description">Guess the flag by its name</string>
+    <string name="advance">Advance</string>
+    <string name="advance_description">Guess the flag by its description</string>
+    <string name="expert">Expert</string>
+    <string name="expert_description">Guess the flag with no hints</string>
+
     <!-- Settings screen -->
     <string name="settings_version">Version</string>
     <string name="settings_delete_ads">Delete ads</string>
-    <string name="settings_delete_ads_summary">Remove ads</string>
+    <string name="settings_delete_ads_summary">Remove ads forever</string>
     <string name="settings_sounds">Sounds</string>
     <string name="settings_rate_app">Rate app</string>
     <string name="settings_rate_app_summary">Go to play store to rate app</string>
@@ -25,10 +35,31 @@
     <string name="sounds_on">Sound on</string>
     <string name="sounds_off">Sound off</string>
 
-    <!-- Select screen -->
-    <string name="normal">Normal</string>
-    <string name="advance">Advance</string>
-    <string name="expert">Expert</string>
+    <!-- New Settings strings for Compose -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_dark_mode_desc">Enable dark theme</string>
+    <string name="settings_dynamic_colors">Dynamic colors</string>
+    <string name="settings_dynamic_colors_desc">Use wallpaper colors (Material You)</string>
+    <string name="settings_sound">Sound</string>
+    <string name="settings_sound_effects">Sound effects</string>
+    <string name="settings_sound_effects_desc">Play sounds during game</string>
+    <string name="settings_actions">Actions</string>
+    <string name="settings_remove_ads">Remove ads</string>
+    <string name="settings_remove_ads_desc">One-time purchase to remove all ads</string>
+    <string name="settings_rate_app_desc">Rate us on Play Store</string>
+    <string name="settings_share_desc">Share this app with friends</string>
+    <string name="settings_more_apps_desc">Discover more apps from us</string>
+    <string name="settings_about">About</string>
+    <string name="settings_restore_purchases">Restore purchases</string>
+    <string name="settings_restore_purchases_desc">Recover previous purchases on this device</string>
+    <string name="purchase_success">Ads removed successfully!</string>
+    <string name="purchase_error">Purchase failed. Please try again.</string>
+    <string name="restore_success">Purchase restored successfully!</string>
+    <string name="restore_no_purchases">No previous purchases found.</string>
+    <string name="rate">Rate</string>
+    <string name="ranking">Ranking</string>
+    <string name="your_score">Your Score</string>
 
     <!-- Result screen -->
     <string name="resultado_screen_title">Final result</string>
@@ -51,6 +82,12 @@
     <!-- Ranking screen -->
     <string name="ranking_screen_title">Ranking</string>
     <string name="best_points">Best scores</string>
+    <string name="ranking_tab_classic">Classic</string>
+    <string name="ranking_tab_timed">Time Attack</string>
+    <string name="ranking_tab_xp_global">XP Global</string>
+    <string name="ranking_empty">No scores yet. Be the first!</string>
+    <string name="ranking_empty_title">No scores yet</string>
+    <string name="ranking_empty_subtitle">Be the first to claim the top spot!</string>
     <plurals name="weeks_ago">
         <item quantity="one">%d week ago</item>
         <item quantity="other">%d weeks ago</item>
@@ -67,27 +104,173 @@
     <!-- Dialog screen -->
     <string name="dialog_ranking_congratulation">Congratulations!</string>
     <string name="dialog_ranking_description">Your score has entered the world ranking!</string>
+    <string name="dialog_ranking_timed_description">Your time attack score is in the top 20!</string>
     <string name="dialog_name">Name</string>
     <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_change_photo">Change photo</string>
+    <string name="dialog_saving">Saving…</string>
 
     <!-- Dialog screen extra life -->
     <string name="dialog_extra_life_title">Extra life</string>
-    <string name="dialog_extra_life_description">Do you want an extra life watching an ad?</string>
+    <string name="dialog_extra_life_description">Watch a short video to get an extra life and keep playing!</string>
     <string name="dialog_extra_life_btn_yes">Yes</string>
-    <string name="dialog_extra_life_btn_no">No</string>
+    <string name="dialog_extra_life_btn_no">No, thanks</string>
+    <string name="extra_lives_remaining">%d remaining</string>
+    <string name="loading_ad">Loading…</string>
+    <string name="watch_ad">Watch Ad</string>
 
     <!-- Game screen -->
     <string name="life">life</string>
     <string name="points">Points\n%d</string>
+    <string name="expert_question">Which flag is it?</string>
 
     <!-- Info screen -->
     <string name="info_title">General info</string>
-
-    <!-- content -->
     <string name="locale">en</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to Pride Quiz!</string>
+    <string name="onboarding_welcome_desc">Test your knowledge about LGBTQ+ pride flags and learn about the beautiful diversity of our community.</string>
+    <string name="onboarding_learn_title">Learn While Playing</string>
+    <string name="onboarding_learn_desc">Discover the meaning and history behind each pride flag. Knowledge is power!</string>
+    <string name="onboarding_play_title">Challenge Yourself</string>
+    <string name="onboarding_play_desc">Start with Normal mode and work your way up to Expert. How many flags can you recognize?</string>
+    <string name="onboarding_modes_title">Three Game Modes</string>
+    <string name="onboarding_modes_desc">Normal: Match flags to names\nAdvance: Guess by description\nExpert: Ultimate challenge!</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+
+    <!-- Exit confirmation -->
+    <string name="exit_game_title">Leave Game?</string>
+    <string name="exit_game_message">Your progress will be lost. Are you sure you want to exit?</string>
+    <string name="exit_game_stay">Stay</string>
+    <string name="exit_game_leave">Leave</string>
+
+    <!-- Streak system -->
+    <string name="streak_combo">%d Combo!</string>
+    <string name="streak_on_fire">On Fire!</string>
+    <string name="streak_unstoppable">Unstoppable!</string>
+    <string name="streak_legendary">Legendary!</string>
+
+    <!-- Result screen improvements -->
+    <string name="result_title">Game Over</string>
+    <string name="result_new_record">New Record!</string>
+    <string name="result_personal_best">Personal Best</string>
+    <string name="result_world_record">World Record</string>
+    <string name="result_accuracy">Accuracy</string>
+    <string name="result_best_streak">Best Streak</string>
+    <string name="result_time_played">Time Played</string>
+    <string name="result_comparison_better">%d points better than your record!</string>
+    <string name="result_comparison_close">%d points away from your record</string>
+    <string name="double_points_title">Double Your Points!</string>
+    <string name="double_points_subtitle">Watch a short video to 2x your score</string>
+    <string name="double_points_subtitle_paid">Tap to 2x your score — premium perk!</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_answer_button">Answer option %d</string>
+    <string name="accessibility_correct_answer">Correct answer</string>
+    <string name="accessibility_wrong_answer">Wrong answer</string>
+    <string name="accessibility_lives_remaining">%d lives remaining</string>
+    <string name="accessibility_current_score">Current score: %d points</string>
+    <string name="accessibility_progress">Question %1$d of %2$d</string>
+    <string name="settings_accessibility">Accessibility</string>
+    <string name="settings_high_contrast">High contrast</string>
+    <string name="settings_high_contrast_desc">Increase color contrast for better visibility</string>
+    <string name="settings_large_text">Large text</string>
+    <string name="settings_large_text_desc">Increase text size throughout the app</string>
+
+    <!-- Offline mode -->
+    <string name="offline_mode">Offline Mode</string>
+    <string name="offline_mode_message">You are playing offline. Ranking will sync when connected.</string>
+    <string name="connection_restored">Connection restored</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Profile</string>
+    <string name="my_profile">My Profile</string>
+    <string name="enter_nickname">Enter nickname</string>
+    <string name="tap_to_set_nickname">Tap to set nickname</string>
+    <string name="edit_nickname">Edit nickname</string>
+    <string name="change_photo">Change photo</string>
+    <string name="save">Save</string>
+    <string name="total_xp">Total: %d XP</string>
+    <string name="statistics_title">Statistics</string>
+    <string name="games_played">Games Played</string>
+    <string name="games_won">Games Won</string>
+    <string name="best_streak">Best Streak</string>
+    <string name="accuracy_label">Accuracy</string>
+    <string name="perfect_games">Perfect Games</string>
+    <string name="time_played">Time Played</string>
+    <string name="games_by_mode">Games by Mode</string>
+    <string name="achievements_title">Achievements</string>
+    <string name="level_up_title">Level Up!</string>
+    <string name="level_up_message">You reached level %d!</string>
+    <string name="xp_gained">+%d XP</string>
+    <string name="global_rank">Global Rank</string>
+    <string name="global_rank_value">#%d</string>
+    <string name="view_leaderboard">View Leaderboard</string>
+    <string name="not_ranked">Not ranked yet</string>
+    <string name="play_to_rank">Play to enter the global ranking!</string>
+
+    <!-- Timed mode -->
+    <string name="timed_mode">Timed</string>
+    <string name="timed_mode_description">Race against the clock!</string>
+    <string name="time_remaining">Time: %d</string>
+    <string name="time_bonus">Time Bonus: +%d</string>
+
+    <!-- Level titles -->
+    <string name="level_title_novice">Novice</string>
+    <string name="level_title_explorer">Explorer</string>
+    <string name="level_title_enthusiast">Enthusiast</string>
+    <string name="level_title_connoisseur">Connoisseur</string>
+    <string name="level_title_expert">Expert</string>
+    <string name="level_title_master">Master</string>
+    <string name="level_title_grandmaster">Grandmaster</string>
+    <string name="level_title_legend">Legend</string>
+
+    <!-- Achievement titles -->
+    <string name="achievement_first_game_title">First Steps</string>
+    <string name="achievement_first_game_desc">Complete your first game</string>
+    <string name="achievement_ten_games_title">Getting Started</string>
+    <string name="achievement_ten_games_desc">Play 10 games</string>
+    <string name="achievement_fifty_games_title">Dedicated Player</string>
+    <string name="achievement_fifty_games_desc">Play 50 games</string>
+    <string name="achievement_hundred_games_title">Veteran</string>
+    <string name="achievement_hundred_games_desc">Play 100 games</string>
+    <string name="achievement_first_perfect_title">Perfectionist</string>
+    <string name="achievement_first_perfect_desc">Complete a game with no mistakes</string>
+    <string name="achievement_five_perfect_title">Flawless</string>
+    <string name="achievement_five_perfect_desc">Complete 5 perfect games</string>
+    <string name="achievement_streak_5_title">On Fire</string>
+    <string name="achievement_streak_5_desc">Get a 5 answer streak</string>
+    <string name="achievement_streak_10_title">Unstoppable</string>
+    <string name="achievement_streak_10_desc">Get a 10 answer streak</string>
+    <string name="achievement_streak_15_title">Legendary</string>
+    <string name="achievement_streak_15_desc">Get a 15 answer streak</string>
+    <string name="achievement_streak_20_title">Godlike</string>
+    <string name="achievement_streak_20_desc">Get a 20 answer streak</string>
+    <string name="achievement_level_10_title">Rising Star</string>
+    <string name="achievement_level_10_desc">Reach level 10</string>
+    <string name="achievement_level_25_title">Pride Expert</string>
+    <string name="achievement_level_25_desc">Reach level 25</string>
+    <string name="achievement_level_50_title">Pride Legend</string>
+    <string name="achievement_level_50_desc">Reach level 50</string>
+    <string name="achievement_expert_master_title">Expert Master</string>
+    <string name="achievement_expert_master_desc">Complete 25 expert games</string>
+    <string name="achievement_speed_demon_title">Speed Demon</string>
+    <string name="achievement_speed_demon_desc">Complete 10 timed mode games</string>
+    <string name="achievement_dedicated_title">Dedicated</string>
+    <string name="achievement_dedicated_desc">Play for 1 hour total</string>
+    <string name="achievement_accuracy_80_title">Sharpshooter</string>
+    <string name="achievement_accuracy_80_desc">Maintain 80%+ accuracy over 10 games</string>
+    <string name="achievement_accuracy_90_title">Precision Master</string>
+    <string name="achievement_accuracy_90_desc">Maintain 90%+ accuracy over 20 games</string>
 
     <!-- Error states -->
     <string name="error_loading_question">Could not load the question. Please try again.</string>
     <string name="error_retry">Retry</string>
     <string name="error_ranking_partial">Some data couldn\'t be loaded.</string>
+    <string name="more_apps_empty">No apps available right now.</string>
+    <string name="error_loading_apps">Could not load apps. Please try again.</string>
 </resources>

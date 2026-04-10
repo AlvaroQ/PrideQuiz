@@ -114,6 +114,7 @@ class BillingManager(private val context: Context) {
 
         client.queryProductDetailsAsync(queryProductDetailsParams) { _, result ->
             val productDetailsList = result.productDetailsList
+            var launched = false
             for (productDetails in productDetailsList) {
                 if (productDetails.productId == REMOVE_AD) {
                     val productDetailsParamsList = listOf(
@@ -124,9 +125,15 @@ class BillingManager(private val context: Context) {
                     val flowParams = BillingFlowParams.newBuilder()
                         .setProductDetailsParamsList(productDetailsParamsList)
                         .build()
-                    client.launchBillingFlow(activity, flowParams)
+                    android.os.Handler(android.os.Looper.getMainLooper()).post {
+                        client.launchBillingFlow(activity, flowParams)
+                    }
+                    launched = true
                     break
                 }
+            }
+            if (!launched) {
+                emitResult(PurchaseResult.Error("Producto no encontrado en Play Store"))
             }
         }
     }
@@ -174,6 +181,8 @@ class BillingManager(private val context: Context) {
     }
 
     private fun handlePurchase(purchase: Purchase) {
+        if (!purchase.products.contains(REMOVE_AD)) return
+
         when (purchase.purchaseState) {
             Purchase.PurchaseState.PURCHASED -> {
                 acknowledgePurchase(purchase)

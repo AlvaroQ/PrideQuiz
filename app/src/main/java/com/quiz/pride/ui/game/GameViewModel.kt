@@ -101,7 +101,7 @@ class GameViewModel(
     )
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<GameEvent>()
+    private val _events = MutableSharedFlow<GameEvent>(extraBufferCapacity = 1)
     val events = _events.asSharedFlow()
 
     // Expuesto como StateFlow para que el composable lo observe sin koinInject
@@ -160,7 +160,8 @@ class GameViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
 
-            val numRandomMain = generateRandomWithExclusion(TOTAL_PRIDES, randomCountries)
+            val excludeSnapshot = randomCountries.toSet()
+            val numRandomMain = generateRandomWithExclusion(TOTAL_PRIDES, excludeSnapshot)
             randomCountries.add(numRandomMain)
 
             val correctPosition = (0..3).random()
@@ -182,6 +183,7 @@ class GameViewModel(
             for (result in allPridesResults) {
                 result.fold(
                     ifLeft = {
+                        analyticsManager.analyticsErrorAction("game", "error_shown", "load_error")
                         _uiState.update { state -> state.copy(isLoading = false, hasError = true) }
                         return@launch
                     },
@@ -286,7 +288,7 @@ class GameViewModel(
                         emitNavigateToResult()
                     }
                 }
-                currentState.stage >= TOTAL_PRIDES || (!currentState.isTimedMode && currentState.lives < 1) -> {
+                currentState.stage >= TOTAL_PRIDES || (!currentState.isTimedMode && currentState.lives < 1) || (currentState.isTimedMode && currentState.timeRemaining <= 0) -> {
                     emitNavigateToResult()
                 }
                 else -> {
@@ -332,10 +334,6 @@ class GameViewModel(
         timerJob?.cancel()
         val timePlayed = System.currentTimeMillis() - startTime
 
-        // Evento legacy (backward compatible)
-        analyticsManager.analyticsGameFinished(state.points.toString())
-
-        // Evento detallado para análisis de funnel de juego
         analyticsManager.analyticsGameCompleted(
             gameMode = currentGameMode,
             questionsAnswered = state.stage,

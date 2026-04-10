@@ -2,6 +2,7 @@ package com.quiz.pride.ui.result
 
 import arrow.core.getOrElse
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.SavedStateHandle
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Achievement
@@ -14,6 +15,7 @@ import com.quiz.domain.XpGainResult
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.TOP_RANKING_LIMIT
@@ -54,11 +56,14 @@ data class ResultUiState(
     val userProfile: UserProfile = UserProfile(),
     val isSavingTimedScore: Boolean = false,
     // Ad state
-    val hasPaid: Boolean = false
+    val hasPaid: Boolean = false,
+    // Puntos mostrados al usuario (pueden ser duplicados por ad recompensado)
+    val displayedPoints: Int = 0
 )
 
 sealed class ResultEvent {
     data object ShowInterstitialAd : ResultEvent()
+    data class SaveScoreResult(val success: Boolean, val message: String = "") : ResultEvent()
 }
 
 class ResultViewModel(
@@ -70,12 +75,23 @@ class ResultViewModel(
     private val getPaymentDone: GetPaymentDone,
     private val processGameResult: ProcessGameResultUseCase,
     private val progressionManager: ProgressionManager,
+    private val gameStatsManager: GameStatsManager,
     private val analyticsManager: AnalyticsManager,
-    private val adFrequencyManager: AdFrequencyManager
+    private val adFrequencyManager: AdFrequencyManager,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle()
 ) : ComposeViewModel() {
 
-    // Flag para garantizar idempotencia: onScreenInitialized solo ejecuta logica una vez
-    private var initialized = false
+    // Fix 5: initialized persiste en SavedStateHandle para sobrevivir process death
+    // y evitar que recordGameResult contabilice XP dos veces tras recreacion.
+    private var initialized: Boolean
+        get() = savedStateHandle.get<Boolean>("initialized") ?: false
+        set(value) { savedStateHandle["initialized"] = value }
+
+    // Fix 3: flag volatil para proteger contra double-submit antes de recomposicion
+    @Volatile private var isSaveInProgress = false
+
+    // Modo de juego actual, guardado para usarlo al construir el User al guardar score
+    private var currentGameType: Constants.GameType = Constants.GameType.NORMAL
 
     private val _uiState = MutableStateFlow(ResultUiState())
     val uiState: StateFlow<ResultUiState> = _uiState.asStateFlow()
@@ -128,6 +144,12 @@ class ResultViewModel(
     ) {
         if (initialized) return
         initialized = true
+
+        // Guardar el tipo de juego para usarlo al construir el User al guardar score
+        currentGameType = gameType
+
+        // Fix 2: inicializar displayedPoints en el uiState para que saveScore use el valor correcto
+        _uiState.update { it.copy(displayedPoints = points) }
 
         // Ad frequency tracking
         onScreenLoaded()
@@ -195,9 +217,10 @@ class ResultViewModel(
             // Actualizar user properties para segmentacion en Firebase
             val xp = processed.xpGainResult
             val accuracy = if (totalQuestions > 0) (correctAnswers.toFloat() / totalQuestions * 100) else 0f
+            val totalGamesHistorical = gameStatsManager.getStatistics().totalGamesPlayed
             analyticsManager.updateUserProperties(
                 level = xp.newLevel,
-                totalGames = totalQuestions,
+                totalGames = totalGamesHistorical,
                 accuracy = accuracy,
                 favoriteMode = gameMode.name
             )
@@ -213,7 +236,12 @@ class ResultViewModel(
             _uiState.update { it.copy(isLoading = true) }
 
             val appsDeferred = async { getAppsRecommended.invoke() }
-            val worldRecordDeferred = async { getRecordScore(1) }
+            // Fix 1: pasar el gameMode actual para mostrar el record del modo correcto.
+            // En este punto currentGameType puede ser el default (NORMAL) si loadData se llama
+            // antes de onScreenInitialized, pero se actualiza correctamente una vez inicializado.
+            val worldRecordDeferred = async {
+                getRecordScore(1, gameMode = currentGameType.name)
+            }
 
             // getOrElse: degradacion graceful — si falla, muestra lista/valor vacio
             val apps = appsDeferred.await().getOrElse { emptyList() }
@@ -231,9 +259,12 @@ class ResultViewModel(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun checkPersonalRecord(points: Int) {
-        val currentRecord = getPersonalRecord.invoke()
+        // Fix 2: separar record personal por modo de juego para que cada modo compita
+        // solo contra si mismo. String vacio hubiera usado la clave legacy global.
+        val gameMode = currentGameType.name
+        val currentRecord = getPersonalRecord.invoke(gameMode)
         if (points > currentRecord) {
-            setPersonalRecord.invoke(points)
+            setPersonalRecord.invoke(points, gameMode)
             _uiState.update { it.copy(personalRecord = points.toString()) }
         } else {
             _uiState.update { it.copy(personalRecord = currentRecord.toString()) }
@@ -243,11 +274,14 @@ class ResultViewModel(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal fun checkWorldRecord(gamePoints: Int) {
         viewModelScope.launch {
-            // Si falla, no mostrar el dialog — mejor degradar que crashear
-            val pointsLastClassified = getRecordScore(50).getOrElse { return@launch }
-            if (pointsLastClassified.isNotEmpty() && gamePoints > pointsLastClassified.toInt()) {
+            // Fix 1: filtrar por gameMode para que NORMAL solo compita contra NORMAL,
+            // ADVANCE contra ADVANCE, EXPERT contra EXPERT.
+            // El indice compuesto (gameMode ASC, score DESC) en Firestore soporta este query.
+            val pointsLastClassified = getRecordScore(50, gameMode = currentGameType.name).getOrElse { return@launch }
+            if (pointsLastClassified.isNotEmpty() && gamePoints > (pointsLastClassified.toIntOrNull() ?: return@launch)) {
                 val userProfile = progressionManager.getUserProfile()
                 analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
+                analyticsManager.analyticsRankingQualified("world_record", gamePoints, "top_50")
                 _uiState.update { state ->
                     state.copy(
                         showWorldRecordDialog = true,
@@ -259,24 +293,62 @@ class ResultViewModel(
         }
     }
 
-    fun saveScore(nickname: String, imageBase64: String) {
-        analyticsManager.analyticsScoreSaved("world_record", true)
+    private fun com.quiz.data.repository.RepositoryException.toUserMessage(): String = when (this) {
+        is com.quiz.data.repository.RepositoryException.NoConnectionException -> "Sin conexion a internet"
+        is com.quiz.data.repository.RepositoryException.DataNotFoundException -> "Error al guardar el puntaje"
+        else -> "Error inesperado"
+    }
+
+    private fun saveScoreInternal(
+        nickname: String,
+        imageBase64: String,
+        rankingMode: RankingMode,
+        rankingType: String
+    ) {
+        if (isSaveInProgress) return
+        isSaveInProgress = true
+
+        val currentPoints = _uiState.value.displayedPoints
+        val gameMode = if (rankingMode == RankingMode.TIMED) Constants.GameType.TIMED.name else currentGameType.name
+        analyticsManager.analyticsSaveScoreAttempt(rankingType, currentPoints, currentPoints != _uiState.value.worldRecordPoints)
+
         viewModelScope.launch {
             _uiState.update { it.copy(isSavingWorldRecord = true) }
             progressionManager.saveUserProfile(nickname, imageBase64)
             val user = User(
                 name = nickname,
-                score = _uiState.value.worldRecordPoints,
+                score = currentPoints,
                 userImage = imageBase64,
+                gameMode = gameMode,
                 timestamp = System.currentTimeMillis()
             )
-            saveTopScore(user)
-            _uiState.update { it.copy(isSavingWorldRecord = false, showWorldRecordDialog = false) }
+            saveTopScore(user, rankingMode).fold(
+                ifLeft = { error ->
+                    val msg = error.toUserMessage()
+                    analyticsManager.analyticsSaveScoreResult(rankingType, currentPoints, false, msg)
+                    _uiState.update { it.copy(isSavingWorldRecord = false) }
+                    _events.emit(ResultEvent.SaveScoreResult(success = false, message = msg))
+                },
+                ifRight = {
+                    analyticsManager.analyticsScoreSaved(rankingType, true)
+                    analyticsManager.analyticsSaveScoreResult(rankingType, currentPoints, true)
+                    _uiState.update { it.copy(
+                        isSavingWorldRecord = false,
+                        showWorldRecordDialog = false,
+                        showTimedRankingDialog = false
+                    )}
+                    _events.emit(ResultEvent.SaveScoreResult(success = true))
+                }
+            )
+            isSaveInProgress = false
         }
     }
 
+    fun saveScore(nickname: String, imageBase64: String) =
+        saveScoreInternal(nickname, imageBase64, RankingMode.NORMAL, "world_record")
+
     fun onWorldRecordDialogDismissed() {
-        analyticsManager.analyticsScoreSaved("world_record", false)
+        analyticsManager.analyticsScoreDialogDismissed("world_record")
         _uiState.update { it.copy(showWorldRecordDialog = false) }
     }
 
@@ -306,45 +378,41 @@ class ResultViewModel(
                     )
                 }
                 analyticsManager.analyticsScreenViewed(AnalyticsManager.SCREEN_DIALOG_SAVE_SCORE)
+                analyticsManager.analyticsRankingQualified("timed", score, "top_$TOP_RANKING_LIMIT")
             }
         }
     }
 
+    fun saveTimedScore(nickname: String, imageBase64: String) =
+        saveScoreInternal(nickname, imageBase64, RankingMode.TIMED, "timed_ranking")
+
+    private var pointsAlreadyDoubled = false
+
     /**
-     * Save timed score to ranking
+     * Fix 2 + Fix 4: duplica los puntos mostrados en la UI, actualiza el score a guardar
+     * y el record personal en DataStore (para que el record refleje el valor real).
+     * Protected against multiple invocations to prevent exponential score inflation.
      */
-    fun saveTimedScore(nickname: String, imageBase64: String) {
-        analyticsManager.analyticsScoreSaved("timed_ranking", true)
-        viewModelScope.launch {
-            _uiState.update { it.copy(isSavingTimedScore = true) }
+    fun onPointsDoubled() {
+        if (pointsAlreadyDoubled) return
+        pointsAlreadyDoubled = true
 
-            // Save profile data locally
-            progressionManager.saveUserProfile(nickname, imageBase64)
-
-            // Create user and save to ranking
-            val user = User(
-                name = nickname,
-                score = _uiState.value.timedScore,
-                userImage = imageBase64,
-                timestamp = System.currentTimeMillis()
-            )
-
-            saveTopScore(user, RankingMode.TIMED)
-
-            _uiState.update { state ->
-                state.copy(
-                    isSavingTimedScore = false,
-                    showTimedRankingDialog = false
-                )
-            }
-        }
+        val original = _uiState.value.displayedPoints
+        val doubled = original * 2
+        analyticsManager.analyticsPointsDoubled(original, doubled, currentGameType.name)
+        _uiState.update { it.copy(
+            displayedPoints = doubled,
+            worldRecordPoints = doubled,
+            timedScore = doubled
+        )}
+        checkPersonalRecord(doubled)
     }
 
     /**
      * Dismiss the timed ranking dialog
      */
     fun dismissTimedRankingDialog() {
-        analyticsManager.analyticsScoreSaved("timed_ranking", false)
+        analyticsManager.analyticsScoreDialogDismissed("timed_ranking")
         _uiState.update { it.copy(showTimedRankingDialog = false) }
     }
 
@@ -361,6 +429,10 @@ class ResultViewModel(
 
     fun onRankingClicked() {
         analyticsManager.analyticsClicked(AnalyticsManager.BTN_RANKING)
+    }
+
+    fun onShareClicked() {
+        analyticsManager.analyticsClicked(AnalyticsManager.BTN_SHARE)
     }
 
 }

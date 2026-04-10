@@ -2,7 +2,7 @@ package com.quiz.pride.managers
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
+import timber.log.Timber
 import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
@@ -70,7 +70,7 @@ class ConsentManager(private val context: Context) {
                 }
             },
             { formError ->
-                Log.w(TAG, "Error al actualizar consentimiento: ${formError.message}")
+                Timber.w("Error al actualizar consentimiento: ${formError.message}")
                 isFetchingConsent.set(false)
                 // Ante error, permitir ads (comportamiento defensivo recomendado por Google)
                 _consentResolved.value = true
@@ -96,7 +96,7 @@ class ConsentManager(private val context: Context) {
             consentInformation.reset()
             isFetchingConsent.set(false)
             _consentResolved.value = false
-            Log.d(TAG, "Consentimiento reseteado — el formulario se mostrara en el proximo inicio")
+            Timber.d("Consentimiento reseteado — el formulario se mostrara en el proximo inicio")
         }
     }
 
@@ -126,7 +126,7 @@ class ConsentManager(private val context: Context) {
     ) {
         UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
             if (formError != null) {
-                Log.w(TAG, "Error al mostrar formulario UMP: ${formError.message}")
+                Timber.w("Error al mostrar formulario UMP: ${formError.message}")
             }
             // Formulario mostrado (o no requerido) — siempre notificar para no bloquear ads
             onComplete()
@@ -134,8 +134,6 @@ class ConsentManager(private val context: Context) {
     }
 
     companion object {
-        private const val TAG = "ConsentManager"
-
         // Hash del dispositivo de test para simular EEA en DEBUG.
         // Debe coincidir con el test device registrado en AdMob.
         private const val DEBUG_TEST_DEVICE_ID = "87E31DEF5BA1FA89F463E054E4451C23"

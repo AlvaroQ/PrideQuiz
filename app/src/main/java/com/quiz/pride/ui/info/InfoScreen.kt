@@ -78,6 +78,9 @@ import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.TrackScreenTime
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -87,6 +90,9 @@ fun InfoScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
+    val analyticsManager: AnalyticsManager = koinInject()
+
+    TrackScreenTime(AnalyticsManager.SCREEN_INFO, analyticsManager)
 
     // Detect theme
     val colorScheme = MaterialTheme.colorScheme
@@ -103,6 +109,27 @@ fun InfoScreen(
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore && !uiState.isLoading && uiState.prideList.isNotEmpty()) {
             viewModel.loadMorePrideList()
+        }
+    }
+
+    // Trackear que items ve realmente el usuario
+    val visibleItems by remember {
+        derivedStateOf {
+            listState.layoutInfo.visibleItemsInfo.map { it.index }
+        }
+    }
+    val trackedItems = remember { mutableSetOf<Int>() }
+    LaunchedEffect(visibleItems) {
+        visibleItems.forEach { index ->
+            if (index !in trackedItems && index < uiState.prideList.size) {
+                trackedItems.add(index)
+                val pride = uiState.prideList[index]
+                analyticsManager.analyticsInfoItemViewed(
+                    itemName = pride.name?.EN ?: "unknown",
+                    itemIndex = index,
+                    itemType = if (pride.flag.isNotEmpty()) "flag" else "info"
+                )
+            }
         }
     }
 

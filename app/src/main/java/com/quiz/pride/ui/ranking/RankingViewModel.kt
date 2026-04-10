@@ -27,7 +27,9 @@ data class RankingUiState(
     val selectedTabIndex: Int = 0,
     val showRewardedAd: Boolean = false,
     val showBannerAd: Boolean = false,
-    val hasError: Boolean = false
+    val hasError: Boolean = false,
+    // Filtro del tab Classic: "" = todos, "NORMAL", "ADVANCE", "EXPERT"
+    val classicModeFilter: String = ""
 )
 
 class RankingViewModel(
@@ -63,6 +65,8 @@ class RankingViewModel(
             val ranking = rankingResult.getOrElse { emptyList() }
             val timedRanking = timedRankingResult.getOrElse { emptyList() }
             val hasError = rankingResult.isLeft() || timedRankingResult.isLeft()
+            rankingResult.onLeft { analyticsManager.analyticsRankingLoadError("classic", it.message ?: "") }
+            timedRankingResult.onLeft { analyticsManager.analyticsRankingLoadError("timed", it.message ?: "") }
 
             _uiState.update { state ->
                 state.copy(
@@ -87,6 +91,17 @@ class RankingViewModel(
         }
         analyticsManager.analyticsRankingTabSelected(tabName)
         _uiState.update { it.copy(selectedTabIndex = tabIndex) }
+    }
+
+    fun onClassicModeFilterSelected(mode: String) {
+        analyticsManager.analyticsRankingFilterSelected(mode)
+        _uiState.update { it.copy(classicModeFilter = mode) }
+    }
+
+    fun onRetryClicked() {
+        analyticsManager.analyticsErrorAction("ranking", "retry", "load_error")
+        analyticsManager.analyticsRankingRetry()
+        loadRanking()
     }
 
     fun refreshRanking() {

@@ -3,86 +3,274 @@
     <string name="app_name">LGBTIQ+</string>
 
     <!-- Select screen -->
-    <string name="start">Início</string>
-    <string name="start_new_game">Começar um novo jogo</string>
-    <string name="learn">Aprenda</string>
+    <string name="start">Jogar</string>
+    <string name="start_new_game">Começar novo jogo</string>
+    <string name="learn">Aprender</string>
     <string name="learn_more">Ler toda a informação</string>
     <string name="settings">Definições</string>
-    <string name="settings_description">Apagar som ou anúncios</string>
+    <string name="settings_description">Remover som ou anúncios</string>
+
+    <!-- Select Game screen -->
+    <string name="select_difficulty">Selecionar dificuldade</string>
+    <string name="choose_level">Escolha o seu nível</string>
+    <string name="normal">Normal</string>
+    <string name="normal_description">Adivinhe a bandeira pelo seu nome</string>
+    <string name="advance">Avançado</string>
+    <string name="advance_description">Adivinhe a bandeira pela sua descrição</string>
+    <string name="expert">Especialista</string>
+    <string name="expert_description">Adivinhe a bandeira sem pistas</string>
 
     <!-- Settings screen -->
     <string name="settings_version">Versão</string>
-    <string name="settings_delete_ads">Eliminar anúncios</string>
-    <string name="settings_delete_ads_summary">Remover os anúncios</string>
+    <string name="settings_delete_ads">Remover anúncios</string>
+    <string name="settings_delete_ads_summary">Remover os anúncios para sempre</string>
     <string name="settings_sounds">Sons</string>
     <string name="settings_rate_app">Avaliar aplicação</string>
-    <string name="settings_rate_app_summary">Ir à loja de jogos para avaliar a aplicação</string>
-    <string name="settings_more_apps">Mais aplicação</string>
+    <string name="settings_rate_app_summary">Ir à Play Store para avaliar a aplicação</string>
+    <string name="settings_more_apps">Mais aplicações</string>
     <string name="settings_more_apps_summary">Aplicações gratuitas recomendadas</string>
-    <string name="settings_share">Partilhe com os seus amigos</string>
-    <string name="settings_share_summary">Partilhe com o seu amigo esta aplicação para jogar com eles</string>
+    <string name="settings_share">Partilhar com amigos</string>
+    <string name="settings_share_summary">Partilha esta aplicação com os teus amigos para jogar juntos</string>
     <string name="more_apps">Mais aplicações</string>
-    <string name="sounds_on">Som em</string>
-    <string name="sounds_off">Som desligado</string>
+    <string name="sounds_on">Som ativado</string>
+    <string name="sounds_off">Som desativado</string>
 
-    <!-- Select screen -->
-    <string name="normal">Normal</string>
-    <string name="advance">Avançar</string>
-    <string name="expert">Perito</string>
+    <!-- New Settings strings for Compose -->
+    <string name="settings_appearance">Aparência</string>
+    <string name="settings_dark_mode">Modo escuro</string>
+    <string name="settings_dark_mode_desc">Ativar tema escuro</string>
+    <string name="settings_dynamic_colors">Cores dinâmicas</string>
+    <string name="settings_dynamic_colors_desc">Usar cores do papel de parede (Material You)</string>
+    <string name="settings_sound">Som</string>
+    <string name="settings_sound_effects">Efeitos sonoros</string>
+    <string name="settings_sound_effects_desc">Reproduzir sons durante o jogo</string>
+    <string name="settings_actions">Ações</string>
+    <string name="settings_remove_ads">Remover anúncios</string>
+    <string name="settings_remove_ads_desc">Compra única para remover todos os anúncios</string>
+    <string name="settings_rate_app_desc">Avalie-nos na Play Store</string>
+    <string name="settings_share_desc">Partilha esta app com amigos</string>
+    <string name="settings_more_apps_desc">Descobre mais apps nossas</string>
+    <string name="settings_about">Sobre</string>
+    <string name="settings_restore_purchases">Restaurar compras</string>
+    <string name="settings_restore_purchases_desc">Recuperar compras anteriores neste dispositivo</string>
+    <string name="purchase_success">Anúncios removidos com sucesso!</string>
+    <string name="purchase_error">Compra falhada. Tente novamente.</string>
+    <string name="restore_success">Compra restaurada com sucesso!</string>
+    <string name="restore_no_purchases">Nenhuma compra anterior encontrada.</string>
+    <string name="rate">Avaliar</string>
+    <string name="ranking">Classificação</string>
+    <string name="your_score">A sua pontuação</string>
 
     <!-- Result screen -->
     <string name="resultado_screen_title">Resultado final</string>
     <string name="share_message">\nA minha pontuação é %d, consegues superar-me?\n\n</string>
-    <string name="share_message_general">\nEsta é uma grande aplicação e é grátis!\n\n</string>
+    <string name="share_message_general">\nEsta é uma ótima app e é grátis!\n\n</string>
     <string name="choose_one">Escolha:</string>
     <string name="other_apps">Outras aplicações</string>
-    <string name="play_again">Reproduzir novamente</string>
+    <string name="play_again">Jogar novamente</string>
     <string name="share">Partilhar</string>
-    <string name="rate_on_play_store">Tarifa na loja de jogos</string>
+    <string name="rate_on_play_store">Avaliar na Play Store</string>
     <string name="result">Resultado: %d</string>
-    <string name="personal_record">Registo pessoal: %s</string>
+    <string name="personal_record">Recorde pessoal: %s</string>
     <string name="world_record">Recorde mundial: %s</string>
     <string name="best_score">Melhores pontuações</string>
     <string name="not_exist">Não existe</string>
     <string name="anonymous">Anónimo</string>
-    <string name="read_info">Informações sobre o orgulho</string>
+    <string name="read_info">Informações do Pride</string>
     <string name="know_more">Saber mais</string>
 
     <!-- Ranking screen -->
-    <string name="ranking_screen_title">Ranking</string>
+    <string name="ranking_screen_title">Classificação</string>
     <string name="best_points">Melhores pontuações</string>
+    <string name="ranking_tab_classic">Clássico</string>
+    <string name="ranking_tab_timed">Contra o relógio</string>
+    <string name="ranking_tab_xp_global">XP Global</string>
+    <string name="ranking_empty">Ainda sem pontuações. Seja o primeiro!</string>
+    <string name="ranking_empty_title">Ainda sem pontuações</string>
+    <string name="ranking_empty_subtitle">Seja o primeiro a ocupar o topo!</string>
     <plurals name="weeks_ago">
-        <item quantity="one">%d weeks ago</item>
-        <item quantity="other">%d weekss ago</item>
+        <item quantity="one">há %d semana</item>
+        <item quantity="other">há %d semanas</item>
     </plurals>
     <plurals name="months_ago">
-        <item quantity="one">%d month ago</item>
-        <item quantity="other">%d month(s) ago</item>
+        <item quantity="one">há %d mês</item>
+        <item quantity="other">há %d meses</item>
     </plurals>
     <plurals name="years_ago">
-        <item quantity="one">%d year ago</item>
-        <item quantity="other">%d years ago</item>
+        <item quantity="one">há %d ano</item>
+        <item quantity="other">há %d anos</item>
     </plurals>
 
     <!-- Dialog screen -->
     <string name="dialog_ranking_congratulation">Parabéns!</string>
-    <string name="dialog_ranking_description">A sua pontuação entrou no ranking mundial!</string>
+    <string name="dialog_ranking_description">A sua pontuação entrou na classificação mundial!</string>
+    <string name="dialog_ranking_timed_description">A sua pontuação contra o relógio está no top 20!</string>
     <string name="dialog_name">Nome</string>
     <string name="dialog_save">Guardar</string>
+    <string name="dialog_cancel">Cancelar</string>
+    <string name="dialog_change_photo">Alterar foto</string>
+    <string name="dialog_saving">A guardar…</string>
 
     <!-- Dialog screen extra life -->
-    <string name="dialog_extra_life_title">Vida Extra</string>
-    <string name="dialog_extra_life_description">Quer uma vida extra ao ver um anúncio?</string>
+    <string name="dialog_extra_life_title">Vida extra</string>
+    <string name="dialog_extra_life_description">Veja um vídeo curto para ganhar uma vida extra!</string>
     <string name="dialog_extra_life_btn_yes">Sim</string>
-    <string name="dialog_extra_life_btn_no">Não</string>
+    <string name="dialog_extra_life_btn_no">Não, obrigado</string>
+    <string name="extra_lives_remaining">%d restantes</string>
+    <string name="loading_ad">A carregar…</string>
+    <string name="watch_ad">Ver anúncio</string>
 
     <!-- Game screen -->
     <string name="life">vida</string>
     <string name="points">Pontos\n%d</string>
+    <string name="expert_question">Qual é esta bandeira?</string>
 
     <!-- Info screen -->
     <string name="info_title">Informação geral</string>
-
-    <!-- content -->
     <string name="locale">pt</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Bem-vindo ao Pride Quiz!</string>
+    <string name="onboarding_welcome_desc">Testa o teu conhecimento sobre as bandeiras do Pride LGBTQ+ e aprende sobre a bela diversidade da nossa comunidade.</string>
+    <string name="onboarding_learn_title">Aprende a jogar</string>
+    <string name="onboarding_learn_desc">Descobre o significado e a história de cada bandeira do Pride. O conhecimento é poder!</string>
+    <string name="onboarding_play_title">Desafia-te a ti mesmo</string>
+    <string name="onboarding_play_desc">Começa no modo Normal e vai até ao Especialista. Quantas bandeiras consegues reconhecer?</string>
+    <string name="onboarding_modes_title">Três modos de jogo</string>
+    <string name="onboarding_modes_desc">Normal: Associar bandeiras a nomes\nAvançado: Adivinhar pela descrição\nEspecialista: O desafio máximo!</string>
+    <string name="onboarding_skip">Saltar</string>
+    <string name="onboarding_next">Seguinte</string>
+    <string name="onboarding_get_started">Começar</string>
+
+    <!-- Exit confirmation -->
+    <string name="exit_game_title">Sair do jogo?</string>
+    <string name="exit_game_message">O teu progresso será perdido. Tens a certeza que queres sair?</string>
+    <string name="exit_game_stay">Ficar</string>
+    <string name="exit_game_leave">Sair</string>
+
+    <!-- Streak system -->
+    <string name="streak_combo">%d Combo!</string>
+    <string name="streak_on_fire">A arder!</string>
+    <string name="streak_unstoppable">Imparável!</string>
+    <string name="streak_legendary">Lendário!</string>
+
+    <!-- Result screen improvements -->
+    <string name="result_title">Fim do jogo</string>
+    <string name="result_new_record">Novo recorde!</string>
+    <string name="result_personal_best">Melhor resultado pessoal</string>
+    <string name="result_world_record">Recorde mundial</string>
+    <string name="result_accuracy">Precisão</string>
+    <string name="result_best_streak">Melhor série</string>
+    <string name="result_time_played">Tempo jogado</string>
+    <string name="result_comparison_better">%d pontos melhor do que o teu recorde!</string>
+    <string name="result_comparison_close">%d pontos do teu recorde</string>
+    <string name="double_points_title">Duplica os teus pontos!</string>
+    <string name="double_points_subtitle">Vê um vídeo curto para 2x a tua pontuação</string>
+    <string name="double_points_subtitle_paid">Toca para 2x os teus pontos — vantagem premium!</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_answer_button">Opção de resposta %d</string>
+    <string name="accessibility_correct_answer">Resposta correta</string>
+    <string name="accessibility_wrong_answer">Resposta errada</string>
+    <string name="accessibility_lives_remaining">%d vidas restantes</string>
+    <string name="accessibility_current_score">Pontuação atual: %d pontos</string>
+    <string name="accessibility_progress">Pergunta %1$d de %2$d</string>
+    <string name="settings_accessibility">Acessibilidade</string>
+    <string name="settings_high_contrast">Alto contraste</string>
+    <string name="settings_high_contrast_desc">Aumentar o contraste de cor para melhor visibilidade</string>
+    <string name="settings_large_text">Texto grande</string>
+    <string name="settings_large_text_desc">Aumentar o tamanho do texto em toda a app</string>
+
+    <!-- Offline mode -->
+    <string name="offline_mode">Modo offline</string>
+    <string name="offline_mode_message">Está a jogar offline. A classificação será sincronizada quando se ligar.</string>
+    <string name="connection_restored">Ligação restaurada</string>
+
+    <!-- Profile screen -->
+    <string name="profile_title">Perfil</string>
+    <string name="my_profile">O meu perfil</string>
+    <string name="enter_nickname">Inserir alcunha</string>
+    <string name="tap_to_set_nickname">Toca para definir alcunha</string>
+    <string name="edit_nickname">Editar alcunha</string>
+    <string name="change_photo">Alterar foto</string>
+    <string name="save">Guardar</string>
+    <string name="total_xp">Total: %d XP</string>
+    <string name="statistics_title">Estatísticas</string>
+    <string name="games_played">Jogos disputados</string>
+    <string name="games_won">Jogos ganhos</string>
+    <string name="best_streak">Melhor série</string>
+    <string name="accuracy_label">Precisão</string>
+    <string name="perfect_games">Jogos perfeitos</string>
+    <string name="time_played">Tempo de jogo</string>
+    <string name="games_by_mode">Jogos por modo</string>
+    <string name="achievements_title">Conquistas</string>
+    <string name="level_up_title">Subiu de nível!</string>
+    <string name="level_up_message">Alcançaste o nível %d!</string>
+    <string name="xp_gained">+%d XP</string>
+    <string name="global_rank">Classificação global</string>
+    <string name="global_rank_value">#%d</string>
+    <string name="view_leaderboard">Ver classificação</string>
+    <string name="not_ranked">Ainda sem classificação</string>
+    <string name="play_to_rank">Joga para entrar na classificação global!</string>
+
+    <!-- Timed mode -->
+    <string name="timed_mode">Contra o relógio</string>
+    <string name="timed_mode_description">Corrida contra o tempo!</string>
+    <string name="time_remaining">Tempo: %d</string>
+    <string name="time_bonus">Bónus de tempo: +%d</string>
+
+    <!-- Level titles -->
+    <string name="level_title_novice">Novato</string>
+    <string name="level_title_explorer">Explorador</string>
+    <string name="level_title_enthusiast">Entusiasta</string>
+    <string name="level_title_connoisseur">Conhecedor</string>
+    <string name="level_title_expert">Especialista</string>
+    <string name="level_title_master">Mestre</string>
+    <string name="level_title_grandmaster">Grão-Mestre</string>
+    <string name="level_title_legend">Lenda</string>
+
+    <!-- Achievement titles -->
+    <string name="achievement_first_game_title">Primeiros passos</string>
+    <string name="achievement_first_game_desc">Completa o teu primeiro jogo</string>
+    <string name="achievement_ten_games_title">A começar</string>
+    <string name="achievement_ten_games_desc">Joga 10 partidas</string>
+    <string name="achievement_fifty_games_title">Jogador dedicado</string>
+    <string name="achievement_fifty_games_desc">Joga 50 partidas</string>
+    <string name="achievement_hundred_games_title">Veterano</string>
+    <string name="achievement_hundred_games_desc">Joga 100 partidas</string>
+    <string name="achievement_first_perfect_title">Perfeccionista</string>
+    <string name="achievement_first_perfect_desc">Completa um jogo sem erros</string>
+    <string name="achievement_five_perfect_title">Impecável</string>
+    <string name="achievement_five_perfect_desc">Completa 5 jogos perfeitos</string>
+    <string name="achievement_streak_5_title">A arder</string>
+    <string name="achievement_streak_5_desc">Obtém uma série de 5 respostas certas</string>
+    <string name="achievement_streak_10_title">Imparável</string>
+    <string name="achievement_streak_10_desc">Obtém uma série de 10 respostas certas</string>
+    <string name="achievement_streak_15_title">Lendário</string>
+    <string name="achievement_streak_15_desc">Obtém uma série de 15 respostas certas</string>
+    <string name="achievement_streak_20_title">Divino</string>
+    <string name="achievement_streak_20_desc">Obtém uma série de 20 respostas certas</string>
+    <string name="achievement_level_10_title">Estrela em ascensão</string>
+    <string name="achievement_level_10_desc">Alcançar nível 10</string>
+    <string name="achievement_level_25_title">Especialista do Pride</string>
+    <string name="achievement_level_25_desc">Alcançar nível 25</string>
+    <string name="achievement_level_50_title">Lenda do Pride</string>
+    <string name="achievement_level_50_desc">Alcançar nível 50</string>
+    <string name="achievement_expert_master_title">Mestre especialista</string>
+    <string name="achievement_expert_master_desc">Completa 25 jogos no modo Especialista</string>
+    <string name="achievement_speed_demon_title">Demônio da velocidade</string>
+    <string name="achievement_speed_demon_desc">Completa 10 jogos no modo contra o relógio</string>
+    <string name="achievement_dedicated_title">Dedicado</string>
+    <string name="achievement_dedicated_desc">Joga 1 hora no total</string>
+    <string name="achievement_accuracy_80_title">Atirador de elite</string>
+    <string name="achievement_accuracy_80_desc">Mantém 80%+ de precisão em 10 jogos</string>
+    <string name="achievement_accuracy_90_title">Mestre da precisão</string>
+    <string name="achievement_accuracy_90_desc">Mantém 90%+ de precisão em 20 jogos</string>
+
+    <!-- Error states -->
+    <string name="error_loading_question">Não foi possível carregar a pergunta. Tente novamente.</string>
+    <string name="error_retry">Tentar novamente</string>
+    <string name="error_ranking_partial">Alguns dados não puderam ser carregados.</string>
+    <string name="more_apps_empty">Sem apps disponíveis de momento.</string>
+    <string name="error_loading_apps">Não foi possível carregar as apps. Tente novamente.</string>
 </resources>

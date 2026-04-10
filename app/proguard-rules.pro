@@ -16,9 +16,8 @@
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Source file name obfuscation is configured at the bottom of this file
+# (see -renamesourcefileattribute SourceFile)
 # Add this global rule
 -keepattributes Signature
 -keepattributes *Annotation*
@@ -49,8 +48,8 @@
 # DTOs para Firebase deserialization
 -keep class com.quiz.pride.datasource.dto.** { *; }
 
-# Data layer: mantener nombres para debugging de stack traces
--keepnames class com.quiz.data.repository.**
+# Obfuscar nombres de archivo en stack traces (Crashlytics tiene el mapping)
+-renamesourcefileattribute SourceFile
 
 -dontwarn javax.annotation.**
 -dontnote junit.framework.**

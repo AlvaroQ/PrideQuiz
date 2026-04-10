@@ -46,10 +46,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.PrideTopAppBar
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.PrideQuizTheme
 import kotlinx.coroutines.flow.collectLatest
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -60,6 +63,9 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val prefsState by viewModel.prefsState.collectAsStateWithLifecycle()
+    val analyticsManager: AnalyticsManager = koinInject()
+
+    TrackScreenTime(AnalyticsManager.SCREEN_SETTINGS, analyticsManager)
     val context = LocalContext.current
     val activity = context as? Activity
 

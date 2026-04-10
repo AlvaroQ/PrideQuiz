@@ -14,10 +14,10 @@ import com.quiz.pride.datasource.dto.PrideDto
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_APPS
 import com.quiz.pride.utils.Constants.PATH_REFERENCE_PRIDE
 import com.quiz.pride.utils.Constants.TOTAL_ITEM_EACH_LOAD
-import com.quiz.pride.utils.log
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import timber.log.Timber
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.resume
 
 @ExperimentalCoroutinesApi
 class DataBaseSourceImpl : DataBaseSource {
@@ -32,9 +32,9 @@ class DataBaseSourceImpl : DataBaseSource {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    log("getPrideById FAILED", "Failed to read value.", error.toException())
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
-                    continuation.resumeWithException(error.toException())
+                    Timber.e(error.toException(), "getPrideById FAILED")
+                    FirebaseCrashlytics.getInstance().recordException(error.toException())
+                    continuation.resume(Pride())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)
@@ -63,9 +63,9 @@ class DataBaseSourceImpl : DataBaseSource {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
-                    continuation.resumeWithException(error.toException())
+                    Timber.e(error.toException(), "Failed to read value")
+                    FirebaseCrashlytics.getInstance().recordException(error.toException())
+                    continuation.resume(emptyList())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)
@@ -93,9 +93,9 @@ class DataBaseSourceImpl : DataBaseSource {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    log("DataBaseBaseSourceImpl", "Failed to read value.", error.toException())
-                    FirebaseCrashlytics.getInstance().recordException(Throwable(error.toException()))
-                    continuation.resumeWithException(error.toException())
+                    Timber.e(error.toException(), "Failed to read value")
+                    FirebaseCrashlytics.getInstance().recordException(error.toException())
+                    continuation.resume(emptyList())
                 }
             }
             ref.addListenerForSingleValueEvent(listener)

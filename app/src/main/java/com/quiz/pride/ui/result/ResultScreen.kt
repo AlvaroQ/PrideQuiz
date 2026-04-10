@@ -33,12 +33,13 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -90,9 +91,12 @@ import com.quiz.pride.ui.components.rememberInterstitialAdState
 import com.quiz.pride.ui.components.rememberRewardedAdState
 import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.ui.theme.PrideQuizTheme
+import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.utils.Constants
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -110,6 +114,9 @@ fun ResultScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val analyticsManager: AnalyticsManager = koinInject()
+
+    TrackScreenTime(AnalyticsManager.SCREEN_RESULT, analyticsManager)
 
     // Animation states
     var showScore by remember { mutableStateOf(false) }
@@ -123,38 +130,75 @@ fun ResultScreen(
         adUnitId = context.getString(R.string.BONIFICADO_GAME_OVER)
     )
     var hasShownInterstitial by remember { mutableStateOf(false) }
-    var displayedPoints by remember { mutableIntStateOf(points) }
-    var hasDoubledPoints by remember { mutableStateOf(false) }
+    var pendingInterstitial by remember { mutableStateOf(false) }
+    // Fix 2: displayedPoints viene del ViewModel (no local state) para que saveScore use el valor correcto
+    val displayedPoints = uiState.displayedPoints.takeIf { it > 0 } ?: points
+    // hasDoubledPoints: se determina comparando displayedPoints con el valor original
+    val hasDoubledPoints = displayedPoints > points
     var isShowingAd by remember { mutableStateOf(false) }
     var showXpGain by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Check if new record
     val isNewRecord = displayedPoints > (uiState.personalRecord.toIntOrNull() ?: 0)
     val recordDifference = displayedPoints - (uiState.personalRecord.toIntOrNull() ?: 0)
 
-    // Escuchar eventos del ViewModel (interstitial, etc.)
+    // Escuchar eventos del ViewModel (interstitial, save score result, etc.)
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
                 is ResultEvent.ShowInterstitialAd -> {
-                    if (interstitialAdState.isReady && !hasShownInterstitial) {
-                        val activity = context.findActivity()
-                        if (activity != null) {
-                            hasShownInterstitial = true
-                            isShowingAd = true
-                            interstitialAdState.showAd(
-                                activity = activity,
-                                onAdDismissed = {
-                                    isShowingAd = false
-                                    viewModel.onInterstitialShown()
-                                },
-                                onAdFailed = {
-                                    isShowingAd = false
-                                }
+                    val activity = context.findActivity()
+                    if (interstitialAdState.isReady && !hasShownInterstitial && activity != null) {
+                        hasShownInterstitial = true
+                        isShowingAd = true
+                        interstitialAdState.showAd(
+                            activity = activity,
+                            onAdDismissed = {
+                                isShowingAd = false
+                                viewModel.onInterstitialShown()
+                            },
+                            onAdFailed = {
+                                isShowingAd = false
+                            }
+                        )
+                    } else if (!hasShownInterstitial) {
+                        pendingInterstitial = true
+                    }
+                }
+                // Fix 7: mostrar snackbar en caso de error al guardar el puntaje
+                is ResultEvent.SaveScoreResult -> {
+                    if (!event.success) {
+                        launch {
+                            snackbarHostState.showSnackbar(
+                                message = event.message.ifEmpty { "Error al guardar el puntaje" },
+                                actionLabel = "Reintentar"
                             )
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // Mostrar interstitial pendiente cuando el ad este listo (evita race condition)
+    LaunchedEffect(interstitialAdState.isReady, pendingInterstitial) {
+        if (pendingInterstitial && interstitialAdState.isReady && !hasShownInterstitial) {
+            val activity = context.findActivity()
+            if (activity != null) {
+                hasShownInterstitial = true
+                isShowingAd = true
+                pendingInterstitial = false
+                interstitialAdState.showAd(
+                    activity = activity,
+                    onAdDismissed = {
+                        isShowingAd = false
+                        viewModel.onInterstitialShown()
+                    },
+                    onAdFailed = {
+                        isShowingAd = false
+                    }
+                )
             }
         }
     }
@@ -191,7 +235,8 @@ fun ResultScreen(
                 title = stringResource(R.string.result_title),
                 onBackClick = onNavigateBack
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             AnimatedScreenBackground(
@@ -255,10 +300,10 @@ fun ResultScreen(
                     enter = scaleIn() + fadeIn()
                 ) {
                     uiState.xpGainResult?.let { xpResult ->
-                        Spacer(modifier = Modifier.height(16.dp))
                         XpGainedBadge(
                             xpGained = xpResult.xpGained,
-                            newLevel = if (xpResult.leveledUp) xpResult.newLevel else null
+                            newLevel = if (xpResult.leveledUp) xpResult.newLevel else null,
+                            modifier = Modifier.padding(top = 16.dp)
                         )
                     }
                 }
@@ -279,8 +324,7 @@ fun ResultScreen(
                         onDoublePoints = {
                             if (uiState.hasPaid) {
                                 // Pagadores duplican gratis, sin ver video
-                                displayedPoints = displayedPoints * 2
-                                hasDoubledPoints = true
+                                viewModel.onPointsDoubled()
                             } else {
                                 val activity = context.findActivity()
                                 if (activity != null && rewardedAdState.isReady) {
@@ -288,8 +332,8 @@ fun ResultScreen(
                                     rewardedAdState.showAd(
                                         activity = activity,
                                         onRewardEarned = {
-                                            displayedPoints = displayedPoints * 2
-                                            hasDoubledPoints = true
+                                            // Fix 2: delegar al ViewModel para que el score a guardar sea el correcto
+                                            viewModel.onPointsDoubled()
                                         },
                                         onAdDismissed = {
                                             isShowingAd = false
@@ -310,6 +354,7 @@ fun ResultScreen(
                             onNavigateToRanking()
                         },
                         onShare = {
+                            viewModel.onShareClicked()
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
                                 putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
@@ -1111,7 +1156,8 @@ private fun RecordBadgePreview() {
 @Composable
 private fun XpGainedBadge(
     xpGained: Long,
-    newLevel: Int? = null
+    newLevel: Int? = null,
+    modifier: Modifier = Modifier
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "xp_glow")
     val glowAlpha by infiniteTransition.animateFloat(
@@ -1125,7 +1171,7 @@ private fun XpGainedBadge(
     )
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(

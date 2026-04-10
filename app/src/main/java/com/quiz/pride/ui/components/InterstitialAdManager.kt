@@ -2,7 +2,7 @@ package com.quiz.pride.ui.components
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
+import timber.log.Timber
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +17,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
+import org.koin.java.KoinJavaComponent.inject
 
 /**
  * State holder for Interstitial Ad
@@ -25,6 +27,7 @@ class InterstitialAdState(
     private val context: Context,
     private val adUnitId: String
 ) {
+    private val analyticsManager: AnalyticsManager by inject(AnalyticsManager::class.java)
     private var interstitialAd: InterstitialAd? = null
     var isLoading by mutableStateOf(false)
         private set
@@ -47,7 +50,7 @@ class InterstitialAdState(
             adRequest,
             object : InterstitialAdLoadCallback() {
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e(TAG, "Interstitial ad failed to load: ${error.message}")
+                    Timber.e("Interstitial ad failed to load: ${error.message}")
                     interstitialAd = null
                     isLoading = false
                     isReady = false
@@ -55,7 +58,7 @@ class InterstitialAdState(
                 }
 
                 override fun onAdLoaded(ad: InterstitialAd) {
-                    Log.d(TAG, "Interstitial ad loaded successfully")
+                    Timber.d("Interstitial ad loaded successfully")
                     interstitialAd = ad
                     isLoading = false
                     isReady = true
@@ -78,7 +81,8 @@ class InterstitialAdState(
 
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                Log.d(TAG, "Interstitial ad dismissed")
+                Timber.d("Interstitial ad dismissed")
+                analyticsManager.analyticsAdEvent("interstitial", "dismissed")
                 interstitialAd = null
                 isReady = false
                 onAdDismissed()
@@ -87,7 +91,7 @@ class InterstitialAdState(
             }
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                Log.e(TAG, "Interstitial ad failed to show: ${error.message}")
+                Timber.e("Interstitial ad failed to show: ${error.message}")
                 interstitialAd = null
                 isReady = false
                 onAdFailed(error.message)
@@ -96,7 +100,8 @@ class InterstitialAdState(
             }
 
             override fun onAdShowedFullScreenContent() {
-                Log.d(TAG, "Interstitial ad showed")
+                Timber.d("Interstitial ad showed")
+                analyticsManager.analyticsAdEvent("interstitial", "shown")
             }
         }
 
@@ -109,9 +114,6 @@ class InterstitialAdState(
         isLoading = false
     }
 
-    companion object {
-        private const val TAG = "InterstitialAdState"
-    }
 }
 
 /**

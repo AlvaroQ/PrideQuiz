@@ -108,9 +108,9 @@ class RankingUseCaseTest {
 
     @Test
     fun `GetRecordScore NORMAL retorna Either Right con el puntaje como String`() = runTest {
-        coEvery { repository.getWorldRecords(1L) } returns Either.Right("150")
+        coEvery { repository.getWorldRecords(1, "") } returns Either.Right("150")
 
-        val result = getRecordScore.invoke(1L, RankingMode.NORMAL)
+        val result = getRecordScore.invoke(1, RankingMode.NORMAL)
 
         assertTrue(result.isRight())
         assertEquals("150", (result as Either.Right).value)
@@ -118,20 +118,30 @@ class RankingUseCaseTest {
 
     @Test
     fun `GetRecordScore NORMAL delega a getWorldRecords con el limite correcto`() = runTest {
-        coEvery { repository.getWorldRecords(50L) } returns Either.Right("80")
+        coEvery { repository.getWorldRecords(50, "") } returns Either.Right("80")
 
-        getRecordScore.invoke(50L, RankingMode.NORMAL)
+        getRecordScore.invoke(50, RankingMode.NORMAL)
 
-        coVerify(exactly = 1) { repository.getWorldRecords(50L) }
+        coVerify(exactly = 1) { repository.getWorldRecords(50, "") }
     }
 
     @Test
     fun `GetRecordScore NORMAL retorna Either Left cuando el repository falla`() = runTest {
-        coEvery { repository.getWorldRecords(any()) } returns Either.Left(RepositoryException.NoConnectionException)
+        coEvery { repository.getWorldRecords(any(), any()) } returns Either.Left(RepositoryException.NoConnectionException)
 
-        val result = getRecordScore.invoke(1L, RankingMode.NORMAL)
+        val result = getRecordScore.invoke(1, RankingMode.NORMAL)
 
         assertTrue(result.isLeft())
+    }
+
+    @Test
+    fun `GetRecordScore NORMAL con gameMode filtra por modo correctamente`() = runTest {
+        coEvery { repository.getWorldRecords(50, "NORMAL") } returns Either.Right("100")
+
+        val result = getRecordScore.invoke(50, RankingMode.NORMAL, "NORMAL")
+
+        assertTrue(result.isRight())
+        coVerify(exactly = 1) { repository.getWorldRecords(50, "NORMAL") }
     }
 
     // =========================================================
@@ -140,20 +150,20 @@ class RankingUseCaseTest {
 
     @Test
     fun `GetRecordScore TIMED delega a getTimedWorldRecords`() = runTest {
-        coEvery { repository.getTimedWorldRecords(20L) } returns Either.Right("300")
+        coEvery { repository.getTimedWorldRecords(20) } returns Either.Right("300")
 
-        val result = getRecordScore.invoke(20L, RankingMode.TIMED)
+        val result = getRecordScore.invoke(20, RankingMode.TIMED)
 
         assertTrue(result.isRight())
         assertEquals("300", (result as Either.Right).value)
-        coVerify(exactly = 1) { repository.getTimedWorldRecords(20L) }
+        coVerify(exactly = 1) { repository.getTimedWorldRecords(20) }
     }
 
     @Test
     fun `GetRecordScore TIMED retorna Either Left cuando el repository falla`() = runTest {
         coEvery { repository.getTimedWorldRecords(any()) } returns Either.Left(RepositoryException.DataNotFoundException)
 
-        val result = getRecordScore.invoke(20L, RankingMode.TIMED)
+        val result = getRecordScore.invoke(20, RankingMode.TIMED)
 
         assertTrue(result.isLeft())
     }
@@ -164,12 +174,12 @@ class RankingUseCaseTest {
 
     @Test
     fun `GetRecordScore con modo por defecto usa NORMAL`() = runTest {
-        coEvery { repository.getWorldRecords(1L) } returns Either.Right("200")
+        coEvery { repository.getWorldRecords(1, "") } returns Either.Right("200")
 
-        val result = getRecordScore.invoke(1L)
+        val result = getRecordScore.invoke(1)
 
         assertTrue(result.isRight())
-        coVerify(exactly = 1) { repository.getWorldRecords(1L) }
+        coVerify(exactly = 1) { repository.getWorldRecords(1, "") }
     }
 
     // =========================================================

@@ -2,7 +2,7 @@ package com.quiz.pride.ui.components
 
 import android.app.Activity
 import android.content.Context
-import android.util.Log
+import timber.log.Timber
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -17,6 +17,8 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.rewarded.RewardedAd
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
+import org.koin.java.KoinJavaComponent.inject
 
 /**
  * State holder for Rewarded Ad
@@ -25,6 +27,7 @@ class RewardedAdState(
     private val context: Context,
     private val adUnitId: String
 ) {
+    private val analyticsManager: AnalyticsManager by inject(AnalyticsManager::class.java)
     private var rewardedAd: RewardedAd? = null
     var isLoading by mutableStateOf(false)
         private set
@@ -47,7 +50,7 @@ class RewardedAdState(
             adRequest,
             object : RewardedAdLoadCallback() {
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.e(TAG, "Rewarded ad failed to load: ${error.message}")
+                    Timber.e("Rewarded ad failed to load: ${error.message}")
                     rewardedAd = null
                     isLoading = false
                     isReady = false
@@ -55,7 +58,7 @@ class RewardedAdState(
                 }
 
                 override fun onAdLoaded(ad: RewardedAd) {
-                    Log.d(TAG, "Rewarded ad loaded successfully")
+                    Timber.d("Rewarded ad loaded successfully")
                     rewardedAd = ad
                     isLoading = false
                     isReady = true
@@ -79,7 +82,8 @@ class RewardedAdState(
 
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdDismissedFullScreenContent() {
-                Log.d(TAG, "Rewarded ad dismissed")
+                Timber.d("Rewarded ad dismissed")
+                analyticsManager.analyticsAdEvent("rewarded", "dismissed")
                 rewardedAd = null
                 isReady = false
                 onAdDismissed()
@@ -88,7 +92,7 @@ class RewardedAdState(
             }
 
             override fun onAdFailedToShowFullScreenContent(error: AdError) {
-                Log.e(TAG, "Rewarded ad failed to show: ${error.message}")
+                Timber.e("Rewarded ad failed to show: ${error.message}")
                 rewardedAd = null
                 isReady = false
                 onAdFailed(error.message)
@@ -97,12 +101,13 @@ class RewardedAdState(
             }
 
             override fun onAdShowedFullScreenContent() {
-                Log.d(TAG, "Rewarded ad showed")
+                Timber.d("Rewarded ad showed")
+                analyticsManager.analyticsAdEvent("rewarded", "shown")
             }
         }
 
         ad.show(activity) { rewardItem ->
-            Log.d(TAG, "User earned reward: ${rewardItem.amount} ${rewardItem.type}")
+            Timber.d("User earned reward: ${rewardItem.amount} ${rewardItem.type}")
             onRewardEarned()
         }
     }
@@ -113,9 +118,6 @@ class RewardedAdState(
         isLoading = false
     }
 
-    companion object {
-        private const val TAG = "RewardedAdState"
-    }
 }
 
 /**

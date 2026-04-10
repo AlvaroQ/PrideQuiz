@@ -86,6 +86,8 @@
     <string name="ranking_tab_timed">Time Attack</string>
     <string name="ranking_tab_xp_global">XP Global</string>
     <string name="ranking_empty">No scores yet. Be the first!</string>
+    <string name="ranking_empty_title">No scores yet</string>
+    <string name="ranking_empty_subtitle">Be the first to claim the top spot!</string>
     <plurals name="weeks_ago">
         <item quantity="one">%d week ago</item>
         <item quantity="other">%d weeks ago</item>

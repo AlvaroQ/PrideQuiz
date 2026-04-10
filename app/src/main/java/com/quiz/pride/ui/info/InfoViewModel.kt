@@ -44,6 +44,7 @@ class InfoViewModel(
 
             getPrideList.invoke(0).fold(
                 ifLeft = {
+                    analyticsManager.analyticsErrorAction("info", "error_shown", "load_error")
                     _uiState.update { state ->
                         state.copy(
                             isLoading = false,
@@ -67,6 +68,11 @@ class InfoViewModel(
         }
     }
 
+    fun onRetryClicked() {
+        analyticsManager.analyticsErrorAction("info", "retry", "load_error")
+        loadInitialData()
+    }
+
     fun loadMorePrideList() {
         viewModelScope.launch {
             // Lectura del estado DENTRO del launch para evitar race condition:
@@ -81,6 +87,7 @@ class InfoViewModel(
 
             getPrideList.invoke(nextPage).fold(
                 ifLeft = {
+                    analyticsManager.analyticsErrorAction("info", "error_shown", "load_error")
                     _uiState.update { state ->
                         state.copy(isLoading = false, hasError = true)
                     }
