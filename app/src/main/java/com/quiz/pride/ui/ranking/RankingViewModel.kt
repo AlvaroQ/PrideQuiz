@@ -28,7 +28,7 @@ data class RankingUiState(
     val showRewardedAd: Boolean = false,
     val showBannerAd: Boolean = false,
     val hasError: Boolean = false,
-    // Filtro del tab Classic: "" = todos, "NORMAL", "ADVANCE", "EXPERT"
+    // Filtro del tab Classic: "" = todos, "NORMAL", "ADVANCE"
     val classicModeFilter: String = ""
 )
 

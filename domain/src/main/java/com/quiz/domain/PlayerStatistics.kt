@@ -11,7 +11,6 @@ data class PlayerStatistics(
     val totalTimePlayedMs: Long,
     val normalGamesPlayed: Int,
     val advanceGamesPlayed: Int,
-    val expertGamesPlayed: Int,
     val timedGamesPlayed: Int
 ) {
     val totalTimePlayed: String

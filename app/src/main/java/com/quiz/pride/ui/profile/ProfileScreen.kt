@@ -612,13 +612,6 @@ private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean
                 modifier = Modifier.weight(1f)
             )
             ModeChip(
-                mode = "Expert",
-                count = statistics.expertGamesPlayed,
-                color = NeonPurple,
-                isDarkTheme = isDarkTheme,
-                modifier = Modifier.weight(1f)
-            )
-            ModeChip(
                 mode = "Timed",
                 count = statistics.timedGamesPlayed,
                 color = NeonOrange,

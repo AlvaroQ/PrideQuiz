@@ -31,7 +31,6 @@ class ProgressionManager(private val context: Context) {
         const val XP_PER_PERFECT_GAME = 100
         const val XP_PER_WIN = 25
         const val XP_MULTIPLIER_ADVANCE = 1.5
-        const val XP_MULTIPLIER_EXPERT = 2.0
         const val XP_MULTIPLIER_TIMED = 1.3
 
         // Level thresholds (cumulative XP needed)

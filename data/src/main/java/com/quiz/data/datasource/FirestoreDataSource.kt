@@ -7,7 +7,7 @@ import com.quiz.domain.User
 interface FirestoreDataSource {
     suspend fun addRecord(user: User): Either<RepositoryException, User>
     suspend fun getRanking(): Either<RepositoryException, List<User>>
-    // gameMode: filtro por modo de juego ("NORMAL", "ADVANCE", "EXPERT").
+    // gameMode: filtro por modo de juego ("NORMAL", "ADVANCE").
     // String vacio = sin filtro (compatibilidad con entradas legacy sin gameMode).
     suspend fun getWorldRecords(limit: Int, gameMode: String = ""): Either<RepositoryException, String>
 

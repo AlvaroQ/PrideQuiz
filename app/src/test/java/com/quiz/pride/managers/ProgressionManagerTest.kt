@@ -101,12 +101,6 @@ class ProgressionManagerTest {
         assertTrue(ProgressionManager.XP_PER_PERFECT_GAME > 0)
         assertTrue(ProgressionManager.XP_PER_WIN > 0)
         assertTrue(ProgressionManager.XP_MULTIPLIER_ADVANCE > 1.0)
-        assertTrue(ProgressionManager.XP_MULTIPLIER_EXPERT > 1.0)
         assertTrue(ProgressionManager.XP_MULTIPLIER_TIMED > 1.0)
-    }
-
-    @Test
-    fun `multiplicador EXPERT es mayor que multiplicador ADVANCE`() {
-        assertTrue(ProgressionManager.XP_MULTIPLIER_EXPERT > ProgressionManager.XP_MULTIPLIER_ADVANCE)
     }
 }

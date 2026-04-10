@@ -24,7 +24,6 @@ class GameStatsManagerTest {
     private val xpPerPerfectGame = ProgressionManager.XP_PER_PERFECT_GAME
     private val xpPerWin = ProgressionManager.XP_PER_WIN
     private val xpMultiplierAdvance = ProgressionManager.XP_MULTIPLIER_ADVANCE
-    private val xpMultiplierExpert = ProgressionManager.XP_MULTIPLIER_EXPERT
     private val xpMultiplierTimed = ProgressionManager.XP_MULTIPLIER_TIMED
 
     /**
@@ -55,7 +54,6 @@ class GameStatsManagerTest {
         // Multiplicadores de modo
         xpEarned = when (result.gameMode) {
             GameMode.ADVANCE -> (xpEarned * xpMultiplierAdvance).toLong()
-            GameMode.EXPERT  -> (xpEarned * xpMultiplierExpert).toLong()
             GameMode.TIMED   -> (xpEarned * xpMultiplierTimed).toLong()
             else             -> xpEarned
         }
@@ -105,14 +103,8 @@ class GameStatsManagerTest {
     }
 
     @Test
-    fun `XP_MULTIPLIER_EXPERT es mayor que XP_MULTIPLIER_ADVANCE`() {
-        assertTrue(ProgressionManager.XP_MULTIPLIER_EXPERT > ProgressionManager.XP_MULTIPLIER_ADVANCE)
-    }
-
-    @Test
     fun `todos los multiplicadores son mayores a 1`() {
         assertTrue(ProgressionManager.XP_MULTIPLIER_ADVANCE > 1.0)
-        assertTrue(ProgressionManager.XP_MULTIPLIER_EXPERT > 1.0)
         assertTrue(ProgressionManager.XP_MULTIPLIER_TIMED > 1.0)
     }
 
@@ -280,18 +272,6 @@ class GameStatsManagerTest {
     }
 
     @Test
-    fun `modo EXPERT aplica multiplicador XP_MULTIPLIER_EXPERT`() {
-        val resultExpert = resultBase(gameMode = GameMode.EXPERT, correctAnswers = 5)
-        val resultNormal = resultBase(gameMode = GameMode.NORMAL, correctAnswers = 5)
-
-        val xpExpert = calcularXp(resultExpert)
-        val xpNormal = calcularXp(resultNormal)
-        val xpEsperado = (xpNormal * xpMultiplierExpert).toLong()
-
-        assertEquals(xpEsperado, xpExpert)
-    }
-
-    @Test
     fun `modo TIMED aplica multiplicador XP_MULTIPLIER_TIMED`() {
         val resultTimed = resultBase(gameMode = GameMode.TIMED, correctAnswers = 5)
         val resultNormal = resultBase(gameMode = GameMode.NORMAL, correctAnswers = 5)
@@ -301,34 +281,6 @@ class GameStatsManagerTest {
         val xpEsperado = (xpNormal * xpMultiplierTimed).toLong()
 
         assertEquals(xpEsperado, xpTimed)
-    }
-
-    @Test
-    fun `modo EXPERT siempre da mas XP que ADVANCE para el mismo resultado`() {
-        val resultExpert = resultBase(gameMode = GameMode.EXPERT, correctAnswers = 5)
-        val resultAdvance = resultBase(gameMode = GameMode.ADVANCE, correctAnswers = 5)
-
-        assertTrue(calcularXp(resultExpert) > calcularXp(resultAdvance))
-    }
-
-    @Test
-    fun `multiplicadores se aplican sobre el XP total incluyendo bonuses`() {
-        // Partida perfecta completada en modo EXPERT
-        val result = GameResult(
-            gameMode = GameMode.EXPERT,
-            correctAnswers = 10,
-            totalQuestions = 10,
-            bestStreak = 0,
-            timePlayedMs = 60_000L,
-            completedAllQuestions = true
-        )
-        val xp = calcularXp(result)
-
-        // XP base: 10 * XP_CORRECT + XP_PERFECT + XP_WIN
-        val xpBase = (10 * xpPerCorrectAnswer + xpPerPerfectGame + xpPerWin).toLong()
-        val xpEsperado = (xpBase * xpMultiplierExpert).toLong()
-
-        assertEquals(xpEsperado, xp)
     }
 
     // =========================================================

@@ -28,7 +28,6 @@ class GameStatsManager(
         internal val GAMES_WON = DataStoreKeys.GameStatsKeys.GAMES_WON
         internal val NORMAL_GAMES = DataStoreKeys.GameStatsKeys.NORMAL_GAMES
         internal val ADVANCE_GAMES = DataStoreKeys.GameStatsKeys.ADVANCE_GAMES
-        internal val EXPERT_GAMES = DataStoreKeys.GameStatsKeys.EXPERT_GAMES
         internal val TIMED_GAMES = DataStoreKeys.GameStatsKeys.TIMED_GAMES
     }
 
@@ -59,7 +58,6 @@ class GameStatsManager(
         // Mode multipliers
         xpEarned = when (result.gameMode) {
             GameMode.ADVANCE -> (xpEarned * ProgressionManager.XP_MULTIPLIER_ADVANCE).toLong()
-            GameMode.EXPERT -> (xpEarned * ProgressionManager.XP_MULTIPLIER_EXPERT).toLong()
             GameMode.TIMED -> (xpEarned * ProgressionManager.XP_MULTIPLIER_TIMED).toLong()
             else -> xpEarned
         }
@@ -91,7 +89,6 @@ class GameStatsManager(
             when (result.gameMode) {
                 GameMode.NORMAL -> preferences[NORMAL_GAMES] = (prefs[NORMAL_GAMES] ?: 0) + 1
                 GameMode.ADVANCE -> preferences[ADVANCE_GAMES] = (prefs[ADVANCE_GAMES] ?: 0) + 1
-                GameMode.EXPERT -> preferences[EXPERT_GAMES] = (prefs[EXPERT_GAMES] ?: 0) + 1
                 GameMode.TIMED -> preferences[TIMED_GAMES] = (prefs[TIMED_GAMES] ?: 0) + 1
             }
         }
@@ -126,7 +123,6 @@ class GameStatsManager(
             totalTimePlayedMs = prefs[TOTAL_TIME_PLAYED_MS] ?: 0L,
             normalGamesPlayed = prefs[NORMAL_GAMES] ?: 0,
             advanceGamesPlayed = prefs[ADVANCE_GAMES] ?: 0,
-            expertGamesPlayed = prefs[EXPERT_GAMES] ?: 0,
             timedGamesPlayed = prefs[TIMED_GAMES] ?: 0
         )
     }

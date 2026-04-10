@@ -66,7 +66,6 @@ class ProfileViewModelTest {
         totalTimePlayedMs = 3_600_000L,
         normalGamesPlayed = 30,
         advanceGamesPlayed = 10,
-        expertGamesPlayed = 5,
         timedGamesPlayed = 5
     )
 

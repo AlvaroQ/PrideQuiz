@@ -67,8 +67,6 @@ import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
 import com.quiz.pride.ui.theme.AdvanceGradientTop
-import com.quiz.pride.ui.theme.ExpertGradientBottom
-import com.quiz.pride.ui.theme.ExpertGradientTop
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.LearnGradientBottom

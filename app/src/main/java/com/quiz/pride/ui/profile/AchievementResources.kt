@@ -22,7 +22,6 @@ val Achievement.titleRes: Int
         Achievement.LEVEL_10 -> R.string.achievement_level_10_title
         Achievement.LEVEL_25 -> R.string.achievement_level_25_title
         Achievement.LEVEL_50 -> R.string.achievement_level_50_title
-        Achievement.EXPERT_MASTER -> R.string.achievement_expert_master_title
         Achievement.SPEED_DEMON -> R.string.achievement_speed_demon_title
         Achievement.DEDICATED -> R.string.achievement_dedicated_title
         Achievement.ACCURACY_80 -> R.string.achievement_accuracy_80_title
@@ -44,7 +43,6 @@ val Achievement.descriptionRes: Int
         Achievement.LEVEL_10 -> R.string.achievement_level_10_desc
         Achievement.LEVEL_25 -> R.string.achievement_level_25_desc
         Achievement.LEVEL_50 -> R.string.achievement_level_50_desc
-        Achievement.EXPERT_MASTER -> R.string.achievement_expert_master_desc
         Achievement.SPEED_DEMON -> R.string.achievement_speed_demon_desc
         Achievement.DEDICATED -> R.string.achievement_dedicated_desc
         Achievement.ACCURACY_80 -> R.string.achievement_accuracy_80_desc

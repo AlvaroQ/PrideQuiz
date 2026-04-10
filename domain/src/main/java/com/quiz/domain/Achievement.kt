@@ -33,7 +33,6 @@ enum class Achievement(
     LEVEL_50("level_50", 1000, "\uD83C\uDFC6"),
 
     // Especiales
-    EXPERT_MASTER("expert_master", 400, "\uD83C\uDF93"),
     SPEED_DEMON("speed_demon", 300, "\u23F1\uFE0F"),
     DEDICATED("dedicated", 200, "\u23F0"),
     ACCURACY_80("accuracy_80", 250, "\uD83C\uDFAF"),

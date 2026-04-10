@@ -9,7 +9,7 @@ object Constants {
     const val COLLECTION_RANKING_TIMED = "ranking-pride-timed"
     const val COLLECTION_XP_LEADERBOARD = "xp-leaderboard"
     const val TOP_RANKING_LIMIT = 20
-    enum class GameType { NORMAL, ADVANCE, EXPERT, TIMED }
+    enum class GameType { NORMAL, ADVANCE, TIMED }
 
     // Timed mode configuration
     const val TIMED_MODE_TOTAL_SECONDS = 120 // 2 minutes

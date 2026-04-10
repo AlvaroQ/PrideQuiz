@@ -16,7 +16,7 @@ class GetRankingScore(private val rankingRepository: RankingRepository) {
 }
 
 class GetRecordScore(private val rankingRepository: RankingRepository) {
-    // gameMode: filtra records por modo de juego dentro de la coleccion clasica ("NORMAL", "ADVANCE", "EXPERT").
+    // gameMode: filtra records por modo de juego dentro de la coleccion clasica ("NORMAL", "ADVANCE").
     // String vacio = sin filtro (backward compatible con entradas legacy sin gameMode).
     // Para RankingMode.TIMED el gameMode se ignora (usa coleccion separada ranking-pride-timed).
     suspend operator fun invoke(

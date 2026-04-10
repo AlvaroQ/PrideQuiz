@@ -72,7 +72,6 @@ class XpSyncManagerTest {
         totalTimePlayedMs = 120_000L,
         normalGamesPlayed = 5,
         advanceGamesPlayed = 3,
-        expertGamesPlayed = 2,
         timedGamesPlayed = 0
     )
 

@@ -38,7 +38,6 @@ object DataStoreKeys {
         val GAMES_WON = intPreferencesKey("games_won")
         val NORMAL_GAMES = intPreferencesKey("normal_games")
         val ADVANCE_GAMES = intPreferencesKey("advance_games")
-        val EXPERT_GAMES = intPreferencesKey("expert_games")
         val TIMED_GAMES = intPreferencesKey("timed_games")
     }
 

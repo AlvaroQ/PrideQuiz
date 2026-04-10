@@ -58,7 +58,6 @@ class AchievementManager(
                 Achievement.LEVEL_10 -> currentLevel >= 10
                 Achievement.LEVEL_25 -> currentLevel >= 25
                 Achievement.LEVEL_50 -> currentLevel >= 50
-                Achievement.EXPERT_MASTER -> stats.expertGamesPlayed >= 25
                 Achievement.SPEED_DEMON -> stats.timedGamesPlayed >= 10
                 Achievement.DEDICATED -> stats.totalTimePlayedMs >= 3600000 // 1 hora
                 Achievement.ACCURACY_80 -> stats.accuracy >= 80f && stats.totalGamesPlayed >= 10

@@ -13,7 +13,7 @@ class GetPaymentDone(private val sharedPreferencesRepository: SharedPreferencesR
 }
 
 class SetPersonalRecord(private val sharedPreferencesRepository: SharedPreferencesRepository) {
-    // gameMode: modo de juego para separar records por modo ("NORMAL", "ADVANCE", "EXPERT", "TIMED").
+    // gameMode: modo de juego para separar records por modo ("NORMAL", "ADVANCE", "TIMED").
     // String vacio usa la clave legacy "personal_record" para compatibilidad con versiones anteriores.
     operator fun invoke(value: Int, gameMode: String = "") {
         sharedPreferencesRepository.setPersonalRecord(value, gameMode)
@@ -21,7 +21,7 @@ class SetPersonalRecord(private val sharedPreferencesRepository: SharedPreferenc
 }
 
 class GetPersonalRecord(private val sharedPreferencesRepository: SharedPreferencesRepository) {
-    // gameMode: modo de juego para separar records por modo ("NORMAL", "ADVANCE", "EXPERT", "TIMED").
+    // gameMode: modo de juego para separar records por modo ("NORMAL", "ADVANCE", "TIMED").
     // String vacio usa la clave legacy "personal_record" para compatibilidad con versiones anteriores.
     operator fun invoke(gameMode: String = "") = sharedPreferencesRepository.getPersonalRecord(gameMode)
 }

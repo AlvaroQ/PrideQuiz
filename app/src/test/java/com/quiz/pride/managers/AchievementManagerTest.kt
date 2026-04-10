@@ -48,7 +48,6 @@ class AchievementManagerTest {
                 Achievement.LEVEL_10        -> currentLevel >= 10
                 Achievement.LEVEL_25        -> currentLevel >= 25
                 Achievement.LEVEL_50        -> currentLevel >= 50
-                Achievement.EXPERT_MASTER   -> stats.expertGamesPlayed >= 25
                 Achievement.SPEED_DEMON     -> stats.timedGamesPlayed >= 10
                 Achievement.DEDICATED       -> stats.totalTimePlayedMs >= 3_600_000L
                 Achievement.ACCURACY_80     -> stats.accuracy >= 80f && stats.totalGamesPlayed >= 10
@@ -69,7 +68,6 @@ class AchievementManagerTest {
         totalTimePlayedMs = 0L,
         normalGamesPlayed = 0,
         advanceGamesPlayed = 0,
-        expertGamesPlayed = 0,
         timedGamesPlayed = 0
     )
 
@@ -316,24 +314,8 @@ class AchievementManagerTest {
     }
 
     // =========================================================
-    // Logros especiales: EXPERT_MASTER, SPEED_DEMON, DEDICATED
+    // Logros especiales: SPEED_DEMON, DEDICATED
     // =========================================================
-
-    @Test
-    fun `EXPERT_MASTER se desbloquea cuando expertGamesPlayed es exactamente 25`() {
-        val stats = statsVacias().copy(expertGamesPlayed = 25)
-        val result = determinarAchievementsADesbloquear(stats, currentLevel = 1)
-
-        assertTrue(result.contains(Achievement.EXPERT_MASTER))
-    }
-
-    @Test
-    fun `EXPERT_MASTER no se desbloquea cuando expertGamesPlayed es 24`() {
-        val stats = statsVacias().copy(expertGamesPlayed = 24)
-        val result = determinarAchievementsADesbloquear(stats, currentLevel = 1)
-
-        assertFalse(result.contains(Achievement.EXPERT_MASTER))
-    }
 
     @Test
     fun `SPEED_DEMON se desbloquea cuando timedGamesPlayed es exactamente 10`() {
@@ -472,7 +454,6 @@ class AchievementManagerTest {
             totalTimePlayedMs = 10_000_000L,
             normalGamesPlayed = 20,
             advanceGamesPlayed = 20,
-            expertGamesPlayed = 30,
             timedGamesPlayed = 30
         )
         val result = determinarAchievementsADesbloquear(stats, currentLevel = 50)

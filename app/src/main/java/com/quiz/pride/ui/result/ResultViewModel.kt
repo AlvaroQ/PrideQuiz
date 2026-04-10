@@ -158,7 +158,6 @@ class ResultViewModel(
         val gameMode = when (gameType) {
             Constants.GameType.NORMAL -> GameMode.NORMAL
             Constants.GameType.ADVANCE -> GameMode.ADVANCE
-            Constants.GameType.EXPERT -> GameMode.EXPERT
             Constants.GameType.TIMED -> GameMode.TIMED
         }
         recordGameResult(
@@ -275,7 +274,7 @@ class ResultViewModel(
     internal fun checkWorldRecord(gamePoints: Int) {
         viewModelScope.launch {
             // Fix 1: filtrar por gameMode para que NORMAL solo compita contra NORMAL,
-            // ADVANCE contra ADVANCE, EXPERT contra EXPERT.
+            // ADVANCE contra ADVANCE.
             // El indice compuesto (gameMode ASC, score DESC) en Firestore soporta este query.
             val pointsLastClassified = getRecordScore(50, gameMode = currentGameType.name).getOrElse { return@launch }
             if (pointsLastClassified.isNotEmpty() && gamePoints > (pointsLastClassified.toIntOrNull() ?: return@launch)) {
