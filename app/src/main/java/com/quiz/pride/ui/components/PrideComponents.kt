@@ -190,7 +190,7 @@ fun RainbowGradientBackground(
                         0.0f to GradientBackgroundStart,
                         0.35f to GradientBackgroundMid,
                         0.65f to GradientBackgroundMidWarm,
-                        0.85f to GradientBackgroundEnd.copy(alpha = 0.8f),
+                        0.85f to GradientBackgroundEnd,
                         1.0f to GradientBackgroundEnd
                     )
                 )
@@ -624,7 +624,7 @@ fun AnimatedScreenBackground(
                         0.0f to GradientBackgroundStart,
                         0.35f to GradientBackgroundMid,
                         0.65f to GradientBackgroundMidWarm,
-                        0.85f to GradientBackgroundEnd.copy(alpha = 0.8f),
+                        0.85f to GradientBackgroundEnd,
                         1.0f to GradientBackgroundEnd
                     )
                 )

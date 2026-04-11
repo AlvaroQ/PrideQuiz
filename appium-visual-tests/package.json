@@ -5,7 +5,8 @@
   "scripts": {
     "test": "wdio run wdio.conf.js",
     "test:percy": "percy exec -- wdio run wdio.conf.js",
-    "test:local": "wdio run wdio.conf.js --no-percy"
+    "test:local": "wdio run wdio.conf.js --no-percy",
+    "screenshots:store": "wdio run wdio.store-screenshots.conf.js"
   },
   "dependencies": {
     "@wdio/cli": "^9.0.0",

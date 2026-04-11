@@ -1,0 +1,12 @@
+# Dependencias de Node.js
+node_modules/
+
+# Screenshots generadas para la Play Store (archivos binarios, no commitear)
+store-screenshots/
+
+# Resultados de Allure (generados en cada ejecucion)
+allure-results/
+allure-report/
+
+# Logs de Appium
+*.log
