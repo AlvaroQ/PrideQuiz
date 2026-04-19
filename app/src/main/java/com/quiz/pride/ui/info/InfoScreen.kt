@@ -209,7 +209,7 @@ fun InfoScreen(
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.cd_back),
-                    tint = White,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.size(24.dp)
                 )
             }
@@ -225,7 +225,7 @@ fun InfoScreen(
                         blurRadius = 12f
                     )
                 ),
-                color = White,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Start
             )
         }

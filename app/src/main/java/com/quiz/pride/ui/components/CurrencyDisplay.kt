@@ -33,7 +33,7 @@ fun CurrencyDisplay(
     Row(
         modifier = modifier
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.5f),
                 shape = RoundedCornerShape(20.dp)
             )
             .border(

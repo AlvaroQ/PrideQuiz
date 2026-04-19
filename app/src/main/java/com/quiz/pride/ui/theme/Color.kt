@@ -9,11 +9,11 @@ import androidx.compose.ui.graphics.Color
 // ============================================
 
 val Pink50  = Color(0xFFFFF1F5)   // Rosa casi blanco (light background)
-val Pink100 = Color(0xFFFCE7F0)   // Rosa muy claro (surface variant light)
-val Pink200 = Color(0xFFF9BEDA)   // Rosa suave
-val Pink300 = Color(0xFFF48FC3)   // Rosa medio claro
-val Pink400 = Color(0xFFF39AC6)   // Rosa vibrante
-val Pink500 = Color(0xFFDB2777)   // Rosa saturado (primary light)
+val Pink100 = Color(0xFFABEE9F)   // Rosa muy claro (surface variant light)
+val Pink200 = Color(0xFF8491D2)   // Rosa suave
+val Pink300 = Color(0xFFE8797E)   // Rosa medio claro
+val Pink400 = Color(0xFF104116)   // Rosa vibrante
+val Pink500 = Color(0xFF791642)   // Rosa saturado (primary light)
 val Pink600 = Color(0xFFBE185D)   // Rosa profundo (primary dark container)
 val Pink700 = Color(0xFF9D174D)   // Rosa oscuro
 val Pink800 = Color(0xFF831843)   // Rosa muy oscuro
@@ -48,11 +48,11 @@ val PinkInverseLight = Color(0xFFF9A8D4)        // Rosa pastel — inversePrimar
 // ============================================
 
 val Purple50  = Color(0xFFF5F3FF)   // Violeta casi blanco
-val Purple100 = Color(0xFFEDE9FE)   // Violeta muy claro (secondaryContainer light, onPrimaryContainer dark)
+val Purple100 = Color(0xFFA37AE8)   // Violeta muy claro (secondaryContainer light, onPrimaryContainer dark)
 val Purple200 = Color(0xFFD4C4ED)   // Violeta suave (onSurfaceVariant dark)
 val Purple300 = Color(0xFFC084FC)   // Violeta claro (inversePrimary dark)
 val Purple400 = Color(0xFFA855F7)   // Violeta vibrante
-val Purple500 = Color(0xFF8B5CF6)   // Violeta saturado
+val Purple500 = Color(0xFF290E67)   // Violeta saturado
 val Purple600 = Color(0xFFC9A9FF)   // Violeta profundo (primary dark, secondary light)
 val Purple700 = Color(0xFF6D28D9)   // Morado oscuro
 val Purple800 = Color(0xFF5B21B6)   // Morado muy oscuro (primaryContainer dark, secondaryContainer light)
@@ -130,11 +130,17 @@ val RainbowColors = listOf(
 val GradientPrimaryStart = Color(0xFF667EEA)
 val GradientPrimaryEnd = Pink400
 
-// Vibrant Background Gradient
+// Vibrant Background Gradient — DARK theme (identidad principal)
 val GradientBackgroundStart = Purple500          // Vivid Purple
-val GradientBackgroundMid = Pink400              // Pink
-val GradientBackgroundMidWarm = Color(0xFFF472B6) // Warm Pink (transicion suave)
-val GradientBackgroundEnd = Pink500              // Rosa profundo (antes orange)
+val GradientBackgroundMid = Pink400
+val GradientBackgroundMidWarm = Color(0xFF001357)
+val GradientBackgroundEnd = Pink500
+
+// Background Gradient — LIGHT theme (variante)
+val GradientBackgroundStartLight = Purple100
+val GradientBackgroundMidLight = Pink100
+val GradientBackgroundMidWarmLight = Pink200
+val GradientBackgroundEndLight = Pink300
 
 // Card Gradients - Vibrant Menu Cards
 val StartGradientTop = Pink400                // Rosa vibrante (antes coral red)

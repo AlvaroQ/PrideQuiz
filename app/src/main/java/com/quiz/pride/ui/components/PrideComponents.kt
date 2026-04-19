@@ -58,6 +58,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,9 +68,12 @@ import com.quiz.pride.R
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
-import com.quiz.pride.ui.theme.GradientBackgroundMid
+import com.quiz.pride.ui.theme.GradientBackgroundEndLight
+import com.quiz.pride.ui.theme.GradientBackgroundMidLight
 import com.quiz.pride.ui.theme.GradientBackgroundMidWarm
+import com.quiz.pride.ui.theme.GradientBackgroundMidWarmLight
 import com.quiz.pride.ui.theme.GradientBackgroundStart
+import com.quiz.pride.ui.theme.GradientBackgroundStartLight
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.GradientPositionBottom
@@ -109,7 +113,7 @@ fun LoadingIndicator(
 @Composable
 fun GradientCard(
     modifier: Modifier = Modifier,
-    gradientColors: List<Color> = listOf(GradientBackgroundStart, GradientBackgroundMid),
+    gradientColors: List<Color> = listOf(GradientBackgroundStart, GradientBackgroundMidWarm),
     glowColor: Color = GlowPink,
     onClick: () -> Unit,
     content: @Composable ColumnScope.() -> Unit
@@ -168,20 +172,27 @@ fun RainbowGradientBackground(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
+    val darkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val colorStops = if (darkTheme) {
+        arrayOf(
+            0.0f to GradientBackgroundStart,
+            0.5f to GradientBackgroundMidWarm,
+            1.0f to GradientBackgroundEnd
+        )
+    } else {
+        arrayOf(
+            0.0f to GradientBackgroundStartLight,
+            0.35f to GradientBackgroundMidLight,
+            0.65f to GradientBackgroundMidWarmLight,
+            0.85f to GradientBackgroundEndLight,
+            1.0f to GradientBackgroundEndLight
+        )
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientBackgroundStart,
-                        0.35f to GradientBackgroundMid,
-                        0.65f to GradientBackgroundMidWarm,
-                        0.85f to GradientBackgroundEnd,
-                        1.0f to GradientBackgroundEnd
-                    )
-                )
-            )
+            .background(Brush.verticalGradient(colorStops = colorStops))
     ) {
         content()
     }
@@ -578,6 +589,23 @@ fun AnimatedScreenBackground(
     orbColor2: Color = NeonPurple,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val darkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val colorStops = if (darkTheme) {
+        arrayOf(
+            0.0f to GradientBackgroundStart,
+            0.5f to GradientBackgroundMidWarm,
+            1.0f to GradientBackgroundEnd
+        )
+    } else {
+        arrayOf(
+            0.0f to GradientBackgroundStartLight,
+            0.35f to GradientBackgroundMidLight,
+            0.65f to GradientBackgroundMidWarmLight,
+            0.85f to GradientBackgroundEndLight,
+            1.0f to GradientBackgroundEndLight
+        )
+    }
+
     val infiniteTransition = rememberInfiniteTransition(label = "bg_float")
     val floatOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -592,17 +620,7 @@ fun AnimatedScreenBackground(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colorStops = arrayOf(
-                        0.0f to GradientBackgroundStart,
-                        0.35f to GradientBackgroundMid,
-                        0.65f to GradientBackgroundMidWarm,
-                        0.85f to GradientBackgroundEnd,
-                        1.0f to GradientBackgroundEnd
-                    )
-                )
-            )
+            .background(Brush.verticalGradient(colorStops = colorStops))
     ) {
         // Decorative glow orb 1
         Box(

@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -75,8 +76,6 @@ import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.GradientPointsBottom
-import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.LearnGradientBottom
 import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonPink
@@ -295,21 +294,15 @@ fun SelectScreen(
             CurrencyDisplay(balance = uiState.balance)
 
             // Boton Perfil (derecha)
+            val profileIconTint = if (isSystemInDarkTheme()) Color.White else Color(0xFF2E2E2E)
             IconButton(
                 onClick = onNavigateToProfile,
-                modifier = Modifier
-                    .size(44.dp)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(GradientPointsTop, GradientPointsBottom)
-                        ),
-                        shape = CircleShape
-                    )
+                modifier = Modifier.size(44.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,
                     contentDescription = stringResource(R.string.profile_title),
-                    tint = Color.Black,
+                    tint = profileIconTint,
                     modifier = Modifier.size(22.dp)
                 )
             }
