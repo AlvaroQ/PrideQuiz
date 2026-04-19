@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package com.quiz.pride.ui.components
 
 import android.content.res.Configuration
@@ -7,7 +9,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,12 +58,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.quiz.pride.R
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
@@ -90,17 +91,6 @@ import com.quiz.pride.ui.theme.White
 fun LoadingIndicator(
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "loading")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -129,10 +119,7 @@ fun GradientCard(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = spring(
-            dampingRatio = 0.6f,
-            stiffness = 400f
-        ),
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "card_scale"
     )
 
@@ -242,7 +229,7 @@ fun PrideTopAppBar(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = White,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
@@ -250,7 +237,6 @@ fun PrideTopAppBar(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = Shadow(
                         color = Color.Black.copy(alpha = 0.3f),
                         offset = Offset(2f, 2f),
@@ -264,7 +250,7 @@ fun PrideTopAppBar(
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.cd_back),
                     tint = contentColor
                 )
             }
@@ -308,7 +294,7 @@ fun GameTopBar(
         IconButton(onClick = onBackClick) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(R.string.cd_back),
                 tint = White
             )
         }
@@ -335,10 +321,8 @@ fun PointsDisplay(
     modifier: Modifier = Modifier
 ) {
     Text(
-        text = "$points pts",
-        style = TextStyle(
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
+        text = stringResource(R.string.points_suffix, points),
+        style = MaterialTheme.typography.titleMedium.copy(
             shadow = Shadow(
                 color = GradientPointsTop,
                 offset = Offset(0f, 0f),
@@ -368,10 +352,7 @@ fun LifeIndicator(
 
             val scale by animateFloatAsState(
                 targetValue = if (isAlive) 1f else 0.8f,
-                animationSpec = spring(
-                    dampingRatio = 0.5f,
-                    stiffness = 300f
-                ),
+                animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
                 label = "heart_scale"
             )
 
@@ -409,9 +390,7 @@ fun SectionHeader(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium.copy(
-            fontWeight = FontWeight.Bold
-        ),
+        style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
         modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp)
     )
@@ -457,10 +436,7 @@ fun PrideButton(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.95f else 1f,
-        animationSpec = spring(
-            dampingRatio = 0.6f,
-            stiffness = 400f
-        ),
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "button_scale"
     )
 
@@ -494,9 +470,7 @@ fun PrideButton(
     ) {
         Text(
             text = text,
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelLarge.copy(
                 shadow = Shadow(
                     color = Color.Black.copy(alpha = 0.3f),
                     offset = Offset(1f, 1f),
@@ -556,7 +530,7 @@ fun GlassCard(
 
     val scale by animateFloatAsState(
         targetValue = if (isPressed && onClick != null) 0.98f else 1f,
-        animationSpec = spring(),
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "glass_scale"
     )
 
@@ -777,12 +751,12 @@ private fun PrideButtonPreview() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             PrideButton(
-                text = "Jugar",
+                text = stringResource(R.string.start),
                 onClick = {},
                 modifier = Modifier.fillMaxWidth()
             )
             PrideButton(
-                text = "Deshabilitado",
+                text = stringResource(R.string.disabled),
                 onClick = {},
                 enabled = false,
                 modifier = Modifier.fillMaxWidth()
@@ -801,12 +775,11 @@ private fun GlassCardPreview() {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Pride Quiz",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleMedium
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Juego de preguntas sobre comunidad LGBTQ+",
+                        text = stringResource(R.string.app_tagline),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -820,7 +793,7 @@ private fun GlassCardPreview() {
 @Composable
 private fun SectionHeaderPreview() {
     PrideQuizTheme {
-        SectionHeader(text = "Modo Normal")
+        SectionHeader(text = stringResource(R.string.mode_normal_label))
     }
 }
 
@@ -855,9 +828,8 @@ private fun GradientCardPreview() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Jugar",
+                        text = stringResource(R.string.start),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
                         color = White
                     )
                 }
@@ -881,7 +853,6 @@ private fun AnimatedScreenBackgroundPreview() {
                 Text(
                     text = "Pride Quiz",
                     style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
                     color = White
                 )
             }

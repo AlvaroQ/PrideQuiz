@@ -157,6 +157,7 @@
     <string name="result_world_record">Recorde mundial</string>
     <string name="result_accuracy">Precisão</string>
     <string name="result_best_streak">Melhor série</string>
+    <string name="result_correct">Acertos</string>
     <string name="result_time_played">Tempo jogado</string>
     <string name="result_comparison_better">%d pontos melhor do que o teu recorde!</string>
     <string name="result_comparison_close">%d pontos do teu recorde</string>
@@ -260,6 +261,64 @@
     <string name="achievement_accuracy_80_desc">Mantém 80%+ de precisão em 10 jogos</string>
     <string name="achievement_accuracy_90_title">Mestre da precisão</string>
     <string name="achievement_accuracy_90_desc">Mantém 90%+ de precisão em 20 jogos</string>
+    <string name="achievement_streak_daily_7_title">Chama semanal</string>
+    <string name="achievement_streak_daily_7_desc">Joga 7 dias seguidos</string>
+    <string name="achievement_streak_daily_14_title">Quinzena de fogo</string>
+    <string name="achievement_streak_daily_14_desc">Joga 14 dias seguidos</string>
+    <string name="achievement_streak_daily_30_title">Devoção mensal</string>
+    <string name="achievement_streak_daily_30_desc">Joga 30 dias seguidos</string>
+    <string name="achievement_streak_daily_60_title">Compromisso Pride</string>
+    <string name="achievement_streak_daily_60_desc">Joga 60 dias seguidos</string>
+    <string name="achievement_streak_daily_90_title">Campeão trimestral</string>
+    <string name="achievement_streak_daily_90_desc">Joga 90 dias seguidos</string>
+    <string name="achievement_streak_daily_365_title">Ano de Pride</string>
+    <string name="achievement_streak_daily_365_desc">Joga 365 dias seguidos</string>
+
+    <!-- Streak widget -->
+    <string name="streak_played_today">Jogaste hoje</string>
+    <string name="streak_at_risk">Série em risco</string>
+    <string name="streak_play_today">Joga hoje</string>
+
+    <!-- Daily challenges -->
+    <plurals name="challenge_desc_games_played">
+        <item quantity="one">Completa %d partida</item>
+        <item quantity="other">Completa %d partidas</item>
+    </plurals>
+    <plurals name="challenge_desc_games_played_weekly">
+        <item quantity="one">Completa %d partida esta semana</item>
+        <item quantity="other">Completa %d partidas esta semana</item>
+    </plurals>
+    <plurals name="challenge_desc_total_correct">
+        <item quantity="one">Responde corretamente a %d pergunta</item>
+        <item quantity="other">Responde corretamente a %d perguntas</item>
+    </plurals>
+    <plurals name="challenge_desc_total_correct_weekly">
+        <item quantity="one">Responde corretamente a %d pergunta esta semana</item>
+        <item quantity="other">Responde corretamente a %d perguntas esta semana</item>
+    </plurals>
+    <plurals name="challenge_desc_score_minimum">
+        <item quantity="one">Obtém pelo menos %d ponto numa partida</item>
+        <item quantity="other">Obtém pelo menos %d pontos numa partida</item>
+    </plurals>
+    <plurals name="challenge_desc_correct_streak">
+        <item quantity="one">Obtém uma série de %d resposta certa</item>
+        <item quantity="other">Obtém uma série de %d respostas certas</item>
+    </plurals>
+    <plurals name="challenge_desc_streak_in_game">
+        <item quantity="one">Obtém uma série de %d+ numa única partida</item>
+        <item quantity="other">Obtém uma série de %d+ numa única partida</item>
+    </plurals>
+    <plurals name="challenge_desc_cumulative_score">
+        <item quantity="one">Acumula %d ponto no total hoje</item>
+        <item quantity="other">Acumula %d pontos no total hoje</item>
+    </plurals>
+    <plurals name="challenge_desc_perfect_game_weekly">
+        <item quantity="one">Completa %d partida perfeita esta semana</item>
+        <item quantity="other">Completa %d partidas perfeitas esta semana</item>
+    </plurals>
+    <string name="challenge_desc_perfect_game">Completa uma partida sem perder vidas</string>
+    <string name="challenge_desc_win_game">Responde a todas as perguntas numa única partida</string>
+    <string name="challenge_desc_play_mode_advance">Joga uma partida no modo Avançado</string>
 
     <!-- Error states -->
     <string name="error_loading_question">Não foi possível carregar a pergunta. Tente novamente.</string>
@@ -267,4 +326,112 @@
     <string name="error_ranking_partial">Alguns dados não puderam ser carregados.</string>
     <string name="more_apps_empty">Sem apps disponíveis de momento.</string>
     <string name="error_loading_apps">Não foi possível carregar as apps. Tente novamente.</string>
+
+    <!-- Daily Reward -->
+    <string name="daily_reward_title">Recompensa diária</string>
+    <string name="daily_reward_subtitle">Volta todos os dias</string>
+    <string name="daily_reward_claim">RESGATAR</string>
+    <string name="daily_reward_claimed_title">Recompensa resgatada</string>
+    <string name="daily_reward_come_back">Volta amanhã</string>
+    <string name="daily_reward_hide_until_tomorrow">Ocultar até amanhã</string>
+    <string name="daily_reward_status_claimed">Recompensa de hoje coletada</string>
+    <string name="daily_reward_status_pending">Recompensa de hoje disponível</string>
+
+    <!-- Mystery Box -->
+    <string name="mystery_box_title">Caixa misteriosa</string>
+    <string name="mystery_box_subtitle">Atingiste 10 partidas jogadas</string>
+    <string name="mystery_box_coins">+%1$d moedas</string>
+    <string name="mystery_box_freeze_token">+1 Token de congelamento</string>
+    <string name="mystery_box_claim">Resgatar recompensa</string>
+    <string name="mystery_box_opening">A abrir…</string>
+
+    <!-- Lembrete diário -->
+    <string name="notif_channel_daily_name">Lembrete diário</string>
+    <string name="notif_channel_daily_description">Lembra-te de manter a tua série</string>
+    <string name="notif_daily_challenge">O teu desafio Pride espera por ti 🌈</string>
+    <string name="notif_streak_risk">A tua série está em risco — joga agora 🔥</string>
+    <string name="notif_discover_more">Descobre mais história LGBTQ+ hoje</string>
+    <string name="notif_bonus_ready">O teu bónus diário está pronto 🎁</string>
+    <string name="notif_keep_streak">Não quebres a tua série hoje</string>
+
+    <!-- Sazonal: Mês do Orgulho -->
+    <string name="seasonal_pride_title">Mês do Orgulho ativo</string>
+    <string name="seasonal_pride_description">Celebra com XP extra durante todo o mês de junho</string>
+    <string name="seasonal_pride_subtitle">XP multiplicado x%1$s durante junho</string>
+    <plurals name="seasonal_pride_days_remaining">
+        <item quantity="one">Falta %d dia</item>
+        <item quantity="other">Faltam %d dias</item>
+    </plurals>
+
+    <!-- Result screen extras -->
+    <string name="result_streak_xp_bonus">Bónus de sequência: +%d XP</string>
+    <string name="result_inline_level_up">Nível %d!</string>
+
+    <!-- Info screen -->
+    <string name="info_pride_flags_count">%d bandeiras orgulho</string>
+    <string name="info_tap_to_collapse">Tocar para recolher</string>
+
+    <!-- Challenges -->
+    <string name="challenges_completed">Desafios concluídos</string>
+    <string name="challenges_completion_bonus">Bónus de conclusão</string>
+    <string name="daily_challenges_loading">A carregar desafios…</string>
+    <string name="daily_challenges_title">Desafios diários</string>
+    <string name="daily_challenges_all_completed">Todos concluídos</string>
+    <string name="daily_challenges_weekly_label">Semanal</string>
+
+    <!-- Shop -->
+    <string name="shop_title">Loja</string>
+    <string name="shop_back">Voltar</string>
+    <string name="shop_unlocked">Desbloqueado</string>
+    <string name="shop_unlock_level">Nível %d</string>
+    <string name="shop_unlock_streak_days">%d dias de sequência</string>
+    <string name="shop_unlock_challenges">%d desafios</string>
+    <string name="shop_unlock_achievement">Via conquista</string>
+    <string name="shop_free">Grátis</string>
+    <string name="shop_equipped">Equipado</string>
+    <string name="shop_owned">TEU</string>
+    <string name="shop_buy_item">Comprar %s</string>
+    <string name="shop_price">Preço: %s</string>
+    <string name="shop_insufficient_balance">Saldo insuficiente</string>
+    <string name="shop_buy">Comprar</string>
+
+    <!-- Profile extras -->
+    <string name="profile_daily_streak">Sequência diária</string>
+    <string name="profile_challenges">Desafios</string>
+    <string name="profile_my_inventory">Meu inventário</string>
+
+    <!-- Streak widget -->
+    <string name="streak_days">%d dias</string>
+    <string name="streak_current">Sequência atual</string>
+    <string name="streak_best_days">Melhor sequência: %d dias</string>
+    <string name="streak_at_risk_message">A tua sequência de %d dias está em risco</string>
+
+    <!-- Streak celebration dialog -->
+    <string name="continue_action">Continuar</string>
+    <string name="streak_freeze_tokens_gained">+%d tokens de congelamento</string>
+    <string name="streak_saved_title">Sequência salva</string>
+    <string name="streak_freeze_used">Usaste um token de congelamento</string>
+    <string name="streak_tokens_remaining">Tokens restantes: %d ❄</string>
+    <string name="streak_lost_title">Sequência perdida</string>
+    <string name="streak_previous_days">Sequência anterior: %d dias</string>
+    <string name="streak_new_started">Nova sequência iniciada</string>
+    <string name="streak_play_daily_tip">Joga todos os dias para construir a tua sequência</string>
+    <string name="streak_first_title">Primeira sequência</string>
+    <string name="streak_day_number">Dia %d</string>
+    <string name="streak_play_each_day_tip">Joga cada dia para ganhar recompensas</string>
+    <string name="streak_weekly_reward_info">7 dias seguidos = token ❄ + bónus XP</string>
+    <string name="streak_cycle_label">Ciclo:</string>
+
+    <!-- Pride components / generic -->
+    <string name="disabled">Desativado</string>
+    <string name="app_tagline">Jogo de perguntas sobre a comunidade LGBTQ+</string>
+    <string name="mode_normal_label">Modo Normal</string>
+
+    <!-- Numeric format helpers -->
+    <string name="points_suffix">%d pts</string>
+    <string name="level_short">Nv. %d</string>
+
+    <!-- Accessibility content descriptions -->
+    <string name="cd_back">Voltar</string>
+    <string name="cd_completed">Concluído</string>
 </resources>

@@ -28,11 +28,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,7 +38,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -58,30 +54,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.quiz.domain.Pride
 import com.quiz.pride.R
+import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.BannerAdView
 import com.quiz.pride.ui.components.ShimmerInfoCard
-import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.LearnGradientBottom
-import com.quiz.pride.ui.theme.LearnGradientTop
+import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.managers.AnalyticsManager
-import com.quiz.pride.ui.components.TrackScreenTime
-import org.koin.compose.koinInject
+import com.quiz.pride.ui.theme.RankGold
+import com.quiz.pride.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun InfoScreen(
@@ -134,24 +128,21 @@ fun InfoScreen(
     }
 
     AnimatedScreenBackground(
-        orbColor1 = NeonPurple,
-        orbColor2 = NeonPink
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            // Custom Top Bar
-            LearnTopBar(
-                onBackClick = onNavigateBack,
-                itemCount = uiState.prideList.size
-            )
+            // Espacio para la top row flotante (back + título) + status bar
+            Spacer(modifier = Modifier.height(120.dp))
 
             // Content
             if (uiState.isLoading && uiState.prideList.isEmpty()) {
                 // Shimmer loading
                 LazyColumn(
                     modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(6) {
@@ -163,7 +154,7 @@ fun InfoScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier.weight(1f),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     itemsIndexed(
@@ -204,89 +195,39 @@ fun InfoScreen(
                 )
             }
         }
-    }
-}
 
-@Composable
-private fun LearnTopBar(
-    onBackClick: () -> Unit,
-    itemCount: Int
-) {
-    val topBarGradient = Brush.verticalGradient(
-        colors = listOf(
-            LearnGradientTop,
-            LearnGradientBottom
-        )
-    )
-
-    // Top bar always has colored gradient, so text is always white
-    val textColor = Color.White
-    val subtitleColor = Color.White.copy(alpha = 0.85f)
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(topBarGradient)
-            .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(horizontal = 8.dp, vertical = 12.dp)
-    ) {
+        // Top row flotante: back button (solo flecha blanca) + título en la misma row.
+        // Mismo patrón visual que SelectGameScreen para unificar la línea visual.
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onBackClick) {
+            IconButton(onClick = onNavigateBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = textColor
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
                 )
             }
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Icon with glow
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .drawBehind {
-                        drawCircle(
-                            color = GlowPurple,
-                            radius = size.minDimension * 0.8f
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_auto_stories),
-                    contentDescription = null,
-                    tint = textColor,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column {
-                Text(
-                    text = stringResource(R.string.learn),
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        shadow = Shadow(
-                            color = Color.Black.copy(alpha = 0.3f),
-                            offset = Offset(1f, 1f),
-                            blurRadius = 3f
-                        )
-                    ),
-                    color = textColor
-                )
-                if (itemCount > 0) {
-                    Text(
-                        text = "$itemCount pride flags",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = subtitleColor
+            Text(
+                text = stringResource(R.string.learn),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    shadow = Shadow(
+                        color = NeonPink.copy(alpha = 0.6f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 12f
                     )
-                }
-            }
+                ),
+                color = White,
+                textAlign = TextAlign.Start
+            )
         }
     }
 }
@@ -328,18 +269,14 @@ private fun PrideInfoCard(
         1 -> NeonPurple
         2 -> NeonBlue
         3 -> NeonGreen
-        4 -> Color(0xFFFFD700) // Gold
-        else -> Color(0xFFFF6B9D) // Soft pink
+        4 -> RankGold // Gold
+        else -> NeonPink // Soft pink
     }
 
-    // Theme-aware card colors
-    val cardBackground = if (isDarkTheme) {
-        Color(0xFF252542).copy(alpha = 0.9f) // Dark card
-    } else {
-        Color.White.copy(alpha = 0.95f) // Light card
-    }
-    val titleColor = if (isDarkTheme) Color.White else Color(0xFF1F2937)
-    val descriptionColor = if (isDarkTheme) Color.White.copy(alpha = 0.8f) else Color(0xFF4B5563)
+    // Theme-aware card colors — ahora via MaterialTheme
+    val cardBackground = MaterialTheme.colorScheme.surface
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
     val hintColor = accentColor.copy(alpha = if (isDarkTheme) 0.6f else 0.8f)
 
     Box(
@@ -349,16 +286,6 @@ private fun PrideInfoCard(
             .alpha(alpha)
             .clip(RoundedCornerShape(20.dp))
             .background(cardBackground)
-            .border(
-                width = if (isDarkTheme) 1.5.dp else 2.dp,
-                brush = Brush.linearGradient(
-                    colors = listOf(
-                        accentColor.copy(alpha = if (isDarkTheme) 0.5f else 0.6f),
-                        accentColor.copy(alpha = if (isDarkTheme) 0.2f else 0.3f)
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
-            )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -406,7 +333,6 @@ private fun PrideInfoCard(
                     Text(
                         text = pride.name?.EN ?: "",
                         style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = if (isDarkTheme) Shadow(
                                 color = accentColor.copy(alpha = 0.5f),
                                 offset = Offset(0f, 0f),
@@ -419,23 +345,6 @@ private fun PrideInfoCard(
                         overflow = TextOverflow.Ellipsis
                     )
 
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    // Expand indicator
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(accentColor.copy(alpha = 0.15f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Favorite,
-                            contentDescription = null,
-                            tint = accentColor,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
                 }
             }
 
@@ -455,7 +364,6 @@ private fun PrideInfoCard(
                     Text(
                         text = pride.name?.EN ?: "",
                         style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = if (isDarkTheme) Shadow(
                                 color = accentColor.copy(alpha = 0.6f),
                                 offset = Offset(0f, 0f),
@@ -539,7 +447,7 @@ private fun PrideInfoCard(
 
                     // Tap to collapse
                     Text(
-                        text = "Tap to collapse",
+                        text = stringResource(R.string.info_tap_to_collapse),
                         style = MaterialTheme.typography.labelSmall,
                         color = hintColor
                     )

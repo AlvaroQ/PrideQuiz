@@ -17,22 +17,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -66,7 +75,6 @@ import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
-import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
@@ -85,9 +93,13 @@ import com.quiz.pride.ui.theme.StartGradientBottom
 import com.quiz.pride.ui.theme.StartGradientTop
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.ui.theme.NeonBlue
+import com.quiz.pride.ui.components.ChallengeCompletionBanner
+import com.quiz.pride.ui.components.ConfettiOverlay
 import com.quiz.pride.ui.components.SaveScoreDialog
+import com.quiz.pride.ui.components.StreakCelebrationDialog
 import com.quiz.pride.ui.components.findActivity
 import com.quiz.pride.ui.components.rememberInterstitialAdState
+import java.util.Locale
 import com.quiz.pride.ui.components.rememberRewardedAdState
 import androidx.compose.ui.tooling.preview.Preview
 import com.quiz.pride.ui.theme.PrideQuizTheme
@@ -229,32 +241,24 @@ fun ResultScreen(
         showXpGain = true
     }
 
-    Scaffold(
-        topBar = {
-            PrideTopAppBar(
-                title = stringResource(R.string.result_title),
-                onBackClick = onNavigateBack
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            AnimatedScreenBackground(
-                orbColor1 = NeonPink,
-                orbColor2 = NeonPurple
-            ) {
-                // Orbs decorativos en composable hijo — la InfiniteTransition vive ahi
-                // y solo ese composable se recompone cada frame (no toda la pantalla)
-                ResultBackgroundOrbs()
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedScreenBackground(
+            orbColor1 = NeonPink,
+            orbColor2 = NeonPurple
+        ) {
+            // Orbs decorativos en composable hijo — la InfiniteTransition vive ahi
+            // y solo ese composable se recompone cada frame (no toda la pantalla)
+            ResultBackgroundOrbs()
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Espacio para la top row flotante (back + título) + status bar
+                Spacer(modifier = Modifier.height(120.dp))
 
                 // New Record Badge
                 AnimatedVisibility(
@@ -270,12 +274,17 @@ fun ResultScreen(
                     visible = showScore,
                     enter = scaleIn() + fadeIn()
                 ) {
+                    val xpResult = uiState.xpGainResult
                     ScoreDisplay(
                         points = displayedPoints,
-                        personalRecord = uiState.personalRecord,
-                        worldRecord = uiState.worldRecord,
                         isNewRecord = isNewRecord,
-                        recordDifference = recordDifference
+                        recordDifference = recordDifference,
+                        xpGained = xpResult?.xpGained,
+                        newLevel = if (xpResult?.leveledUp == true) xpResult.newLevel else null,
+                        streakXpBonus = uiState.streakXpBonus,
+                        coinsEarned = uiState.coinsEarned,
+                        gemsEarned = uiState.gemsEarned,
+                        showRewards = showXpGain
                     )
                 }
 
@@ -287,6 +296,8 @@ fun ResultScreen(
                     enter = fadeIn(animationSpec = tween(500))
                 ) {
                     StatsGrid(
+                        personalRecord = uiState.personalRecord,
+                        worldRecord = uiState.worldRecord,
                         totalQuestions = totalQuestions,
                         correctAnswers = correctAnswers,
                         bestStreak = bestStreak,
@@ -294,18 +305,14 @@ fun ResultScreen(
                     )
                 }
 
-                // XP Gained indicator
-                AnimatedVisibility(
-                    visible = showXpGain && uiState.xpGainResult != null,
-                    enter = scaleIn() + fadeIn()
-                ) {
-                    uiState.xpGainResult?.let { xpResult ->
-                        XpGainedBadge(
-                            xpGained = xpResult.xpGained,
-                            newLevel = if (xpResult.leveledUp) xpResult.newLevel else null,
-                            modifier = Modifier.padding(top = 16.dp)
-                        )
-                    }
+                // Banner de desafios completados durante la partida
+                val challengeResult = uiState.challengeCompletionResult
+                if (challengeResult != null && challengeResult.completedChallenges.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ChallengeCompletionBanner(
+                        completionResult = challengeResult,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -371,10 +378,58 @@ fun ResultScreen(
                         }
                     )
                 }
+                Spacer(modifier = Modifier.height(24.dp))
+            } // cierra Column (scroll)
+
+            // Top row flotante: back button (solo flecha blanca) + título.
+            // Mismo patrón visual que SelectGameScreen/Settings/Profile.
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = stringResource(R.string.cd_back),
+                        tint = White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = stringResource(R.string.result_title),
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        shadow = Shadow(
+                            color = NeonPink.copy(alpha = 0.6f),
+                            offset = Offset(0f, 0f),
+                            blurRadius = 12f
+                        )
+                    ),
+                    color = White,
+                    textAlign = TextAlign.Start
+                )
             }
-            } // AnimatedScreenBackground
+        } // cierra AnimatedScreenBackground
+
+        // Confetti celebratorio — se muestra en partida perfecta, nuevo record
+        // o level up. Es un overlay no bloqueante que se desvanece en 2s.
+        val isPerfect = totalQuestions > 0 && correctAnswers == totalQuestions
+        val shouldCelebrate = showScore && (isPerfect || isNewRecord || uiState.showLevelUpDialog)
+        if (shouldCelebrate) {
+            ConfettiOverlay(modifier = Modifier.fillMaxSize())
         }
-    }
+
+        // Snackbar host como overlay al fondo (antes venía del Scaffold)
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
+    } // cierra Box(fillMaxSize)
 
     // World Record Save Dialog
     if (uiState.showWorldRecordDialog) {
@@ -405,6 +460,16 @@ fun ResultScreen(
             onDismiss = {
                 viewModel.dismissTimedRankingDialog()
             }
+        )
+    }
+
+    // Streak Celebration Dialog — se muestra cuando la racha cambia de estado
+    // No se muestra para AlreadyPlayedToday (filtrado en el ViewModel)
+    val streakResult = uiState.streakCheckResult
+    if (uiState.showStreakDialog && streakResult != null) {
+        StreakCelebrationDialog(
+            streakCheckResult = streakResult,
+            onDismiss = { viewModel.dismissStreakDialog() }
         )
     }
 }
@@ -443,9 +508,8 @@ private fun NewRecordBadge() {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.result_new_record),
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            fontSize = 16.sp
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.Black
         )
     }
 }
@@ -529,35 +593,48 @@ private fun PulsingScoreGlow(points: Int) {
                             Color.Transparent
                         )
                     ),
-                    radius = 120f * pulseScale
+                    radius = 200f * pulseScale
                 )
             },
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = points.toString(),
-            fontSize = 64.sp,
-            fontWeight = FontWeight.Bold,
             color = GradientPointsBottom,
             style = MaterialTheme.typography.displayLarge.copy(
+                fontSize = 72.sp,
+                lineHeight = 80.sp,
+                fontWeight = FontWeight.Bold,
                 shadow = Shadow(
                     color = GradientPointsTop,
                     offset = Offset(0f, 0f),
-                    blurRadius = 16f
+                    blurRadius = 20f
                 )
             )
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ScoreDisplay(
     points: Int,
-    personalRecord: String,
-    worldRecord: String,
     isNewRecord: Boolean,
-    recordDifference: Int
+    recordDifference: Int,
+    xpGained: Long? = null,
+    newLevel: Int? = null,
+    streakXpBonus: Int = 0,
+    coinsEarned: Int = 0,
+    gemsEarned: Int = 0,
+    showRewards: Boolean = false
 ) {
+    val hasRewards = showRewards && (
+        xpGained != null ||
+            streakXpBonus > 0 ||
+            coinsEarned > 0 ||
+            gemsEarned > 0
+        )
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -594,7 +671,6 @@ private fun ScoreDisplay(
                 Text(
                     text = stringResource(R.string.your_score),
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium,
                         shadow = Shadow(
                             color = NeonPink.copy(alpha = 0.4f),
                             offset = Offset(0f, 0f),
@@ -626,36 +702,125 @@ private fun ScoreDisplay(
                         fontWeight = FontWeight.Medium
                     )
                 }
+
+                // Recompensas inline: XP, bonus de racha, monedas y gemas
+                AnimatedVisibility(
+                    visible = hasRewards,
+                    enter = scaleIn() + fadeIn()
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 1.dp,
+                            color = NeonPink.copy(alpha = 0.2f)
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (xpGained != null) {
+                                RewardChip(
+                                    emoji = "\u2728",
+                                    label = stringResource(R.string.xp_gained, xpGained.toInt()),
+                                    accent = GradientPointsBottom
+                                )
+                            }
+                            if (streakXpBonus > 0) {
+                                RewardChip(
+                                    emoji = "\uD83D\uDD25",
+                                    label = stringResource(R.string.result_streak_xp_bonus, streakXpBonus),
+                                    accent = NeonOrange
+                                )
+                            }
+                            if (coinsEarned > 0) {
+                                RewardChip(
+                                    emoji = "\uD83E\uDE99",
+                                    label = "+$coinsEarned",
+                                    accent = NeonYellow
+                                )
+                            }
+                            if (gemsEarned > 0) {
+                                RewardChip(
+                                    emoji = "\uD83D\uDC8E",
+                                    label = "+$gemsEarned",
+                                    accent = NeonBlue
+                                )
+                            }
+                        }
+
+                        if (newLevel != null) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = stringResource(R.string.result_inline_level_up, newLevel),
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.SemiBold,
+                                    shadow = Shadow(
+                                        color = NeonGreen.copy(alpha = 0.5f),
+                                        offset = Offset(0f, 0f),
+                                        blurRadius = 8f
+                                    )
+                                ),
+                                color = NeonGreen,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Records row - balanced layout
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            RecordBadge(
-                icon = rememberVectorPainter(Icons.Default.Star),
-                label = stringResource(R.string.result_personal_best),
-                value = personalRecord,
-                accentColor = NeonPink,
-                modifier = Modifier.weight(1f)
-            )
-            RecordBadge(
-                icon = painterResource(R.drawable.ic_emoji_events),
-                label = stringResource(R.string.result_world_record),
-                value = worldRecord,
-                accentColor = GradientPointsBottom,
-                modifier = Modifier.weight(1f)
-            )
         }
     }
 }
 
 @Composable
+private fun RewardChip(
+    emoji: String,
+    label: String,
+    accent: Color,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(999.dp))
+            .background(accent.copy(alpha = 0.12f))
+            .border(
+                width = 1.dp,
+                color = accent.copy(alpha = 0.45f),
+                shape = RoundedCornerShape(999.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = emoji,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.SemiBold,
+                shadow = Shadow(
+                    color = accent.copy(alpha = 0.4f),
+                    offset = Offset(0f, 0f),
+                    blurRadius = 6f
+                )
+            ),
+            color = accent
+        )
+    }
+}
+
+@Composable
 private fun StatsGrid(
+    personalRecord: String,
+    worldRecord: String,
     totalQuestions: Int,
     correctAnswers: Int,
     bestStreak: Int,
@@ -672,16 +837,45 @@ private fun StatsGrid(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            StatCard(
+                icon = rememberVectorPainter(Icons.Default.Star),
+                label = stringResource(R.string.result_personal_best),
+                value = personalRecord,
+                color = NeonPink,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
+            StatCard(
+                icon = painterResource(R.drawable.ic_emoji_events),
+                label = stringResource(R.string.result_world_record),
+                value = worldRecord,
+                color = GradientPointsBottom,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            )
             StatCard(
                 icon = painterResource(R.drawable.ic_trending_up),
                 label = stringResource(R.string.result_accuracy),
                 value = "$accuracy%",
                 color = if (accuracy >= 80) NeonGreen else if (accuracy >= 50) NeonYellow else NeonOrange,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             StatCard(
                 icon = painterResource(R.drawable.ic_local_fire_department),
                 label = stringResource(R.string.result_best_streak),
@@ -691,26 +885,27 @@ private fun StatsGrid(
                     bestStreak >= 5 -> NeonOrange
                     else -> NeonYellow
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
             StatCard(
                 icon = rememberVectorPainter(Icons.Default.Star),
-                label = "Correct",
+                label = stringResource(R.string.result_correct),
                 value = "$correctAnswers/$totalQuestions",
                 color = NeonGreen,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
             StatCard(
                 icon = painterResource(R.drawable.ic_timer),
                 label = stringResource(R.string.result_time_played),
                 value = timeFormatted,
                 color = NeonPink,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
         }
     }
@@ -733,18 +928,20 @@ private fun StatCard(
                 color = color.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(16.dp)
+            .padding(horizontal = 8.dp, vertical = 12.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
         ) {
             Icon(
                 painter = icon,
                 contentDescription = null,
                 tint = color,
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(24.dp)
                     .drawBehind {
                         drawCircle(
                             color = color.copy(alpha = 0.2f),
@@ -752,26 +949,35 @@ private fun StatCard(
                         )
                     }
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    shadow = Shadow(
-                        color = color.copy(alpha = 0.5f),
-                        offset = Offset(0f, 0f),
-                        blurRadius = 8f
-                    )
-                ),
-                color = White
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-                color = White.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        shadow = Shadow(
+                            color = color.copy(alpha = 0.5f),
+                            offset = Offset(0f, 0f),
+                            blurRadius = 8f
+                        )
+                    ),
+                    color = White,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = White.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center,
+                    maxLines = 2
+                )
+            }
         }
     }
 }
@@ -914,7 +1120,6 @@ private fun DoublePointsButton(
                 Text(
                     text = stringResource(R.string.double_points_title),
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
                         shadow = Shadow(
                             color = NeonBlue.copy(alpha = 0.5f),
                             offset = Offset(0f, 0f),
@@ -945,101 +1150,32 @@ private fun DoublePointsButton(
     }
 }
 
-@Composable
-private fun RecordBadge(
-    icon: Painter,
-    label: String,
-    value: String,
-    accentColor: Color,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(DarkSurfaceVariant)
-            .border(
-                width = 1.dp,
-                color = accentColor.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(16.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Icon with glow
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .drawBehind {
-                        drawCircle(
-                            color = accentColor.copy(alpha = 0.2f),
-                            radius = size.minDimension * 0.8f
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = icon,
-                    contentDescription = null,
-                    tint = accentColor,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Label
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = White.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Value
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    shadow = Shadow(
-                        color = accentColor.copy(alpha = 0.5f),
-                        offset = Offset(0f, 0f),
-                        blurRadius = 8f
-                    )
-                ),
-                color = White,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
 private fun formatTime(millis: Long): String {
     val seconds = (millis / 1000) % 60
     val minutes = (millis / (1000 * 60)) % 60
-    return String.format("%d:%02d", minutes, seconds)
+    return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
 }
 
 // ============================================
 // PREVIEWS
 // ============================================
 
-@Preview(showBackground = true, name = "ScoreDisplay - Light")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "ScoreDisplay - Dark")
+@Preview(showBackground = true, name = "ScoreDisplay - Con recompensas")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "ScoreDisplay - Con recompensas Dark")
 @Composable
 private fun ScoreDisplayPreview() {
     PrideQuizTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             ScoreDisplay(
                 points = 1250,
-                personalRecord = "980",
-                worldRecord = "2400",
                 isNewRecord = true,
-                recordDifference = 270
+                recordDifference = 270,
+                xpGained = 320,
+                newLevel = 5,
+                streakXpBonus = 50,
+                coinsEarned = 35,
+                gemsEarned = 2,
+                showRewards = true
             )
         }
     }
@@ -1052,10 +1188,14 @@ private fun ScoreDisplayNoRecordPreview() {
         Box(modifier = Modifier.padding(16.dp)) {
             ScoreDisplay(
                 points = 450,
-                personalRecord = "980",
-                worldRecord = "2400",
                 isNewRecord = false,
-                recordDifference = -530
+                recordDifference = -530,
+                xpGained = 120,
+                newLevel = null,
+                streakXpBonus = 0,
+                coinsEarned = 18,
+                gemsEarned = 0,
+                showRewards = true
             )
         }
     }
@@ -1068,6 +1208,8 @@ private fun StatsGridPreview() {
     PrideQuizTheme {
         Box(modifier = Modifier.padding(16.dp)) {
             StatsGrid(
+                personalRecord = "980",
+                worldRecord = "2400",
                 totalQuestions = 20,
                 correctAnswers = 16,
                 bestStreak = 8,
@@ -1097,144 +1239,3 @@ private fun StatCardPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "XpGainedBadge - Con Level Up - Light")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "XpGainedBadge - Con Level Up - Dark")
-@Composable
-private fun XpGainedBadgePreview() {
-    PrideQuizTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
-            XpGainedBadge(
-                xpGained = 320,
-                newLevel = 5
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "XpGainedBadge - Sin Level Up")
-@Composable
-private fun XpGainedBadgeNoLevelPreview() {
-    PrideQuizTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
-            XpGainedBadge(
-                xpGained = 120,
-                newLevel = null
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, name = "RecordBadge - Light")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "RecordBadge - Dark")
-@Composable
-private fun RecordBadgePreview() {
-    PrideQuizTheme {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            RecordBadge(
-                icon = rememberVectorPainter(Icons.Default.Star),
-                label = "Record Personal",
-                value = "980",
-                accentColor = NeonPink,
-                modifier = Modifier.weight(1f)
-            )
-            RecordBadge(
-                icon = painterResource(R.drawable.ic_emoji_events),
-                label = "Record Mundial",
-                value = "2400",
-                accentColor = GradientPointsBottom,
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-private fun XpGainedBadge(
-    xpGained: Long,
-    newLevel: Int? = null,
-    modifier: Modifier = Modifier
-) {
-    val infiniteTransition = rememberInfiniteTransition(label = "xp_glow")
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glow_alpha"
-    )
-
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(
-                Brush.horizontalGradient(
-                    listOf(
-                        GradientPointsTop.copy(alpha = 0.15f),
-                        GradientPointsBottom.copy(alpha = 0.15f)
-                    )
-                )
-            )
-            .border(
-                width = 2.dp,
-                brush = Brush.horizontalGradient(
-                    listOf(
-                        GradientPointsTop.copy(alpha = glowAlpha),
-                        GradientPointsBottom.copy(alpha = glowAlpha)
-                    )
-                ),
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            tint = GradientPointsBottom,
-            modifier = Modifier.size(28.dp)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column {
-            Text(
-                text = "+$xpGained XP",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    shadow = Shadow(
-                        color = GradientPointsTop.copy(alpha = 0.5f),
-                        offset = Offset(0f, 0f),
-                        blurRadius = 8f
-                    )
-                ),
-                color = GradientPointsBottom
-            )
-
-            if (newLevel != null) {
-                Text(
-                    text = "Level Up! Level $newLevel",
-                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
-                    color = NeonGreen
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Icon(
-            imageVector = Icons.Default.Star,
-            contentDescription = null,
-            tint = GradientPointsBottom,
-            modifier = Modifier.size(28.dp)
-        )
-    }
-}

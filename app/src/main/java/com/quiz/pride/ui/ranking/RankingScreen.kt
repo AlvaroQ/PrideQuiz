@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
@@ -29,8 +32,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -63,13 +66,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import android.graphics.BitmapFactory
 import android.util.Base64
 import androidx.compose.ui.graphics.asImageBitmap
 import coil3.compose.SubcomposeAsyncImage
 import androidx.compose.foundation.Image
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Warning
@@ -82,7 +85,6 @@ import com.quiz.domain.XpLeaderboardEntry
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.BannerAdView
-import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.components.ShimmerRankingItem
 import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.managers.AnalyticsManager
@@ -94,6 +96,12 @@ import com.quiz.pride.ui.theme.GradientPositionBottom
 import com.quiz.pride.ui.theme.GradientPositionTop
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.RankBronze
+import com.quiz.pride.ui.theme.RankBronzeGlow
+import com.quiz.pride.ui.theme.RankGold
+import com.quiz.pride.ui.theme.RankGoldGlow
+import com.quiz.pride.ui.theme.RankSilver
+import com.quiz.pride.ui.theme.RankSilverGlow
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -199,13 +207,6 @@ private fun DefaultAvatar(modifier: Modifier = Modifier) {
 // Colores de medallas
 // ---------------------------------------------------------------------------
 
-private val GoldColor   = Color(0xFFFFD700)
-private val GoldGlow    = Color(0x80FFD700)
-private val SilverColor = Color(0xFFE8E8E8)
-private val SilverGlow  = Color(0x80E8E8E8)
-private val BronzeColor = Color(0xFFE8943A)
-private val BronzeGlow  = Color(0x99E8943A)
-
 private fun medalEmoji(position: Int) = when (position) {
     1 -> "\uD83E\uDD47" // 🥇
     2 -> "\uD83E\uDD48" // 🥈
@@ -214,23 +215,23 @@ private fun medalEmoji(position: Int) = when (position) {
 }
 
 private fun medalColor(position: Int) = when (position) {
-    1 -> GoldColor
-    2 -> SilverColor
-    3 -> BronzeColor
+    1 -> RankGold
+    2 -> RankSilver
+    3 -> RankBronze
     else -> NeonPurple
 }
 
 private fun medalGlow(position: Int) = when (position) {
-    1 -> GoldGlow
-    2 -> SilverGlow
-    3 -> BronzeGlow
+    1 -> RankGoldGlow
+    2 -> RankSilverGlow
+    3 -> RankBronzeGlow
     else -> GlowPurple
 }
 
 private fun medalGradient(position: Int) = when (position) {
-    1 -> listOf(GoldColor,   GoldColor.copy(alpha = 0.7f))
-    2 -> listOf(SilverColor, SilverColor.copy(alpha = 0.7f))
-    3 -> listOf(BronzeColor, BronzeColor.copy(alpha = 0.7f))
+    1 -> listOf(RankGold,   RankGold.copy(alpha = 0.7f))
+    2 -> listOf(RankSilver, RankSilver.copy(alpha = 0.7f))
+    3 -> listOf(RankBronze, RankBronze.copy(alpha = 0.7f))
     else -> listOf(GradientPositionTop, GradientPositionBottom)
 }
 
@@ -292,7 +293,11 @@ private fun PodiumSlot(
         // Emoji de medalla
         Text(
             text = medal,
-            fontSize = if (position == 1) 28.sp else 22.sp
+            style = if (position == 1) {
+                MaterialTheme.typography.displaySmall
+            } else {
+                MaterialTheme.typography.headlineMedium
+            }
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -317,7 +322,6 @@ private fun PodiumSlot(
         Text(
             text = name.ifEmpty { "Unknown" },
             style = MaterialTheme.typography.labelMedium.copy(
-                fontWeight = FontWeight.Bold,
                 shadow = Shadow(
                     color = color.copy(alpha = 0.6f),
                     offset = Offset(0f, 0f),
@@ -351,9 +355,7 @@ private fun PodiumSlot(
         ) {
             Text(
                 text = valueText,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontWeight = FontWeight.Bold
-                ),
+                style = MaterialTheme.typography.labelSmall,
                 color = color,
                 maxLines = 1
             )
@@ -527,9 +529,7 @@ private fun EmptyRankingState(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.ranking_empty_title),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
-            ),
+            style = MaterialTheme.typography.titleMedium,
             color = White
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -603,25 +603,16 @@ fun RankingScreen(
         viewModel.onTabSelected(pagerState.currentPage)
     }
 
-    Scaffold(
-        topBar = {
-            PrideTopAppBar(
-                title = stringResource(R.string.ranking),
-                onBackClick = onNavigateBack
-            )
-        }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
+    AnimatedScreenBackground(
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
+    ) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Espacio para la top row flotante (back + título) + status bar
+            Spacer(modifier = Modifier.height(120.dp))
+
             Box(modifier = Modifier.weight(1f)) {
-                AnimatedScreenBackground(
-                    orbColor1 = NeonPink,
-                    orbColor2 = NeonPurple
-                ) {
-                    Column(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize()) {
                             // Banner de error cuando algun ranking no cargo
                             if (uiState.hasError) {
                                 Surface(
@@ -914,8 +905,7 @@ fun RankingScreen(
                                     }
                                 }
                             }
-                        } // cierra Column interna
-                } // cierra AnimatedScreenBackground
+                } // cierra Column interna (tabs + pager)
             } // cierra Box(weight(1f))
 
             // Banner publicitario al fondo
@@ -925,7 +915,41 @@ fun RankingScreen(
                 )
             }
         } // cierra Column exterior
-    } // cierra Scaffold
+
+        // Top row flotante: back button (solo flecha blanca) + título.
+        // Mismo patrón visual que SelectGameScreen/Settings/Profile.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(R.string.ranking),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    shadow = Shadow(
+                        color = NeonPink.copy(alpha = 0.6f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 12f
+                    )
+                ),
+                color = White,
+                textAlign = TextAlign.Start
+            )
+        }
+    } // cierra AnimatedScreenBackground
 }
 
 // ---------------------------------------------------------------------------
@@ -1010,7 +1034,6 @@ private fun VibrantRankingItem(
                         Text(
                             text = position.toString(),
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
                                 shadow = Shadow(
                                     color = Color.Black.copy(alpha = 0.3f),
                                     offset = Offset(1f, 1f),
@@ -1048,7 +1071,6 @@ private fun VibrantRankingItem(
                         Text(
                             text = user.name.ifEmpty { "Unknown" },
                             style = MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
                                 shadow = if (isTopThree) Shadow(
                                     color = mColor.copy(alpha = 0.5f),
                                     offset = Offset(0f, 0f),
@@ -1095,7 +1117,6 @@ private fun VibrantRankingItem(
                             text = user.score.toString(),
                             // labelMedium en lugar de titleMedium para 4+
                             style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
                                 shadow = Shadow(
                                     color = Color.Black.copy(alpha = 0.3f),
                                     offset = Offset(1f, 1f),
@@ -1191,7 +1212,6 @@ private fun XpLeaderboardItem(
                     Text(
                         text = position.toString(),
                         style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = Shadow(
                                 color = Color.Black.copy(alpha = 0.3f),
                                 offset = Offset(1f, 1f),
@@ -1229,7 +1249,6 @@ private fun XpLeaderboardItem(
                     Text(
                         text = entry.nickname.ifBlank { "Unknown" },
                         style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = if (isTopThree) Shadow(
                                 color = mColor.copy(alpha = 0.5f),
                                 offset = Offset(0f, 0f),
@@ -1240,7 +1259,7 @@ private fun XpLeaderboardItem(
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Lv.${entry.level}",
+                            text = stringResource(R.string.level_short, entry.level),
                             style = MaterialTheme.typography.bodySmall.copy(
                                 fontWeight = FontWeight.Bold
                             ),
@@ -1283,7 +1302,6 @@ private fun XpLeaderboardItem(
                     Text(
                         text = "${entry.totalXp} XP",
                         style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = Shadow(
                                 color = Color.Black.copy(alpha = 0.3f),
                                 offset = Offset(1f, 1f),

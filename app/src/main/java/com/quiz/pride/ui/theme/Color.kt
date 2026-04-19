@@ -3,10 +3,91 @@ package com.quiz.pride.ui.theme
 import androidx.compose.ui.graphics.Color
 
 // ============================================
-// PRIDE RAINBOW COLORS - Main Palette
+// PINK SCALE — Paleta maestra rosa (HSL derivada, hue ~335deg)
+// De muy claro (50) a muy oscuro (950). Todas las pantallas y componentes
+// consumen estos tonos via ColorScheme o variables nombradas abajo.
 // ============================================
 
-// Classic Pride Rainbow
+val Pink50  = Color(0xFFFFF1F5)   // Rosa casi blanco (light background)
+val Pink100 = Color(0xFFFCE7F0)   // Rosa muy claro (surface variant light)
+val Pink200 = Color(0xFFF9BEDA)   // Rosa suave
+val Pink300 = Color(0xFFF48FC3)   // Rosa medio claro
+val Pink400 = Color(0xFFF39AC6)   // Rosa vibrante
+val Pink500 = Color(0xFFDB2777)   // Rosa saturado (primary light)
+val Pink600 = Color(0xFFBE185D)   // Rosa profundo (primary dark container)
+val Pink700 = Color(0xFF9D174D)   // Rosa oscuro
+val Pink800 = Color(0xFF831843)   // Rosa muy oscuro
+val Pink900 = Color(0xFF500724)   // Rosa casi negro (surface variant dark)
+val Pink950 = Color(0xFF2E0616)   // Rosa tinte negro (surface dark)
+
+// Dark backgrounds — negro con tinte rosa (S bajo, L muy bajo)
+val DarkPinkBackground = Color(0xFF1A0812)   // Fondo dark theme (casi negro tintado rosa)
+val DarkPinkSurface    = Color(0xFF241019)   // Surface elevada
+val DarkPinkSurfaceVariant = Color(0xFF2E1624) // Cards, diálogos
+val DarkPinkSurfaceElevated = Color(0xFF3A1C2D) // Máxima elevación
+
+// Dark backgrounds — negro con tinte morado (dark theme principal)
+val DarkPurpleBackground = Color(0xFF130A1F)     // Fondo dark theme (casi negro tintado violeta)
+val DarkPurpleSurface = Color(0xFF1D1030)        // Surface elevada
+val DarkPurpleSurfaceVariant = Color(0xFF261640) // Cards, diálogos
+val DarkPurpleSurfaceElevated = Color(0xFF311C52) // Máxima elevación
+
+// Text on pink surfaces
+val PinkTextOnDark  = Color(0xFFFCE7F3)   // Blanco rosa (no blanco puro) sobre DarkPinkBackground
+val PinkTextOnLight = Color(0xFF1F0812)   // Casi negro rosa sobre Pink50
+val PurpleTextOnDark = Color(0xFFEDE9FE)  // Blanco violeta sobre DarkPurpleBackground
+
+// Tintes rosa para outlines / inverse
+val PinkOutlineLight = Color(0xFFE5BDCE)        // Rosa suave — outline light theme
+val PinkOutlineVariantLight = Color(0xFFF3E2EB) // Rosa muy suave — outlineVariant light theme
+val PinkInverseLight = Color(0xFFF9A8D4)        // Rosa pastel — inversePrimary light theme
+
+// ============================================
+// PURPLE SCALE — Paleta maestra morada (identidad dark theme, secondary light)
+// De muy claro (50) a muy oscuro (950). Alineada a escala tipo Tailwind violet.
+// ============================================
+
+val Purple50  = Color(0xFFF5F3FF)   // Violeta casi blanco
+val Purple100 = Color(0xFFEDE9FE)   // Violeta muy claro (secondaryContainer light, onPrimaryContainer dark)
+val Purple200 = Color(0xFFD4C4ED)   // Violeta suave (onSurfaceVariant dark)
+val Purple300 = Color(0xFFC084FC)   // Violeta claro (inversePrimary dark)
+val Purple400 = Color(0xFFA855F7)   // Violeta vibrante
+val Purple500 = Color(0xFF8B5CF6)   // Violeta saturado
+val Purple600 = Color(0xFFC9A9FF)   // Violeta profundo (primary dark, secondary light)
+val Purple700 = Color(0xFF6D28D9)   // Morado oscuro
+val Purple800 = Color(0xFF5B21B6)   // Morado muy oscuro (primaryContainer dark, secondaryContainer light)
+val Purple900 = Color(0xFF4C1D95)   // Morado casi negro (onSecondaryContainer light)
+val Purple950 = Color(0xFF2E1065)   // Morado tinte negro (onSecondary dark)
+
+// Tintes morados para outlines
+val PurpleOutlineDark = Color(0xFF6B4A8E)        // Morado grisáceo — outline dark theme
+val PurpleOutlineVariantDark = Color(0xFF3E2A5E) // Morado oscuro grisáceo — outlineVariant dark theme
+
+// ============================================
+// CYAN / TEAL SCALE — tertiary en ambos temas
+// ============================================
+
+val Cyan100 = Color(0xFFCFFAFE)   // Cian muy claro (tertiaryContainer light, onTertiaryContainer dark)
+val Cyan300 = Color(0xFF5EEAD4)   // Cian suave (tertiary dark)
+val Cyan600 = Color(0xFF0891B2)   // Cian profundo (tertiary light)
+val Cyan900 = Color(0xFF164E63)   // Cian oscuro (onTertiaryContainer light, tertiaryContainer dark)
+val Cyan950 = Color(0xFF042F2E)   // Cian casi negro (onTertiary dark)
+
+// ============================================
+// RED SCALE — errores y feedback
+// ============================================
+
+val Red100 = Color(0xFFFEE2E2)    // Rojo muy claro (errorContainer light, onErrorContainer dark)
+val Red400 = Color(0xFFF87171)    // Rojo suave (error dark)
+val Red900 = Color(0xFF991B1B)    // Rojo oscuro (onErrorContainer light, errorContainer dark)
+val Red950 = Color(0xFF450A0A)    // Rojo casi negro (onError dark)
+
+// ============================================
+// PRIDE RAINBOW COLORS — Bandera oficial (NO TOCAR)
+// Se preserva PrideYellow porque es parte de la bandera de 6 franjas.
+// Solo se usa en `RainbowColors` y `RainbowProgressFill`.
+// ============================================
+
 val PrideRed = Color(0xFFE40303)
 val PrideOrange = Color(0xFFFF8C00)
 val PrideYellow = Color(0xFFFFED00)
@@ -26,14 +107,16 @@ val NeonPink = Color(0xFFFF6B9D)
 val NeonPurple = Color(0xFFB24BF3)
 val NeonBlue = Color(0xFF4FC3F7)
 val NeonGreen = Color(0xFF69F0AE)
-val NeonYellow = Color(0xFFFFFF00)
+// Antes amarillo (#FFFF00) — ahora rosa caliente para flama/racha dentro de la paleta rosa.
+// Se conserva el nombre por compatibilidad con llamantes existentes (streak, flame, accent).
+val NeonYellow = Color(0xFFFF4D94)
 val NeonOrange = Color(0xFFFF9100)
 
 // ============================================
 // GRADIENT PAIRS - For beautiful transitions
 // ============================================
 
-// Rainbow Gradient Stops (full spectrum)
+// Rainbow Gradient Stops (full spectrum — bandera oficial)
 val RainbowColors = listOf(
     PrideRed,
     PrideOrange,
@@ -45,45 +128,46 @@ val RainbowColors = listOf(
 
 // Main App Gradient (Purple to Pink)
 val GradientPrimaryStart = Color(0xFF667EEA)
-val GradientPrimaryEnd = Color(0xFFEC4899)
+val GradientPrimaryEnd = Pink400
 
 // Vibrant Background Gradient
-val GradientBackgroundStart = Color(0xFF8B5CF6)  // Vivid Purple
-val GradientBackgroundMid = Color(0xFFEC4899)     // Pink
+val GradientBackgroundStart = Purple500          // Vivid Purple
+val GradientBackgroundMid = Pink400              // Pink
 val GradientBackgroundMidWarm = Color(0xFFF472B6) // Warm Pink (transicion suave)
-val GradientBackgroundEnd = Color(0xFFF97316)     // Orange
+val GradientBackgroundEnd = Pink500              // Rosa profundo (antes orange)
 
 // Card Gradients - Vibrant Menu Cards
-val StartGradientTop = Color(0xFFFF6B6B)      // Coral Red
-val StartGradientBottom = Color(0xFFFF8E53)   // Orange
+val StartGradientTop = Pink400                // Rosa vibrante (antes coral red)
+val StartGradientBottom = Pink500             // Rosa saturado (antes orange)
 
 val LearnGradientTop = Color(0xFF4FACFE)      // Sky Blue
 val LearnGradientBottom = Color(0xFF00F2FE)   // Cyan
 
-val SettingsGradientTop = Color(0xFFA855F7)   // Purple
-val SettingsGradientBottom = Color(0xFFEC4899) // Pink
+val SettingsGradientTop = Purple400           // Purple
+val SettingsGradientBottom = Pink400          // Pink
 
 // Difficulty Gradients
 val NormalGradientTop = Color(0xFF4ADE80)     // Green
 val NormalGradientBottom = Color(0xFF22C55E)
 
-val AdvanceGradientTop = Color(0xFFFBBF24)    // Yellow
-val AdvanceGradientBottom = Color(0xFFF59E0B) // Amber
+// Advanced difficulty: rosa profundo a rosa saturado (antes amarillo/ámbar)
+val AdvanceGradientTop = Pink400              // Rosa vibrante
+val AdvanceGradientBottom = Pink600           // Rosa profundo
 
 val TimedGradientTop = Color(0xFF06B6D4)      // Cyan
 val TimedGradientBottom = Color(0xFF0891B2)   // Dark Cyan
 
-// Game Screen Gradient — Warm midnight (NOT cold indigo)
-val GradientGameTop = Color(0xFF13111F)       // Warm midnight
-val GradientGameBottom = Color(0xFF1B1830)    // Warm midnight plum
+// Game Screen Gradient — tinte morado profundo (alineado con dark theme)
+val GradientGameTop = DarkPurpleBackground
+val GradientGameBottom = DarkPurpleSurface
 
 // Position/Ranking Gradient
-val GradientPositionTop = Color(0xFFD946EF)   // Fuchsia
-val GradientPositionBottom = Color(0xFF8B5CF6) // Violet
+val GradientPositionTop = Color(0xFFD946EF)   // Fuchsia (fuera de la escala Purple)
+val GradientPositionBottom = Purple500        // Violet
 
-// Points Display Gradient
-val GradientPointsTop = Color(0xFFFDE68A)     // Yellow light
-val GradientPointsBottom = Color(0xFFFBBF24)  // Yellow
+// Points Display Gradient — rosa claro a rosa saturado (antes amarillo)
+val GradientPointsTop = Pink200               // Rosa suave
+val GradientPointsBottom = Pink400            // Rosa vibrante
 
 // ============================================
 // UI COLORS
@@ -91,7 +175,7 @@ val GradientPointsBottom = Color(0xFFFBBF24)  // Yellow
 
 // Response Feedback
 val ResponseCorrect = Color(0xFF22C55E)       // Vibrant Green
-val ResponseFail = Color(0xFFEF4444)          // Vibrant Red
+val ResponseFail = Color(0xFFEF4444)          // Vibrant Red (fuera de la escala Red — más saturado)
 
 // Basic Colors
 val White = Color(0xFFFFFFFF)
@@ -100,26 +184,37 @@ val LightGray = Color(0xFFF3F4F6)
 val DarkGray = Color(0xFF6B7280)
 
 // Text Colors
-val TextOnDark = Color(0xFFFFFFFF)
-val TextOnLight = Color(0xFF1F2937)
+val TextOnDark = PurpleTextOnDark
+val TextOnLight = PinkTextOnLight
 val TextMuted = Color(0xFF9CA3AF)
 
 // ============================================
-// DARK THEME COLORS
+// DARK THEME COLORS (tinte morado — identidad principal dark)
 // ============================================
 
-val DarkBackground = Color(0xFF0F0F23)        // Deep dark blue
-val DarkSurface = Color(0xFF1A1A2E)           // Slightly lighter
-val DarkSurfaceVariant = Color(0xFF252542)    // Card background
-val DarkSurfaceElevated = Color(0xFF2D2D4A)   // Elevated surfaces
+val DarkBackground = DarkPurpleBackground
+val DarkSurface = DarkPurpleSurface
+val DarkSurfaceVariant = DarkPurpleSurfaceVariant
+val DarkSurfaceElevated = DarkPurpleSurfaceElevated
 
 // ============================================
-// LIGHT THEME COLORS
+// LIGHT THEME COLORS (tinte rosa)
 // ============================================
 
-val LightBackground = Color(0xFFFAFAFC)
-val LightSurface = Color(0xFFFFFFFF)
-val LightSurfaceVariant = Color(0xFFF3F4F6)
+val LightBackground = Pink50
+val LightSurface = White
+val LightSurfaceVariant = Pink100
+
+// ============================================
+// RANK COLORS — Podio (oro/plata/bronce, convención universal)
+// ============================================
+
+val RankGold   = Color(0xFFFFD700)   // 1er puesto — oro
+val RankGoldGlow   = Color(0x80FFD700)
+val RankSilver = Color(0xFFE8E8E8)   // 2do puesto — plata
+val RankSilverGlow = Color(0x80E8E8E8)
+val RankBronze = Color(0xFFE8943A)   // 3er puesto — bronce
+val RankBronzeGlow = Color(0x99E8943A)
 
 // ============================================
 // SPECIAL EFFECTS
@@ -130,9 +225,9 @@ val GlassDark = Color(0x33000000)             // 20% black
 val Shimmer = Color(0x66FFFFFF)               // For shimmer effects
 val Overlay = Color(0x80000000)               // 50% black overlay
 
-// Glow Colors (for neon effects)
-val GlowPink = Color(0x40EC4899)
-val GlowPurple = Color(0x40A855F7)
+// Glow Colors (for neon effects) — 25% alpha sobre Pink400/Purple400/Blue
+val GlowPink = Color(0x40EC4899)              // Pink400 a 25%
+val GlowPurple = Color(0x40A855F7)            // Purple400 a 25%
 val GlowBlue = Color(0x404FACFE)
 
 // Premium glass effects
@@ -141,22 +236,23 @@ val GlassShadow = Color(0x0D000000)       // 5% black for glass bottom
 val PremiumGlow = Color(0x33B24BF3)       // Purple glow for question frame shadow
 
 // ============================================
-// SPECTRUM THEME — "Fiesta + Prisma + Aurora"
+// SPECTRUM THEME — "Fiesta + Prisma + Aurora" (tintes rosa)
 // ============================================
 
-// Warm atmospheric surfaces (plum/wine undertone, NOT cold blue)
-val SpectrumSurface = Color(0xFF1E1A35)           // Warm glass surface
-val SpectrumSurfaceElevated = Color(0xFF262245)   // Elevated warm
-val SpectrumSurfaceLight = Color(0xFFF8F6FF)      // Light mode: barely lavender
-val SpectrumSurfaceLightElevated = Color(0xFFF0ECFA) // Light mode: gentle violet tint
+// Warm atmospheric surfaces (tinte morado profundo — dark / rosa claro — light)
+val SpectrumSurface = DarkPurpleSurface                  // Warm glass surface
+val SpectrumSurfaceElevated = DarkPurpleSurfaceElevated  // Elevated warm
+val SpectrumSurfaceLight = Pink50                        // Light mode: rosa blanquísimo
+val SpectrumSurfaceLightElevated = Pink100               // Light mode: rosa claro
 
 // Iridescent border palette — pride spectrum for prismatic edges
+// Se sustituye el ámbar (#FBBF24) por rosa profundo para coherencia.
 val IridescentColors = listOf(
     Color(0xFFFF6B9D),  // Pink
-    Color(0xFFA855F7),  // Violet
+    Purple400,          // Violet
     Color(0xFF60A5FA),  // Blue
     Color(0xFF34D399),  // Emerald
-    Color(0xFFFBBF24),  // Amber
+    Pink500,            // Rosa saturado (antes amber)
     Color(0xFFFF6B6B)   // Coral
 )
 
@@ -164,17 +260,17 @@ val IridescentColors = listOf(
 val RainbowProgressFill = listOf(
     Color(0xFFEF4444),  // Red
     Color(0xFFF97316),  // Orange
-    Color(0xFFFBBF24),  // Yellow
+    Color(0xFFFBBF24),  // Yellow (se preserva — es rainbow)
     Color(0xFF22C55E),  // Green
     Color(0xFF3B82F6),  // Blue
-    Color(0xFF8B5CF6),  // Violet
-    Color(0xFFEC4899)   // Pink (loops back for continuity)
+    Purple500,          // Violet
+    Pink400             // Pink (loops back for continuity)
 )
 
 // Button chromatic identities — warm tints, each button owns a color
 val ButtonAccentA = Color(0xFFFF6B9D)     // Rose
 val ButtonAccentB = Color(0xFF60A5FA)     // Sky
-val ButtonAccentC = Color(0xFFA855F7)     // Violet
+val ButtonAccentC = Purple400             // Violet
 val ButtonAccentD = Color(0xFF34D399)     // Emerald
 
 // Button surface tints — very subtle, atmospheric
@@ -189,8 +285,8 @@ val AuroraWashViolet = Color(0x20A855F7)  // 12% violet
 val AuroraWashBlue = Color(0x1860A5FA)    // 10% blue
 
 // Top bar — warm translucent
-val TopBarSurface = Color(0xCC1E1A35)     // 80% warm surface
-val TopBarSurfaceLight = Color(0xCCF8F6FF) // 80% light surface
+val TopBarSurface = Color(0xCC1D1030)          // 80% DarkPurpleSurface
+val TopBarSurfaceLight = Color(0xCCFFF1F5)     // 80% Pink50
 
 // ============================================
 // HIGH CONTRAST COLORS — WCAG AAA (7:1 ratio)
@@ -203,11 +299,11 @@ val HighContrastDarkSurface = Color(0xFF0A0A0A)
 val HighContrastDarkSurfaceVariant = Color(0xFF141414)
 val HighContrastDarkOnBackground = Color(0xFFFFFFFF)
 val HighContrastDarkOnSurface = Color(0xFFFFFFFF)
-// Primary: amarillo brillante sobre negro — ratio ~18:1
-val HighContrastDarkPrimary = Color(0xFFFFD700)
+// Primary: morado intenso sobre negro (identidad dark HC)
+val HighContrastDarkPrimary = Color(0xFF2A0B42)
 val HighContrastDarkOnPrimary = Color(0xFF000000)
-val HighContrastDarkPrimaryContainer = Color(0xFF1A1500)
-val HighContrastDarkOnPrimaryContainer = Color(0xFFFFD700)
+val HighContrastDarkPrimaryContainer = Color(0xFF3B0A1F)
+val HighContrastDarkOnPrimaryContainer = Color(0xFF2B0050)
 // Secondary: cian brillante sobre negro — ratio ~15:1
 val HighContrastDarkSecondary = Color(0xFF00FFFF)
 val HighContrastDarkOnSecondary = Color(0xFF000000)
@@ -218,19 +314,23 @@ val HighContrastDarkTertiary = Color(0xFF39FF14)
 val HighContrastDarkOnTertiary = Color(0xFF000000)
 val HighContrastDarkTertiaryContainer = Color(0xFF041400)
 val HighContrastDarkOnTertiaryContainer = Color(0xFF39FF14)
+// Error, outline y miscelánea — tinte rojo claro brillante sobre negro
+val HighContrastDarkError = Color(0xFFFF6B6B)
+val HighContrastDarkErrorContainer = Color(0xFF2A0000)
+val HighContrastDarkOutlineVariant = Color(0xFFAAAAAA)
 
 // Alto contraste — tema claro
-// Fondo blanco puro, texto negro puro — ratio > 21:1
-val HighContrastLightBackground = Color(0xFFFFFFFF)
+// Fondo blanco (tinte rosa) con texto negro — ratio > 20:1
+val HighContrastLightBackground = Color(0xFFFFF5F8)
 val HighContrastLightSurface = Color(0xFFFFFFFF)
-val HighContrastLightSurfaceVariant = Color(0xFFF0F0F0)
+val HighContrastLightSurfaceVariant = Color(0xFFFCE7F0)
 val HighContrastLightOnBackground = Color(0xFF000000)
 val HighContrastLightOnSurface = Color(0xFF000000)
-// Primary: purpura intenso sobre blanco — ratio ~8:1
-val HighContrastLightPrimary = Color(0xFF5B009E)
+// Primary: rosa brillante sobre blanco (identidad light HC)
+val HighContrastLightPrimary = Color(0xFFE56BAE)
 val HighContrastLightOnPrimary = Color(0xFFFFFFFF)
 val HighContrastLightPrimaryContainer = Color(0xFFEDD9FF)
-val HighContrastLightOnPrimaryContainer = Color(0xFF2B0050)
+val HighContrastLightOnPrimaryContainer = Color(0xFFFF66B5)
 // Secondary: azul oscuro sobre blanco — ratio ~10:1
 val HighContrastLightSecondary = Color(0xFF0000CD)
 val HighContrastLightOnSecondary = Color(0xFFFFFFFF)
@@ -241,3 +341,14 @@ val HighContrastLightTertiary = Color(0xFF005A00)
 val HighContrastLightOnTertiary = Color(0xFFFFFFFF)
 val HighContrastLightTertiaryContainer = Color(0xFFCCF2CC)
 val HighContrastLightOnTertiaryContainer = Color(0xFF002800)
+// Error, outline y miscelánea — rojo oscuro sobre blanco
+val HighContrastLightError = Color(0xFF8B0000)
+val HighContrastLightErrorContainer = Color(0xFFFFDDDD)
+val HighContrastLightOnErrorContainer = Color(0xFF4A0000)
+val HighContrastLightOutlineVariant = Color(0xFF555555)
+
+// ============================================
+// SCRIM — overlay para modales/dropdowns
+// ============================================
+
+val ScrimDark = Color(0xCC000000)   // 80% negro — dark theme scrim

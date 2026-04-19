@@ -39,3 +39,4 @@ appium-visual-tests/allure-report/
 
 # Screenshots generadas para Play Store (binarios, no commitear)
 store-screenshots/
+build_output.txt

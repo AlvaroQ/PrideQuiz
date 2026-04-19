@@ -8,7 +8,9 @@ import com.quiz.domain.Name
 import com.quiz.domain.Pride
 import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.DailyChallengeManager
 import com.quiz.pride.managers.ThemeManager
+import com.quiz.pride.support.createGameViewModel
 import com.quiz.pride.utils.Constants
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPrideById
@@ -41,6 +43,7 @@ class GameViewModelTest {
     private val getPaymentDone: GetPaymentDone = mockk()
     private val analyticsManager: AnalyticsManager = mockk(relaxed = true)
     private val themeManager: ThemeManager = mockk()
+    private val dailyChallengeManager: DailyChallengeManager = mockk(relaxed = true)
     private val savedStateHandle: SavedStateHandle = SavedStateHandle()
 
     private fun buildPride(id: Int = 0): Pride = Pride(
@@ -60,12 +63,13 @@ class GameViewModelTest {
             Either.Right(buildPride(id))
         }
 
-        viewModel = GameViewModel(
+        viewModel = createGameViewModel(
             getPrideById = getPrideById,
             getPaymentDone = getPaymentDone,
             analyticsManager = analyticsManager,
             themeManager = themeManager,
-            savedStateHandle = savedStateHandle
+            savedStateHandle = savedStateHandle,
+            dailyChallengeManager = dailyChallengeManager,
         )
     }
 
@@ -417,7 +421,14 @@ class GameViewModelTest {
             "bestStreak" to 6
         ))
 
-        val vm = GameViewModel(getPrideById, getPaymentDone, analyticsManager, themeManager, handle)
+        val vm = createGameViewModel(
+            getPrideById = getPrideById,
+            getPaymentDone = getPaymentDone,
+            analyticsManager = analyticsManager,
+            themeManager = themeManager,
+            savedStateHandle = handle,
+            dailyChallengeManager = dailyChallengeManager,
+        )
 
         assertEquals(15, vm.uiState.value.points)
         assertEquals(2, vm.uiState.value.lives)

@@ -4,8 +4,10 @@ import androidx.compose.runtime.Immutable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.quiz.domain.Pride
+import com.quiz.domain.challenge.ChallengeEvent
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.DailyChallengeManager
 import com.quiz.pride.managers.ThemeManager
 import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.TOTAL_PRIDES
@@ -74,7 +76,8 @@ class GameViewModel(
     private val getPaymentDone: GetPaymentDone,
     private val analyticsManager: AnalyticsManager,
     private val themeManager: ThemeManager,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
+    private val dailyChallengeManager: DailyChallengeManager
 ) : ComposeViewModel() {
 
     private val randomCountries: MutableSet<Int> = Collections.synchronizedSet(mutableSetOf())
@@ -234,6 +237,16 @@ class GameViewModel(
             gameMode = currentGameMode,
             currentStreak = if (isCorrect) state.currentStreak + 1 else 0
         )
+
+        // Notificar al sistema de desafios diarios (fire-and-forget, no bloquea el flujo del juego)
+        viewModelScope.launch {
+            dailyChallengeManager.processEvent(
+                ChallengeEvent.AnswerGiven(
+                    isCorrect = isCorrect,
+                    responseTimeMs = timeToAnswer
+                )
+            )
+        }
 
         if (isCorrect) {
             val newStreak = state.currentStreak + 1

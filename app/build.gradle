@@ -116,6 +116,13 @@ android {
     testOptions {
         unitTests {
             includeAndroidResources = true
+            // Aislar cada test class en su propia JVM. Evita test pollution entre
+            // clases por estado global compartido (mockk proxies, Flows en coroutines
+            // no canceladas, Dispatchers.Main sin resetear). Coste: suite mas lenta
+            // pero los tests son deterministas y reproducibles.
+            all {
+                forkEvery = 1
+            }
         }
     }
 }
@@ -143,6 +150,7 @@ dependencies {
     implementation libs.androidx.appcompat
     // androidx-preference-ktx removed: zero imports, DataStore replaces it
     implementation libs.androidx.datastore.preferences
+    implementation libs.androidx.work.runtime.ktx
 
     // ==========================================
     // LIFECYCLE

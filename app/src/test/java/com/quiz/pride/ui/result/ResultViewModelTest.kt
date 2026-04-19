@@ -13,6 +13,7 @@ import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.GameStatsManager
+import com.quiz.pride.managers.MysteryBoxManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.utils.Constants
 import com.quiz.usecases.GetAppsRecommended
@@ -58,6 +59,7 @@ class ResultViewModelTest {
     private val gameStatsManager: GameStatsManager = mockk(relaxed = true)
     private val analyticsManager: AnalyticsManager = mockk(relaxed = true)
     private val adFrequencyManager: AdFrequencyManager = mockk()
+    private val mysteryBoxManager: MysteryBoxManager = mockk(relaxed = true)
 
     private fun buildApp(name: String) = App(
         image = "img_$name",
@@ -101,7 +103,8 @@ class ResultViewModelTest {
             progressionManager = progressionManager,
             gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
-            adFrequencyManager = adFrequencyManager
+            adFrequencyManager = adFrequencyManager,
+            mysteryBoxManager = mysteryBoxManager
         )
     }
 
@@ -134,7 +137,8 @@ class ResultViewModelTest {
             progressionManager = progressionManager,
             gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
-            adFrequencyManager = adFrequencyManager
+            adFrequencyManager = adFrequencyManager,
+            mysteryBoxManager = mysteryBoxManager
         )
         advanceUntilIdle()
 
@@ -158,7 +162,8 @@ class ResultViewModelTest {
             progressionManager = progressionManager,
             gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
-            adFrequencyManager = adFrequencyManager
+            adFrequencyManager = adFrequencyManager,
+            mysteryBoxManager = mysteryBoxManager
         )
         advanceUntilIdle()
 
@@ -244,6 +249,27 @@ class ResultViewModelTest {
     // =========================================================
     // recordGameResult
     // =========================================================
+
+    @Test
+    fun `recordGameResult avanza el contador de MysteryBoxManager exactamente una vez`() = runTest {
+        val xpResult = buildXpGainResult(leveledUp = false)
+        coEvery { processGameResult.invoke(any()) } returns ProcessedGameResult(
+            xpGainResult = xpResult,
+            newAchievements = emptyList()
+        )
+
+        viewModel.recordGameResult(
+            gameMode = GameMode.NORMAL,
+            correctAnswers = 5,
+            totalQuestions = 10,
+            bestStreak = 3,
+            timePlayedMs = 60_000L,
+            completedAllQuestions = true,
+        )
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { mysteryBoxManager.onGameCompleted() }
+    }
 
     @Test
     fun `recordGameResult actualiza xpGainResult en el estado`() = runTest {
@@ -369,7 +395,8 @@ class ResultViewModelTest {
             progressionManager = progressionManager,
             gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
-            adFrequencyManager = adFrequencyManager
+            adFrequencyManager = adFrequencyManager,
+            mysteryBoxManager = mysteryBoxManager
         )
 
         viewModel.events.test {
@@ -451,7 +478,8 @@ class ResultViewModelTest {
             progressionManager = progressionManager,
             gameStatsManager = gameStatsManager,
             analyticsManager = analyticsManager,
-            adFrequencyManager = adFrequencyManager
+            adFrequencyManager = adFrequencyManager,
+            mysteryBoxManager = mysteryBoxManager
         )
         assertTrue(viewModel.uiState.value.hasPaid)
     }

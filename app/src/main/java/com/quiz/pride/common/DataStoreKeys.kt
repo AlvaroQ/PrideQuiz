@@ -11,7 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
  * claves en lugar de definirlas localmente.
  *
  * DataStores del proyecto:
- * - progressionDataStore ("progression_preferences") -> claves en [ProgressionKeys] y [GameStatsKeys]
+ * - progressionDataStore ("progression_preferences") -> claves en [ProgressionKeys], [GameStatsKeys] y [StreakKeys]
  * - adFrequencyDataStore ("ad_frequency_preferences") -> [AdFrequencyKeys]
  * - syncDataStore ("xp_sync_preferences")            -> [XpSyncKeys]
  * - themeDataStore ("pride_settings")                -> [ThemeKeys]
@@ -54,6 +54,19 @@ object DataStoreKeys {
     object XpSyncKeys {
         val LAST_SYNCED_TIME = longPreferencesKey("last_synced_time")
         val PENDING_SYNC = booleanPreferencesKey("pending_sync")
+    }
+
+    /** Claves para progressionDataStore — estado de la racha diaria del jugador */
+    object StreakKeys {
+        val CURRENT_STREAK = intPreferencesKey("streak_current")
+        val BEST_STREAK = intPreferencesKey("streak_best")
+        val LAST_PLAYED_DATE = stringPreferencesKey("streak_last_played_date")
+        val FREEZE_TOKENS = intPreferencesKey("streak_freeze_tokens")
+        val CYCLE_DAY = intPreferencesKey("streak_cycle_day")
+        val TOTAL_DAYS_PLAYED = intPreferencesKey("streak_total_days_played")
+        val STREAK_START_DATE = stringPreferencesKey("streak_start_date")
+        val LAST_FREEZE_USED_DATE = stringPreferencesKey("streak_last_freeze_used_date")
+        val WIDGET_DISMISSED_DATE = stringPreferencesKey("streak_widget_dismissed_date")
     }
 
     /** Claves para themeDataStore ("pride_settings") — preferencias de tema y accesibilidad */

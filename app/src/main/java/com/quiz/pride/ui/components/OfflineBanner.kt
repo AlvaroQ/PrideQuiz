@@ -33,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.quiz.pride.R
 import com.quiz.pride.ui.theme.NeonGreen
@@ -107,8 +106,7 @@ private fun OfflineContent() {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.offline_mode),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelLarge,
             color = White
         )
     }
@@ -133,8 +131,7 @@ private fun ConnectionRestoredContent() {
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.connection_restored),
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.labelLarge,
             color = White
         )
     }

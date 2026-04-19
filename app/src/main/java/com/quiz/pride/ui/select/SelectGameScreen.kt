@@ -12,16 +12,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -40,13 +47,10 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
-import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.theme.AdvanceGradientBottom
 import com.quiz.pride.ui.theme.AdvanceGradientTop
 import com.quiz.pride.ui.theme.NeonBlue
@@ -68,92 +72,102 @@ fun SelectGameScreen(
     onNavigateBack: () -> Unit,
     viewModel: SelectGameViewModel = koinViewModel()
 ) {
-    Scaffold(
-        topBar = {
-            PrideTopAppBar(
-                title = stringResource(R.string.select_difficulty),
-                onBackClick = onNavigateBack
+    AnimatedScreenBackground(
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
+    ) {
+        // Background image — same as SelectScreen for seamless transition
+        Image(
+            painter = painterResource(R.drawable.protest),
+            contentDescription = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .align(Alignment.BottomCenter)
+                .alpha(0.6f),
+            contentScale = ContentScale.Crop
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Espacio para la top row flotante (back + título) + status bar
+            Spacer(modifier = Modifier.height(120.dp))
+
+            // Aire entre la top row y la primera card
+            Spacer(modifier = Modifier.height(64.dp))
+
+            // Normal difficulty - Green
+            VibrantDifficultyCard(
+                title = stringResource(R.string.normal),
+                description = stringResource(R.string.normal_description),
+                imageRes = R.drawable.normal,
+                gradientColors = listOf(NormalGradientTop, NormalGradientBottom),
+                glowColor = NeonGreen.copy(alpha = 0.5f),
+                onClick = { onNavigateToGame(Constants.GameType.NORMAL) }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Advance difficulty - Yellow/Amber
+            VibrantDifficultyCard(
+                title = stringResource(R.string.advance),
+                description = stringResource(R.string.advance_description),
+                imageRes = R.drawable.advance,
+                gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
+                glowColor = NeonOrange.copy(alpha = 0.5f),
+                onClick = { onNavigateToGame(Constants.GameType.ADVANCE) }
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Timed mode - Cyan
+            VibrantDifficultyCard(
+                title = stringResource(R.string.timed_mode),
+                description = stringResource(R.string.timed_mode_description),
+                imageRes = R.drawable.normal, // TODO: Add timed mode icon
+                gradientColors = listOf(TimedGradientTop, TimedGradientBottom),
+                glowColor = NeonBlue.copy(alpha = 0.5f),
+                onClick = { onNavigateToGame(Constants.GameType.TIMED) }
             )
         }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            AnimatedScreenBackground(
-                orbColor1 = NeonPink,
-                orbColor2 = NeonPurple
-            ) {
-            // Background image — same as SelectScreen for seamless transition
-            Image(
-                painter = painterResource(R.drawable.protest),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .align(Alignment.BottomCenter)
-                    .alpha(0.6f),
-                contentScale = ContentScale.Crop
-            )
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Title with glow
-                Text(
-                    text = stringResource(R.string.choose_level),
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        shadow = Shadow(
-                            color = NeonPink.copy(alpha = 0.6f),
-                            offset = Offset(0f, 0f),
-                            blurRadius = 12f
-                        )
-                    ),
-                    color = White,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(40.dp))
-
-                // Normal difficulty - Green
-                VibrantDifficultyCard(
-                    title = stringResource(R.string.normal),
-                    description = stringResource(R.string.normal_description),
-                    imageRes = R.drawable.normal,
-                    gradientColors = listOf(NormalGradientTop, NormalGradientBottom),
-                    glowColor = NeonGreen.copy(alpha = 0.5f),
-                    onClick = { onNavigateToGame(Constants.GameType.NORMAL) }
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Advance difficulty - Yellow/Amber
-                VibrantDifficultyCard(
-                    title = stringResource(R.string.advance),
-                    description = stringResource(R.string.advance_description),
-                    imageRes = R.drawable.advance,
-                    gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
-                    glowColor = NeonOrange.copy(alpha = 0.5f),
-                    onClick = { onNavigateToGame(Constants.GameType.ADVANCE) }
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Timed mode - Cyan
-                VibrantDifficultyCard(
-                    title = stringResource(R.string.timed_mode),
-                    description = stringResource(R.string.timed_mode_description),
-                    imageRes = R.drawable.normal, // TODO: Add timed mode icon
-                    gradientColors = listOf(TimedGradientTop, TimedGradientBottom),
-                    glowColor = NeonBlue.copy(alpha = 0.5f),
-                    onClick = { onNavigateToGame(Constants.GameType.TIMED) }
+        // Top row flotante: back button (solo flecha blanca) + título en la misma row.
+        // Misma técnica que SelectScreen: windowInsetsPadding(statusBars) sobre el fondo animado.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
                 )
             }
-            } // AnimatedScreenBackground
-        } // Box padding
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(R.string.choose_level),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    shadow = Shadow(
+                        color = NeonPink.copy(alpha = 0.6f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 12f
+                    )
+                ),
+                color = White,
+                textAlign = TextAlign.Start
+            )
+        }
     }
 }
 
@@ -244,7 +258,6 @@ private fun VibrantDifficultyCard(
                         Text(
                             text = title,
                             style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold,
                                 shadow = Shadow(
                                     color = Color.Black.copy(alpha = 0.3f),
                                     offset = Offset(2f, 2f),
@@ -256,11 +269,8 @@ private fun VibrantDifficultyCard(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = description,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Medium
-                            ),
-                            color = White.copy(alpha = 0.9f),
-                            lineHeight = 18.sp
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = White.copy(alpha = 0.9f)
                         )
                     }
 

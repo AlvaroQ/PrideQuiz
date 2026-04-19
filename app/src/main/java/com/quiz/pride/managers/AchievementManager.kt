@@ -13,7 +13,8 @@ import kotlinx.coroutines.flow.first
 class AchievementManager(
     private val context: Context,
     private val progressionManager: ProgressionManager,
-    private val gameStatsManager: GameStatsManager
+    private val gameStatsManager: GameStatsManager,
+    private val streakManager: StreakManager
 ) {
 
     private val UNLOCKED_ACHIEVEMENTS = DataStoreKeys.ProgressionKeys.UNLOCKED_ACHIEVEMENTS
@@ -40,6 +41,8 @@ class AchievementManager(
         val alreadyUnlocked = parseUnlockedAchievements(prefs)
         // Leer estadisticas usando las preferencias ya cargadas para evitar tercera lectura
         val stats = gameStatsManager.getStatisticsFromPrefs(prefs)
+        // Leer racha diaria actual (lectura independiente de progressionDataStore)
+        val dailyStreak = streakManager.getStreakState().currentStreak
 
         // Fase 1: determinar cuales achievements deben desbloquearse
         val achievementsToUnlock = Achievement.entries.filter { achievement ->
@@ -62,6 +65,13 @@ class AchievementManager(
                 Achievement.DEDICATED -> stats.totalTimePlayedMs >= 3600000 // 1 hora
                 Achievement.ACCURACY_80 -> stats.accuracy >= 80f && stats.totalGamesPlayed >= 10
                 Achievement.ACCURACY_90 -> stats.accuracy >= 90f && stats.totalGamesPlayed >= 20
+                // Rachas diarias
+                Achievement.STREAK_DAILY_7 -> dailyStreak >= 7
+                Achievement.STREAK_DAILY_14 -> dailyStreak >= 14
+                Achievement.STREAK_DAILY_30 -> dailyStreak >= 30
+                Achievement.STREAK_DAILY_60 -> dailyStreak >= 60
+                Achievement.STREAK_DAILY_90 -> dailyStreak >= 90
+                Achievement.STREAK_DAILY_365 -> dailyStreak >= 365
             }
         }
 

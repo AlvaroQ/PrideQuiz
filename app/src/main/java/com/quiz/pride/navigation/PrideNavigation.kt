@@ -1,10 +1,13 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package com.quiz.pride.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +22,7 @@ import com.quiz.pride.ui.result.ResultScreen
 import com.quiz.pride.ui.select.SelectGameScreen
 import com.quiz.pride.ui.select.SelectScreen
 import com.quiz.pride.ui.settings.SettingsScreen
+import com.quiz.pride.ui.shop.ShopScreen
 import com.quiz.pride.ui.MainActivity
 import com.quiz.pride.utils.Constants
 import androidx.compose.ui.platform.LocalContext
@@ -65,12 +69,18 @@ data object MoreAppsRoute
 @Serializable
 data object ProfileRoute
 
-// ==========================================
+@Serializable
+data object ShopRoute
 
-private const val TRANSITION_DURATION = 300
+// ==========================================
 
 /**
  * Grafo de navegacion principal de PrideQuiz con rutas type-safe.
+ *
+ * Motion: usa el MotionScheme expressive del MaterialExpressiveTheme:
+ * - defaultSpatialSpec<IntOffset>() (spring) para el slide horizontal
+ * - defaultEffectsSpec<Float>() (tween) para el fade de opacidad
+ * - slowEffectsSpec<Float>() para la transicion mas calmada del onboarding
  */
 @Composable
 fun PrideNavGraph(
@@ -78,38 +88,43 @@ fun PrideNavGraph(
     startDestination: Any = SelectRoute,
     onOnboardingComplete: () -> Unit = {}
 ) {
+    val motionScheme = MaterialTheme.motionScheme
+    val slideSpec = motionScheme.defaultSpatialSpec<IntOffset>()
+    val fadeSpec = motionScheme.defaultEffectsSpec<Float>()
+    val onboardingFadeSpec = motionScheme.slowEffectsSpec<Float>()
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
         enterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                animationSpec = tween(TRANSITION_DURATION)
-            ) + fadeIn(animationSpec = tween(TRANSITION_DURATION))
+                animationSpec = slideSpec
+            ) + fadeIn(animationSpec = fadeSpec)
         },
         exitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                animationSpec = tween(TRANSITION_DURATION)
-            ) + fadeOut(animationSpec = tween(TRANSITION_DURATION))
+                animationSpec = slideSpec
+            ) + fadeOut(animationSpec = fadeSpec)
         },
         popEnterTransition = {
             slideIntoContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                animationSpec = tween(TRANSITION_DURATION)
-            ) + fadeIn(animationSpec = tween(TRANSITION_DURATION))
+                animationSpec = slideSpec
+            ) + fadeIn(animationSpec = fadeSpec)
         },
         popExitTransition = {
             slideOutOfContainer(
                 towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                animationSpec = tween(TRANSITION_DURATION)
-            ) + fadeOut(animationSpec = tween(TRANSITION_DURATION))
+                animationSpec = slideSpec
+            ) + fadeOut(animationSpec = fadeSpec)
         }
     ) {
         // Onboarding Screen
         composable<OnboardingRoute>(
-            enterTransition = { fadeIn(animationSpec = tween(500)) },
-            exitTransition = { fadeOut(animationSpec = tween(500)) }
+            enterTransition = { fadeIn(animationSpec = onboardingFadeSpec) },
+            exitTransition = { fadeOut(animationSpec = onboardingFadeSpec) }
         ) {
             OnboardingScreen(
                 onFinish = {
@@ -267,6 +282,20 @@ fun PrideNavGraph(
                     navController.navigate(RankingRoute) {
                         launchSingleTop = true
                     }
+                },
+                onNavigateToShop = {
+                    navController.navigate(ShopRoute) {
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
+        // Tienda de cosmeticos
+        composable<ShopRoute> {
+            ShopScreen(
+                onBack = {
+                    navController.popBackStack()
                 }
             )
         }

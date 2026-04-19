@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -133,10 +132,7 @@ import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.SpectrumSurface
 import com.quiz.pride.ui.theme.SpectrumSurfaceElevated
-import com.quiz.pride.ui.theme.SpectrumSurfaceLight
 import com.quiz.pride.ui.theme.SpectrumSurfaceLightElevated
-import com.quiz.pride.ui.theme.TopBarSurface
-import com.quiz.pride.ui.theme.TopBarSurfaceLight
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.TrackScreenTime
@@ -257,23 +253,8 @@ fun GameScreen(
         }
     }
 
-    // Spectrum theme background — warm midnight (dark) / gentle lavender (light)
-    val gameBackgroundGradient = remember(isDarkTheme) {
-        if (isDarkTheme) {
-            Brush.verticalGradient(listOf(GradientGameTop, GradientGameBottom))
-        } else {
-            Brush.verticalGradient(
-                listOf(
-                    SpectrumSurfaceLight,
-                    SpectrumSurfaceLightElevated,
-                    Color(0xFFF5F0FF),
-                    SpectrumSurfaceLight
-                )
-            )
-        }
-    }
-
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
         topBar = {
             EnhancedGameTopBar(
                 points = uiState.points,
@@ -298,12 +279,8 @@ fun GameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .background(gameBackgroundGradient)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
         ) {
-            // Orbs decorativos en composable hijo — la InfiniteTransition vive ahi
-            // y solo ese composable se recompone cada frame (no toda la pantalla)
-            GameBackgroundOrbs()
-
             // Streak effect overlay
             AnimatedVisibility(
                 visible = uiState.showStreakEffect,
@@ -372,81 +349,6 @@ fun GameScreen(
     }
 }
 
-/**
- * Aurora washes atmosfericos — anchos, suaves, como luz boreal detras de las superficies.
- * Tres washes cromáticos (pink, violet, blue) que flotan lento, creando profundidad.
- * La InfiniteTransition vive aqui para aislar la recomposicion por frame.
- */
-@Composable
-private fun GameBackgroundOrbs() {
-    val infiniteTransition = rememberInfiniteTransition(label = "aurora")
-    val driftA by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 40f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(6000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "drift_a"
-    )
-    val driftB by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 25f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(8000, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "drift_b"
-    )
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Pink aurora wash — bottom left, wide
-        Box(
-            modifier = Modifier
-                .size(320.dp)
-                .offset(x = (-100).dp, y = 120.dp + driftA.dp)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(AuroraWashPink, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-        // Violet aurora wash — top right
-        Box(
-            modifier = Modifier
-                .size(280.dp)
-                .align(Alignment.TopEnd)
-                .offset(x = 80.dp, y = 40.dp - driftB.dp)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(AuroraWashViolet, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-        // Blue aurora wash — center bottom, subtle
-        Box(
-            modifier = Modifier
-                .size(240.dp)
-                .align(Alignment.BottomCenter)
-                .offset(y = 60.dp + driftA.dp * 0.5f)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(AuroraWashBlue, Color.Transparent)
-                        ),
-                        radius = size.minDimension / 2
-                    )
-                }
-        )
-    }
-}
-
 @Composable
 private fun EnhancedGameTopBar(
     points: Int,
@@ -463,18 +365,29 @@ private fun EnhancedGameTopBar(
     val progressDescription = stringResource(R.string.accessibility_progress, stage, totalStages)
     val livesDescription = stringResource(R.string.accessibility_lives_remaining, lives)
     val scoreDescription = stringResource(R.string.accessibility_current_score, points)
+    val backContentDescription = stringResource(R.string.cd_back)
+    val pointsText = stringResource(R.string.points_suffix, points)
 
     val colorScheme = MaterialTheme.colorScheme
     val isDark = remember(colorScheme.background) { colorScheme.background.luminance() < 0.5f }
-    val topBarBg = if (isDark) TopBarSurface else TopBarSurfaceLight
-    val onTopBar = if (isDark) White else Color(0xFF1F2937)
+    val onTopBar = colorScheme.onSurface
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(topBarBg)
-            .windowInsetsPadding(WindowInsets.statusBars)
+        modifier = modifier.fillMaxWidth()
     ) {
+        // Status bar area — unificado con el resto de pantallas usando surfaceVariant.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorScheme.surfaceVariant)
+                .windowInsetsPadding(WindowInsets.statusBars)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(colorScheme.surfaceVariant)
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -483,7 +396,7 @@ private fun EnhancedGameTopBar(
         ) {
             IconButton(
                 onClick = onBackClick,
-                modifier = Modifier.semantics { contentDescription = "Go back" }
+                modifier = Modifier.semantics { contentDescription = backContentDescription }
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -496,9 +409,7 @@ private fun EnhancedGameTopBar(
 
             // Points — clean, no glow, editorial
             Text(
-                text = "$points pts",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                text = pointsText,
                 color = GradientPointsBottom,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
@@ -535,6 +446,7 @@ private fun EnhancedGameTopBar(
                 .padding(bottom = 10.dp)
                 .semantics { contentDescription = progressDescription }
         )
+        }
     }
 }
 
@@ -569,7 +481,7 @@ private fun RainbowProgressCapsule(
 
     val capsuleHeight = 22.dp
     val trackColor = if (isDark) Color.White.copy(alpha = 0.08f) else Color.Black.copy(alpha = 0.06f)
-    val labelColor = if (isDark) White.copy(alpha = 0.9f) else Color(0xFF1F2937).copy(alpha = 0.8f)
+    val labelColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
 
     Box(
         modifier = modifier
@@ -616,7 +528,6 @@ private fun RainbowProgressCapsule(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp
             ),
             color = labelColor,
@@ -684,9 +595,8 @@ private fun TimerIndicator(
         Column {
             Text(
                 text = timeText,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.labelLarge,
                 color = color,
-                fontSize = 16.sp,
                 modifier = Modifier.scale(scale)
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -730,9 +640,8 @@ private fun StreakIndicator(
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = "$streak",
-            fontWeight = FontWeight.Bold,
-            color = color,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.labelMedium,
+            color = color
         )
     }
 }
@@ -883,8 +792,6 @@ private fun StreakEffectOverlay(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
                 color = color,
                 style = MaterialTheme.typography.headlineSmall.copy(
                     shadow = Shadow(
@@ -1287,8 +1194,8 @@ private fun VibrantAnswerButton(
                 Text(
                     text = optionLabel,
                     color = if (isDarkTheme) accentColor else accentColor.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 14.sp,
                     letterSpacing = 0.5.sp
                 )
             }
@@ -1307,9 +1214,7 @@ private fun VibrantAnswerButton(
                             text = option?.name?.EN ?: "",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 16.sp,
-                                letterSpacing = 0.3.sp,
-                                lineHeight = 20.sp
+                                letterSpacing = 0.3.sp
                             ),
                             textAlign = TextAlign.Center,
                             color = textColor
@@ -1353,8 +1258,7 @@ private fun VibrantAnswerButton(
                     Text(
                         text = if (isCorrect) "✓" else "✗",
                         color = White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
+                        style = MaterialTheme.typography.labelMedium
                     )
                 }
             }
@@ -1377,7 +1281,6 @@ private fun ExitConfirmationDialog(
             Text(
                 text = stringResource(R.string.exit_game_title),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = Shadow(
                         color = NeonPink.copy(alpha = 0.5f),
                         offset = Offset(0f, 0f),
@@ -1396,8 +1299,8 @@ private fun ExitConfirmationDialog(
             TextButton(onClick = onStay) {
                 Text(
                     text = stringResource(R.string.exit_game_stay),
-                    color = NeonGreen,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = NeonGreen
                 )
             }
         },
@@ -1405,8 +1308,8 @@ private fun ExitConfirmationDialog(
             TextButton(onClick = onLeave) {
                 Text(
                     text = stringResource(R.string.exit_game_leave),
-                    color = NeonPink,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = NeonPink
                 )
             }
         }
@@ -1552,8 +1455,8 @@ private fun ExtraLifeDialog(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.watch_ad),
-                        color = if (isAdReady || !isAdLoading) NeonGreen else colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (isAdReady || !isAdLoading) NeonGreen else colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -1562,8 +1465,8 @@ private fun ExtraLifeDialog(
             TextButton(onClick = onDecline) {
                 Text(
                     text = stringResource(R.string.dialog_extra_life_btn_no),
-                    color = NeonPink,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.labelLarge,
+                    color = NeonPink
                 )
             }
         }

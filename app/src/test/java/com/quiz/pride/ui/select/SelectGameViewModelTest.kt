@@ -1,6 +1,11 @@
 package com.quiz.pride.ui.select
 
+import com.quiz.domain.StreakState
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.StreakManager
+import com.quiz.pride.support.createSelectGameViewModel
+import com.quiz.pride.support.createSelectViewModel
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
@@ -14,7 +19,7 @@ class SelectGameViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = SelectGameViewModel(analyticsManager = analyticsManager)
+        viewModel = createSelectGameViewModel(analyticsManager = analyticsManager)
     }
 
     // =========================================================
@@ -36,9 +41,13 @@ class SelectGameViewModelTest {
     @Test
     fun `SelectGameViewModel y SelectViewModel registran pantallas distintas`() {
         val sharedAnalytics: AnalyticsManager = mockk(relaxed = true)
+        val streakManager: StreakManager = mockk(relaxed = true)
+        coEvery { streakManager.getStreakState() } returns StreakState()
+        coEvery { streakManager.isStreakAtRisk() } returns false
+        coEvery { streakManager.hasPlayedToday() } returns false
 
-        SelectViewModel(analyticsManager = sharedAnalytics)
-        SelectGameViewModel(analyticsManager = sharedAnalytics)
+        createSelectViewModel(analyticsManager = sharedAnalytics, streakManager = streakManager)
+        createSelectGameViewModel(analyticsManager = sharedAnalytics)
 
         verify(exactly = 1) {
             sharedAnalytics.analyticsScreenViewed(AnalyticsManager.SCREEN_SELECT)

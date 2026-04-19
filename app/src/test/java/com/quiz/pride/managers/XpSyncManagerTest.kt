@@ -15,7 +15,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.unmockkAll
+import io.mockk.unmockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -111,7 +111,10 @@ class XpSyncManagerTest {
 
     @After
     fun tearDown() {
-        unmockkAll()
+        // Limpiar SOLO el mock estatico que este test declaro. unmockkAll() seria
+        // demasiado agresivo: limpiaria mocks globales de otros test classes y
+        // provocaria test pollution (UncaughtExceptionsBeforeTest) al ejecutar la suite.
+        unmockkStatic("com.google.firebase.auth.AuthKt")
     }
 
     // =========================================================

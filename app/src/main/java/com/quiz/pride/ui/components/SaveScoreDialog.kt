@@ -121,9 +121,7 @@ fun SaveScoreDialog(
                 // Title
                 Text(
                     text = stringResource(R.string.dialog_ranking_congratulation),
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
+                    style = MaterialTheme.typography.headlineSmall,
                     color = White
                 )
 
@@ -141,10 +139,8 @@ fun SaveScoreDialog(
 
                 // Score
                 Text(
-                    text = "$score pts",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
+                    text = stringResource(R.string.points_suffix, score),
+                    style = MaterialTheme.typography.headlineMedium,
                     color = NeonPurple
                 )
 
@@ -247,6 +243,7 @@ fun SaveScoreDialog(
                     ) {
                         Text(
                             text = stringResource(R.string.dialog_cancel),
+                            style = MaterialTheme.typography.labelLarge,
                             color = White.copy(alpha = 0.7f)
                         )
                     }
@@ -287,15 +284,15 @@ fun SaveScoreDialog(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = stringResource(R.string.dialog_saving),
-                                        color = White,
-                                        fontWeight = FontWeight.Bold
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = White
                                     )
                                 }
                             } else {
                                 Text(
                                     text = stringResource(R.string.dialog_save),
-                                    color = White,
-                                    fontWeight = FontWeight.Bold
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = White
                                 )
                             }
                         }

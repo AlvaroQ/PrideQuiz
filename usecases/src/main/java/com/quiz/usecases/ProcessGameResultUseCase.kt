@@ -8,7 +8,7 @@ import com.quiz.domain.ProcessedGameResult
  * Caso de uso que orquesta el procesamiento completo de una partida finalizada.
  *
  * Responsabilidades:
- * 1. Registra estadisticas y calcula XP ganado
+ * 1. Registra estadisticas, calcula XP ganado y procesa racha diaria
  * 2. Verifica y desbloquea logros basados en las stats actualizadas
  * 3. Dispara sincronizacion del XP con el leaderboard remoto
  *
@@ -19,7 +19,7 @@ class ProcessGameResultUseCase(
     private val processor: GameResultProcessorDataSource
 ) {
     suspend operator fun invoke(result: GameResult): ProcessedGameResult {
-        // Orden importante: primero actualizar stats y XP, luego evaluar logros
+        // Orden importante: primero actualizar stats, XP y racha, luego evaluar logros
         val xpGainResult = processor.recordGameAndComputeXp(result)
         val newAchievements = processor.checkAndUnlockAchievements()
 
@@ -28,7 +28,12 @@ class ProcessGameResultUseCase(
 
         return ProcessedGameResult(
             xpGainResult = xpGainResult,
-            newAchievements = newAchievements
+            newAchievements = newAchievements,
+            streakCheckResult = processor.getLastStreakResult(),
+            streakXpBonus = processor.getLastStreakXpBonus(),
+            challengeCompletionResult = processor.getLastChallengeResult(),
+            coinsEarned = processor.getLastCoinsEarned(),
+            gemsEarned = processor.getLastGemsEarned()
         )
     }
 }

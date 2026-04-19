@@ -23,17 +23,26 @@ import com.quiz.pride.datasource.DataBaseSourceImpl
 import com.quiz.pride.datasource.FirestoreDataSourceImpl
 import com.quiz.pride.datasource.GameResultProcessorImpl
 import com.quiz.pride.datasource.XpLeaderboardDataSourceImpl
+import com.quiz.pride.cosmetics.PrideCatalog
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.BillingManager
 import com.quiz.pride.managers.ConsentManager
+import com.quiz.pride.managers.CurrencyManager
+import com.quiz.pride.managers.DailyChallengeManager
+import com.quiz.pride.managers.DailyRewardManager
+import com.quiz.pride.managers.MysteryBoxManager
+import com.quiz.pride.managers.SeasonalEventManager
 import com.quiz.pride.managers.NetworkManager
 import com.quiz.pride.managers.OnboardingPreferences
 import com.quiz.pride.managers.AchievementManager
 import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.managers.SharedPrefsDataSource
+import com.quiz.pride.managers.StreakManager
 import com.quiz.pride.managers.ThemeManager
+import com.quiz.pride.managers.UnlockableCatalog
+import com.quiz.pride.managers.UnlockablesManager
 import com.quiz.pride.managers.XpSyncManager
 import com.quiz.pride.ui.leaderboard.XpLeaderboardViewModel
 import com.quiz.pride.ui.game.GameViewModel
@@ -45,6 +54,7 @@ import com.quiz.pride.ui.result.ResultViewModel
 import com.quiz.pride.ui.select.SelectGameViewModel
 import com.quiz.pride.ui.select.SelectViewModel
 import com.quiz.pride.ui.settings.SettingsViewModel
+import com.quiz.pride.ui.shop.ShopViewModel
 import com.quiz.usecases.GetAppsRecommended
 import com.quiz.usecases.GetPaymentDone
 import com.quiz.usecases.GetPersonalRecord
@@ -93,7 +103,8 @@ val managerModule = module {
     single { AdFrequencyManager(androidContext()) }
     single { ProgressionManager(androidContext()) }
     single { GameStatsManager(androidContext(), get()) }
-    single { AchievementManager(androidContext(), get(), get()) }
+    single { StreakManager(androidContext()) }
+    single { AchievementManager(androidContext(), get(), get(), get()) }
 
     // El applicationScope (CoroutineScope) se inyecta para que su ciclo de vida
     // sea gestionado externamente en lugar de crear un scope interno sin cancelacion garantizada
@@ -101,6 +112,19 @@ val managerModule = module {
 
     // BillingManager: singleton para gestionar el ciclo de vida del BillingClient
     single { BillingManager(androidContext()) }
+
+    // DailyChallengeManager: singleton para persistir el estado de desafios entre pantallas
+    single { DailyChallengeManager(androidContext()) }
+
+    // Retencion: recompensa diaria, caja misteriosa y eventos seasonal
+    single { DailyRewardManager(androidContext()) }
+    single { MysteryBoxManager(androidContext()) }
+    single { SeasonalEventManager() }
+
+    // Sistema de economia virtual y cosmeticos
+    single { CurrencyManager(androidContext()) }
+    single<UnlockableCatalog> { PrideCatalog }
+    single { UnlockablesManager(androidContext(), get(), get()) }
 }
 
 // DataSources como singletons: son stateless y reutilizables
@@ -111,7 +135,8 @@ val dataSourceModule = module {
     single<SharedPreferencesLocalDataSource> { SharedPrefsDataSource(get()) }
     single<XpLeaderboardDataSource> { XpLeaderboardDataSourceImpl(get()) }
     // GameResultProcessorDataSource: singleton porque los managers que delega son singletons
-    single<GameResultProcessorDataSource> { GameResultProcessorImpl(get(), get(), get()) }
+    // Parametros: GameStatsManager, AchievementManager, XpSyncManager, StreakManager, ProgressionManager, DailyChallengeManager, CurrencyManager
+    single<GameResultProcessorDataSource> { GameResultProcessorImpl(get(), get(), get(), get(), get(), get(), get()) }
 }
 
 // Repositories con cache son single: el cache in-memory debe sobrevivir entre navigaciones
@@ -149,7 +174,7 @@ val useCaseModule = module {
 val viewModelModule = module {
     // SavedStateHandle es inyectado automaticamente por Koin 4.x (koin-android)
     // cuando el ViewModel lo declara como parametro de constructor
-    viewModel { GameViewModel(get(), get(), get(), get(), get()) }
+    viewModel { GameViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel {
         ResultViewModel(
             getAppsRecommended = get(),
@@ -163,6 +188,7 @@ val viewModelModule = module {
             gameStatsManager = get(),
             analyticsManager = get(),
             adFrequencyManager = get(),
+            mysteryBoxManager = get(),
             savedStateHandle = get()
         )
     }
@@ -170,10 +196,11 @@ val viewModelModule = module {
     viewModel { InfoViewModel(get(), get(), get()) }
     viewModel { MoreAppsViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { ProfileViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { XpLeaderboardViewModel(get(), get(), get()) }
-    viewModel { SelectViewModel(get()) }
+    viewModel { SelectViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { SelectGameViewModel(get()) }
+    viewModel { ShopViewModel(get(), get()) }
 }
 
 // Alias para compatibilidad: PrideApp carga estos modulos

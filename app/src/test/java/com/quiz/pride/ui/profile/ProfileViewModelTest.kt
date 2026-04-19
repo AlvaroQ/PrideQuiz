@@ -9,9 +9,14 @@ import com.quiz.domain.UserProfile
 import com.quiz.pride.MainDispatcherRule
 import com.quiz.pride.managers.AchievementManager
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.managers.CurrencyManager
+import com.quiz.pride.managers.DailyChallengeManager
 import com.quiz.pride.managers.GameStatsManager
 import com.quiz.pride.managers.ProgressionManager
+import com.quiz.pride.managers.StreakManager
+import com.quiz.pride.managers.UnlockablesManager
 import com.quiz.pride.managers.XpSyncManager
+import com.quiz.pride.support.createProfileViewModel
 import com.quiz.usecases.GetUserGlobalRank
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -45,6 +50,28 @@ class ProfileViewModelTest {
     private val xpSyncManager: XpSyncManager = mockk()
     private val getUserGlobalRank: GetUserGlobalRank = mockk()
     private val analyticsManager: AnalyticsManager = mockk(relaxed = true)
+    private val streakManager: StreakManager = mockk(relaxed = true)
+    private val dailyChallengeManager: DailyChallengeManager = mockk(relaxed = true)
+    private val currencyManager: CurrencyManager = mockk(relaxed = true)
+    private val unlockablesManager: UnlockablesManager = mockk(relaxed = true)
+
+    /**
+     * Construye el ProfileViewModel bajo prueba inyectando los mocks declarados a nivel
+     * de clase. Se centraliza la construccion para evitar repetir la lista de
+     * dependencias en cada @Test que rehace el VM con mocks alterados.
+     */
+    private fun buildViewModel(): ProfileViewModel = createProfileViewModel(
+        progressionManager = progressionManager,
+        gameStatsManager = gameStatsManager,
+        achievementManager = achievementManager,
+        xpSyncManager = xpSyncManager,
+        getUserGlobalRank = getUserGlobalRank,
+        analyticsManager = analyticsManager,
+        streakManager = streakManager,
+        dailyChallengeManager = dailyChallengeManager,
+        currencyManager = currencyManager,
+        unlockablesManager = unlockablesManager,
+    )
 
     private fun buildLevelInfo(level: Int = 5, xp: Long = 1000L) = LevelInfo(
         level = level,
@@ -83,14 +110,7 @@ class ProfileViewModelTest {
     fun setup() {
         setupDefaultMocks()
 
-        viewModel = ProfileViewModel(
-            progressionManager = progressionManager,
-            gameStatsManager = gameStatsManager,
-            achievementManager = achievementManager,
-            xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank,
-            analyticsManager = analyticsManager
-        )
+        viewModel = buildViewModel()
     }
 
     // =========================================================
@@ -147,14 +167,7 @@ class ProfileViewModelTest {
     fun `init no carga rank cuando el uid es null`() = runTest {
         every { xpSyncManager.getCurrentUserId() } returns null
 
-        viewModel = ProfileViewModel(
-            progressionManager = progressionManager,
-            gameStatsManager = gameStatsManager,
-            achievementManager = achievementManager,
-            xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank,
-            analyticsManager = analyticsManager
-        )
+        viewModel = buildViewModel()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -167,14 +180,7 @@ class ProfileViewModelTest {
         every { progressionManager.totalXp } returns MutableStateFlow(0L)
         every { progressionManager.getLevelInfo(0L) } returns buildLevelInfo(xp = 0L)
 
-        viewModel = ProfileViewModel(
-            progressionManager = progressionManager,
-            gameStatsManager = gameStatsManager,
-            achievementManager = achievementManager,
-            xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank,
-            analyticsManager = analyticsManager
-        )
+        viewModel = buildViewModel()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -185,14 +191,7 @@ class ProfileViewModelTest {
     fun `globalRank es null cuando getUserGlobalRank retorna Either Left`() = runTest {
         coEvery { getUserGlobalRank.invoke(any(), any()) } returns Either.Left(RepositoryException.NoConnectionException)
 
-        viewModel = ProfileViewModel(
-            progressionManager = progressionManager,
-            gameStatsManager = gameStatsManager,
-            achievementManager = achievementManager,
-            xpSyncManager = xpSyncManager,
-            getUserGlobalRank = getUserGlobalRank,
-            analyticsManager = analyticsManager
-        )
+        viewModel = buildViewModel()
         advanceUntilIdle()
 
         val state = viewModel.uiState.value

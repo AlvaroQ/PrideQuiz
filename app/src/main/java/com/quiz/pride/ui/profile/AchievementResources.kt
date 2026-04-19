@@ -26,6 +26,12 @@ val Achievement.titleRes: Int
         Achievement.DEDICATED -> R.string.achievement_dedicated_title
         Achievement.ACCURACY_80 -> R.string.achievement_accuracy_80_title
         Achievement.ACCURACY_90 -> R.string.achievement_accuracy_90_title
+        Achievement.STREAK_DAILY_7 -> R.string.achievement_streak_daily_7_title
+        Achievement.STREAK_DAILY_14 -> R.string.achievement_streak_daily_14_title
+        Achievement.STREAK_DAILY_30 -> R.string.achievement_streak_daily_30_title
+        Achievement.STREAK_DAILY_60 -> R.string.achievement_streak_daily_60_title
+        Achievement.STREAK_DAILY_90 -> R.string.achievement_streak_daily_90_title
+        Achievement.STREAK_DAILY_365 -> R.string.achievement_streak_daily_365_title
     }
 
 val Achievement.descriptionRes: Int
@@ -47,4 +53,10 @@ val Achievement.descriptionRes: Int
         Achievement.DEDICATED -> R.string.achievement_dedicated_desc
         Achievement.ACCURACY_80 -> R.string.achievement_accuracy_80_desc
         Achievement.ACCURACY_90 -> R.string.achievement_accuracy_90_desc
+        Achievement.STREAK_DAILY_7 -> R.string.achievement_streak_daily_7_desc
+        Achievement.STREAK_DAILY_14 -> R.string.achievement_streak_daily_14_desc
+        Achievement.STREAK_DAILY_30 -> R.string.achievement_streak_daily_30_desc
+        Achievement.STREAK_DAILY_60 -> R.string.achievement_streak_daily_60_desc
+        Achievement.STREAK_DAILY_90 -> R.string.achievement_streak_daily_90_desc
+        Achievement.STREAK_DAILY_365 -> R.string.achievement_streak_daily_365_desc
     }

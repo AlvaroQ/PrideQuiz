@@ -67,6 +67,13 @@ class KoinModuleVerificationTest {
                 com.quiz.pride.managers.AdFrequencyManager::class,
                 com.quiz.pride.managers.BillingManager::class,
                 com.quiz.pride.managers.ConsentManager::class,
+                com.quiz.pride.managers.DailyChallengeManager::class,
+                com.quiz.pride.managers.StreakManager::class,
+                com.quiz.pride.managers.CurrencyManager::class,
+                com.quiz.pride.managers.UnlockablesManager::class,
+                com.quiz.pride.managers.DailyRewardManager::class,
+                com.quiz.pride.managers.MysteryBoxManager::class,
+                com.quiz.pride.managers.SeasonalEventManager::class,
                 // SavedStateHandle injected automatically by Koin for ViewModels
                 androidx.lifecycle.SavedStateHandle::class
             )

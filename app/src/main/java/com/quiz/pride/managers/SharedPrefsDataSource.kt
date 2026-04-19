@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.quiz.pride.managers
 
 import android.content.Context
@@ -9,6 +11,20 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.quiz.data.datasource.SharedPreferencesLocalDataSource
 import timber.log.Timber
 
+/*
+ * NOTA sobre @file:Suppress("DEPRECATION"):
+ *
+ * `EncryptedSharedPreferences` y `MasterKey` estan marcados como @Deprecated en
+ * androidx.security:security-crypto:1.1.0 ya que Google aun NO ha publicado un
+ * reemplazo oficial equivalente. Las APIs siguen funcionando y son seguras.
+ *
+ * Se mantiene esta capa porque `PAYMENT_DONE` almacena el estado de compra IAP
+ * y el cifrado aplicativo aporta defensa en profundidad frente a Android FBE.
+ * Eliminar el cifrado obligaria a los usuarios existentes a hacer "Restore
+ * purchases" para recuperar su estado, lo cual es una decision de producto.
+ *
+ * Revisar cuando Google publique el reemplazo oficial recomendado.
+ */
 open class SharedPrefsDataSource(context: Context) : SharedPreferencesLocalDataSource {
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("${context.packageName}_preferences", Context.MODE_PRIVATE)

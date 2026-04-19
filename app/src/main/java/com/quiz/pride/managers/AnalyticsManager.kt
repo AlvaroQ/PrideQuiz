@@ -311,6 +311,76 @@ class AnalyticsManager(context: Context) {
             .with("app_version", BuildConfig.VERSION_NAME))
     }
 
+    /**
+     * Trackea cuando la racha diaria del jugador continua o comienza.
+     * Permite analizar la tasa de retencion diaria y el progreso del ciclo.
+     */
+    fun analyticsStreakContinued(streakDays: Int, cycleDay: Int) {
+        logEvent(Event("streak_continued")
+            .with("uid", uid)
+            .with("streak_days", streakDays.toString())
+            .with("cycle_day", cycleDay.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuando se rompe la racha diaria del jugador.
+     * Permite identificar en que dias hay mas abandono.
+     */
+    fun analyticsStreakBroken(previousStreak: Int) {
+        logEvent(Event("streak_broken")
+            .with("uid", uid)
+            .with("previous_streak", previousStreak.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuando el jugador alcanza un hito de racha (7, 14, 30, 60, 90, 180, 365 dias).
+     * Permite medir cuantos usuarios llegan a cada milestone.
+     */
+    fun analyticsStreakMilestone(streakDays: Int, xpReward: Int) {
+        logEvent(Event("streak_milestone")
+            .with("uid", uid)
+            .with("streak_days", streakDays.toString())
+            .with("xp_reward", xpReward.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuando el jugador usa un freeze token para salvar su racha.
+     * Permite analizar el valor percibido del sistema de freeze.
+     */
+    fun analyticsStreakFreezeUsed(streakDays: Int) {
+        logEvent(Event("streak_freeze_used")
+            .with("uid", uid)
+            .with("streak_days", streakDays.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuando el jugador completa un desafio diario.
+     * Permite analizar la tasa de completacion por tipo y dificultad.
+     */
+    fun analyticsChallengeCompleted(challengeType: String, difficulty: String, xpReward: Int) {
+        logEvent(Event("challenge_completed")
+            .with("uid", uid)
+            .with("challenge_type", challengeType)
+            .with("difficulty", difficulty)
+            .with("xp_reward", xpReward.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
+    /**
+     * Trackea cuando el jugador completa los 3 desafios diarios.
+     * Permite medir el engagement profundo diario.
+     */
+    fun analyticsAllChallengesCompleted(totalXp: Int) {
+        logEvent(Event("all_challenges_completed")
+            .with("uid", uid)
+            .with("total_xp_earned", totalXp.toString())
+            .with("app_version", BuildConfig.VERSION_NAME))
+    }
+
     private fun logEvent(event: Event) {
         firebase.logEvent(event.eventName, event.bundle)
     }

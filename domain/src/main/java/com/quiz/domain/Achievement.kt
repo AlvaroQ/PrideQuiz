@@ -36,5 +36,13 @@ enum class Achievement(
     SPEED_DEMON("speed_demon", 300, "\u23F1\uFE0F"),
     DEDICATED("dedicated", 200, "\u23F0"),
     ACCURACY_80("accuracy_80", 250, "\uD83C\uDFAF"),
-    ACCURACY_90("accuracy_90", 500, "\uD83D\uDCAF")
+    ACCURACY_90("accuracy_90", 500, "\uD83D\uDCAF"),
+
+    // Rachas diarias
+    STREAK_DAILY_7("streak_daily_7", 200, "\uD83D\uDD25"),
+    STREAK_DAILY_14("streak_daily_14", 500, "\uD83D\uDD25"),
+    STREAK_DAILY_30("streak_daily_30", 1000, "\uD83C\uDF0B"),
+    STREAK_DAILY_60("streak_daily_60", 2500, "\uD83D\uDCAB"),
+    STREAK_DAILY_90("streak_daily_90", 5000, "\u2B50"),
+    STREAK_DAILY_365("streak_daily_365", 10000, "\uD83C\uDFC6")
 }

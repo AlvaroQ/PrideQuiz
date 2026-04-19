@@ -1,8 +1,12 @@
 package com.quiz.pride.ui.select
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,12 +21,16 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.zIndex
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
@@ -46,16 +54,23 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
+import com.quiz.pride.ui.components.CurrencyDisplay
+import com.quiz.pride.ui.components.DailyRewardCard
+import com.quiz.pride.ui.components.PrideMonthBanner
+import com.quiz.pride.ui.components.RewardStatsDisplay
+import com.quiz.pride.ui.components.StreakAtRiskBanner
+import com.quiz.pride.ui.components.StreakWidget
 import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
@@ -83,6 +98,11 @@ fun SelectScreen(
     viewModel: SelectViewModel = koinViewModel()
 ) {
     val analyticsManager: AnalyticsManager = koinInject()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val density = LocalDensity.current
+    val bottomNavInset = with(density) { WindowInsets.navigationBars.getBottom(density).toDp() }
+    val bottomFloatingCardSpace = 76.dp + 16.dp + 16.dp + bottomNavInset + 24.dp
+
     TrackScreenTime(AnalyticsManager.SCREEN_SELECT, analyticsManager)
 
     AnimatedScreenBackground(
@@ -109,41 +129,14 @@ fun SelectScreen(
                 .background(Color.Transparent),
         )
 
-        // Profile button in top right
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(16.dp),
-            contentAlignment = Alignment.TopEnd
-        ) {
-            IconButton(
-                onClick = onNavigateToProfile,
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(GradientPointsTop, GradientPointsBottom)
-                        ),
-                        shape = CircleShape
-                    )
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = stringResource(R.string.profile_title),
-                    tint = Color.Black,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(88.dp))
 
             // Title with glow effect
             Box(
@@ -173,7 +166,17 @@ fun SelectScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Pride Month banner — activo solo en junio, sin afectar layout en otros meses
+            if (uiState.isPrideMonth) {
+                PrideMonthBanner(
+                    isActive = true,
+                    xpMultiplier = uiState.prideMultiplier,
+                    daysRemaining = uiState.prideDaysRemaining
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
 
             // Start Game Card - Coral/Orange gradient
             VibrantMenuCard(
@@ -208,6 +211,108 @@ fun SelectScreen(
                 glowColor = GlowPurple,
                 onClick = onNavigateToSettings
             )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Banner de racha en riesgo — solo si aplica
+            if (!uiState.isLoadingStreak && uiState.isStreakAtRisk && !uiState.hasPlayedToday) {
+                StreakAtRiskBanner(
+                    currentStreak = uiState.streakState.currentStreak,
+                    freezeTokens = uiState.streakState.freezeTokens
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // Widget de racha — debajo del bloque de ajustes.
+            // Se oculta con swipe horizontal hasta el proximo dia (persistido via
+            // StreakManager). Si la racha esta en riesgo se muestra siempre y sin
+            // swipe: el aviso es critico y no debe descartarse.
+            if (!uiState.isLoadingStreak &&
+                (!uiState.isStreakWidgetDismissed || uiState.isStreakAtRisk)
+            ) {
+                StreakWidget(
+                    streakState = uiState.streakState,
+                    isAtRisk = uiState.isStreakAtRisk,
+                    hasPlayedToday = uiState.hasPlayedToday,
+                    onDismiss = if (uiState.isStreakAtRisk) null
+                        else viewModel::dismissStreakWidget
+                )
+            }
+
+            // Espacio dinamico para evitar que el card flotante tape los ultimos items.
+            Spacer(modifier = Modifier.height(bottomFloatingCardSpace))
+        }
+
+        // Recompensa diaria — card fijo en la parte inferior.
+        // Se oculta con fade cuando el usuario hace swipe-to-dismiss tras reclamarla;
+        // vuelve manana cuando se activa una recompensa nueva (el manager resetea
+        // automaticamente al cambiar de fecha).
+        val dailyRewardVisible = !(uiState.dailyReward?.isClaimed == true && uiState.isDailyRewardDismissed)
+        AnimatedVisibility(
+            visible = dailyRewardVisible,
+            enter = fadeIn(animationSpec = tween(300)),
+            exit = fadeOut(animationSpec = tween(300)),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy((-8).dp)
+            ) {
+                // Stats display (arriba a derecha, por encima del card via zIndex)
+                RewardStatsDisplay(
+                    reward = uiState.dailyReward,
+                    modifier = Modifier.zIndex(1f)
+                )
+
+                // Daily reward card (abajo, ancho completo)
+                DailyRewardCard(
+                    reward = uiState.dailyReward,
+                    isClaiming = uiState.isClaimingDailyReward,
+                    onClaim = { viewModel.claimDailyReward() },
+                    onDismiss = { viewModel.dismissDailyReward() },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+
+        // Barra superior: balance de moneda + boton de perfil.
+        // Declarada al final del Box para quedar por encima de la Column scrollable
+        // y recibir los clicks del IconButton de perfil.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
+        ) {
+            // Balance de moneda (izquierda) — anclado al top para alinear con el borde
+            // superior del IconButton de perfil (44.dp) y quedar pegado al status bar.
+            CurrencyDisplay(balance = uiState.balance)
+
+            // Boton Perfil (derecha)
+            IconButton(
+                onClick = onNavigateToProfile,
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(GradientPointsTop, GradientPointsBottom)
+                        ),
+                        shape = CircleShape
+                    )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = stringResource(R.string.profile_title),
+                    tint = Color.Black,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
     }
 }
@@ -319,7 +424,6 @@ private fun VibrantMenuCard(
                         Text(
                             text = title,
                             style = MaterialTheme.typography.headlineSmall.copy(
-                                fontWeight = FontWeight.Bold,
                                 shadow = Shadow(
                                     color = Color.Black.copy(alpha = 0.3f),
                                     offset = Offset(2f, 2f),
@@ -331,12 +435,9 @@ private fun VibrantMenuCard(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = description,
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Medium
-                            ),
+                            style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.9f),
-                            textAlign = TextAlign.Start,
-                            lineHeight = 18.sp
+                            textAlign = TextAlign.Start
                         )
                     }
 

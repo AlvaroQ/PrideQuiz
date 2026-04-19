@@ -12,10 +12,12 @@ import com.quiz.domain.GameResult
 import com.quiz.domain.User
 import com.quiz.domain.UserProfile
 import com.quiz.domain.XpGainResult
+import com.quiz.domain.challenge.ChallengeCompletionResult
 import com.quiz.pride.common.ComposeViewModel
 import com.quiz.pride.managers.AdFrequencyManager
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.managers.GameStatsManager
+import com.quiz.pride.managers.MysteryBoxManager
 import com.quiz.pride.managers.ProgressionManager
 import com.quiz.pride.utils.Constants
 import com.quiz.pride.utils.Constants.TOP_RANKING_LIMIT
@@ -58,7 +60,16 @@ data class ResultUiState(
     // Ad state
     val hasPaid: Boolean = false,
     // Puntos mostrados al usuario (pueden ser duplicados por ad recompensado)
-    val displayedPoints: Int = 0
+    val displayedPoints: Int = 0,
+    // Streak celebration dialog
+    val streakCheckResult: com.quiz.domain.StreakCheckResult? = null,
+    val showStreakDialog: Boolean = false,
+    val streakXpBonus: Int = 0,
+    // Desafios completados durante la partida
+    val challengeCompletionResult: ChallengeCompletionResult? = null,
+    // Moneda ganada en esta partida
+    val coinsEarned: Int = 0,
+    val gemsEarned: Int = 0
 )
 
 sealed class ResultEvent {
@@ -78,6 +89,7 @@ class ResultViewModel(
     private val gameStatsManager: GameStatsManager,
     private val analyticsManager: AnalyticsManager,
     private val adFrequencyManager: AdFrequencyManager,
+    private val mysteryBoxManager: MysteryBoxManager,
     private val savedStateHandle: SavedStateHandle = SavedStateHandle()
 ) : ComposeViewModel() {
 
@@ -205,11 +217,29 @@ class ResultViewModel(
 
             val processed = processGameResult(result)
 
+            // Avanza el contador de la caja misteriosa. La caja queda pendiente
+            // hasta que la UI llame a consumeBox; asi llamar aqui sin el Dialog
+            // cableado no pierde el progreso (idempotente una vez alcanzado el
+            // umbral, segun contrato de MysteryBoxManager).
+            mysteryBoxManager.onGameCompleted()
+
+            // Mostrar el dialog de racha solo si el resultado es relevante
+            // (no se muestra para AlreadyPlayedToday ni cuando streakCheckResult es null)
+            val shouldShowStreakDialog = processed.streakCheckResult != null &&
+                processed.streakCheckResult !is com.quiz.domain.StreakCheckResult.AlreadyPlayedToday
+
             _uiState.update { state ->
                 state.copy(
                     xpGainResult = processed.xpGainResult,
                     newAchievements = processed.newAchievements,
-                    showLevelUpDialog = processed.xpGainResult.leveledUp
+                    showLevelUpDialog = processed.xpGainResult.leveledUp,
+                    streakCheckResult = processed.streakCheckResult,
+                    showStreakDialog = shouldShowStreakDialog,
+                    streakXpBonus = processed.streakXpBonus,
+                    challengeCompletionResult = processed.challengeCompletionResult
+                        ?.takeIf { it.completedChallenges.isNotEmpty() },
+                    coinsEarned = processed.coinsEarned,
+                    gemsEarned = processed.gemsEarned
                 )
             }
 
@@ -228,6 +258,10 @@ class ResultViewModel(
 
     fun dismissLevelUpDialog() {
         _uiState.update { it.copy(showLevelUpDialog = false) }
+    }
+
+    fun dismissStreakDialog() {
+        _uiState.update { it.copy(showStreakDialog = false) }
     }
 
     private fun loadData() {

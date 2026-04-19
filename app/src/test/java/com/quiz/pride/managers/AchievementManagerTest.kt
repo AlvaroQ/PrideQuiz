@@ -26,32 +26,42 @@ class AchievementManagerTest {
     /**
      * Replica exacta de la logica de filtrado de checkAndUnlockAchievements.
      * Permite testear las condiciones de desbloqueo sin necesitar Context ni DataStore.
+     *
+     * El parametro [dailyStreak] representa la racha diaria actual leida desde
+     * StreakManager, y gobierna los achievements STREAK_DAILY_*.
      */
     private fun determinarAchievementsADesbloquear(
         stats: PlayerStatistics,
         currentLevel: Int,
+        dailyStreak: Int = 0,
         alreadyUnlocked: Set<Achievement> = emptySet()
     ): List<Achievement> {
         return Achievement.entries.filter { achievement ->
             if (achievement in alreadyUnlocked) return@filter false
             when (achievement) {
-                Achievement.FIRST_GAME      -> stats.totalGamesPlayed >= 1
-                Achievement.TEN_GAMES       -> stats.totalGamesPlayed >= 10
-                Achievement.FIFTY_GAMES     -> stats.totalGamesPlayed >= 50
-                Achievement.HUNDRED_GAMES   -> stats.totalGamesPlayed >= 100
-                Achievement.FIRST_PERFECT   -> stats.perfectGames >= 1
-                Achievement.FIVE_PERFECT    -> stats.perfectGames >= 5
-                Achievement.STREAK_5        -> stats.bestStreakEver >= 5
-                Achievement.STREAK_10       -> stats.bestStreakEver >= 10
-                Achievement.STREAK_15       -> stats.bestStreakEver >= 15
-                Achievement.STREAK_20       -> stats.bestStreakEver >= 20
-                Achievement.LEVEL_10        -> currentLevel >= 10
-                Achievement.LEVEL_25        -> currentLevel >= 25
-                Achievement.LEVEL_50        -> currentLevel >= 50
-                Achievement.SPEED_DEMON     -> stats.timedGamesPlayed >= 10
-                Achievement.DEDICATED       -> stats.totalTimePlayedMs >= 3_600_000L
-                Achievement.ACCURACY_80     -> stats.accuracy >= 80f && stats.totalGamesPlayed >= 10
-                Achievement.ACCURACY_90     -> stats.accuracy >= 90f && stats.totalGamesPlayed >= 20
+                Achievement.FIRST_GAME       -> stats.totalGamesPlayed >= 1
+                Achievement.TEN_GAMES        -> stats.totalGamesPlayed >= 10
+                Achievement.FIFTY_GAMES      -> stats.totalGamesPlayed >= 50
+                Achievement.HUNDRED_GAMES    -> stats.totalGamesPlayed >= 100
+                Achievement.FIRST_PERFECT    -> stats.perfectGames >= 1
+                Achievement.FIVE_PERFECT     -> stats.perfectGames >= 5
+                Achievement.STREAK_5         -> stats.bestStreakEver >= 5
+                Achievement.STREAK_10        -> stats.bestStreakEver >= 10
+                Achievement.STREAK_15        -> stats.bestStreakEver >= 15
+                Achievement.STREAK_20        -> stats.bestStreakEver >= 20
+                Achievement.LEVEL_10         -> currentLevel >= 10
+                Achievement.LEVEL_25         -> currentLevel >= 25
+                Achievement.LEVEL_50         -> currentLevel >= 50
+                Achievement.SPEED_DEMON      -> stats.timedGamesPlayed >= 10
+                Achievement.DEDICATED        -> stats.totalTimePlayedMs >= 3_600_000L
+                Achievement.ACCURACY_80      -> stats.accuracy >= 80f && stats.totalGamesPlayed >= 10
+                Achievement.ACCURACY_90      -> stats.accuracy >= 90f && stats.totalGamesPlayed >= 20
+                Achievement.STREAK_DAILY_7   -> dailyStreak >= 7
+                Achievement.STREAK_DAILY_14  -> dailyStreak >= 14
+                Achievement.STREAK_DAILY_30  -> dailyStreak >= 30
+                Achievement.STREAK_DAILY_60  -> dailyStreak >= 60
+                Achievement.STREAK_DAILY_90  -> dailyStreak >= 90
+                Achievement.STREAK_DAILY_365 -> dailyStreak >= 365
             }
         }
     }
@@ -76,8 +86,8 @@ class AchievementManagerTest {
     // =========================================================
 
     @Test
-    fun `Achievement enum tiene exactamente 18 logros definidos`() {
-        assertEquals(18, Achievement.entries.size)
+    fun `Achievement enum tiene exactamente 23 logros definidos`() {
+        assertEquals(23, Achievement.entries.size)
     }
 
     @Test
@@ -438,6 +448,111 @@ class AchievementManagerTest {
     }
 
     // =========================================================
+    // Rachas diarias: STREAK_DAILY_7 / 14 / 30 / 60 / 90 / 365
+    // =========================================================
+
+    @Test
+    fun `STREAK_DAILY_7 se desbloquea cuando dailyStreak es 7`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 7)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_7))
+    }
+
+    @Test
+    fun `STREAK_DAILY_7 no se desbloquea cuando dailyStreak es 6`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 6)
+
+        assertFalse(result.contains(Achievement.STREAK_DAILY_7))
+    }
+
+    @Test
+    fun `STREAK_DAILY_14 se desbloquea cuando dailyStreak es 14`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 14)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_14))
+    }
+
+    @Test
+    fun `STREAK_DAILY_30 se desbloquea cuando dailyStreak es 30`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 30)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_30))
+    }
+
+    @Test
+    fun `STREAK_DAILY_60 se desbloquea cuando dailyStreak es 60`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 60)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_60))
+    }
+
+    @Test
+    fun `STREAK_DAILY_90 se desbloquea cuando dailyStreak es 90`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 90)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_90))
+    }
+
+    @Test
+    fun `STREAK_DAILY_365 se desbloquea cuando dailyStreak es 365`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 365)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_365))
+    }
+
+    @Test
+    fun `dailyStreak de 365 desbloquea todos los logros de racha diaria anteriores`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 365)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_7))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_14))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_30))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_60))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_90))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_365))
+    }
+
+    @Test
+    fun `dailyStreak de 45 desbloquea solo hasta STREAK_DAILY_30`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 45)
+
+        assertTrue(result.contains(Achievement.STREAK_DAILY_7))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_14))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_30))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_60))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_90))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_365))
+    }
+
+    @Test
+    fun `dailyStreak de 0 no desbloquea ningun logro de racha diaria`() {
+        val result = determinarAchievementsADesbloquear(statsVacias(), currentLevel = 1, dailyStreak = 0)
+
+        assertFalse(result.contains(Achievement.STREAK_DAILY_7))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_14))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_30))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_60))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_90))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_365))
+    }
+
+    @Test
+    fun `STREAK_DAILY no se duplica cuando ya fue desbloqueado`() {
+        val yaDesbloqueados = setOf(Achievement.STREAK_DAILY_7, Achievement.STREAK_DAILY_14)
+        val result = determinarAchievementsADesbloquear(
+            statsVacias(),
+            currentLevel = 1,
+            dailyStreak = 30,
+            alreadyUnlocked = yaDesbloqueados,
+        )
+
+        // Solo el siguiente hito (STREAK_DAILY_30) aparece en el resultado
+        assertFalse(result.contains(Achievement.STREAK_DAILY_7))
+        assertFalse(result.contains(Achievement.STREAK_DAILY_14))
+        assertTrue(result.contains(Achievement.STREAK_DAILY_30))
+    }
+
+    // =========================================================
     // Casos borde generales
     // =========================================================
 
@@ -456,9 +571,9 @@ class AchievementManagerTest {
             advanceGamesPlayed = 20,
             timedGamesPlayed = 30
         )
-        val result = determinarAchievementsADesbloquear(stats, currentLevel = 50)
+        val result = determinarAchievementsADesbloquear(stats, currentLevel = 50, dailyStreak = 365)
 
-        // Debe contener todos los 18 achievements
+        // Debe contener todos los achievements definidos en el enum (incluyendo STREAK_DAILY_*)
         assertEquals(Achievement.entries.size, result.size)
     }
 

@@ -10,6 +10,7 @@ import okio.Path.Companion.toOkioPath
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.RequestConfiguration
 import com.quiz.pride.BuildConfig
+import com.quiz.pride.notifications.NotificationScheduler
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -28,6 +29,9 @@ class PrideApp : Application(), SingletonImageLoader.Factory {
         // MobileAds NO se inicializa aqui — el consentimiento UMP debe resolverse primero.
         // La inicializacion se delega a MainActivity despues de mostrar el formulario de consentimiento.
         configureAdMobRequestConfiguration()
+        // Programar el recordatorio diario. ExistingPeriodicWorkPolicy.KEEP
+        // garantiza que no se reinicie el schedule si ya existe.
+        NotificationScheduler.scheduleDailyReminder(this)
     }
 
     /**

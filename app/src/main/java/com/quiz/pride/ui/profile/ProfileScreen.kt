@@ -13,6 +13,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,12 +23,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +41,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
@@ -49,11 +54,9 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -83,16 +86,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.quiz.domain.Achievement
 import com.quiz.domain.LevelInfo
 import com.quiz.domain.PlayerStatistics
+import com.quiz.domain.StreakState
 import com.quiz.domain.UserProfile
+import com.quiz.domain.challenge.ChallengeStats
+import com.quiz.domain.reward.DailyReward
+import com.quiz.domain.reward.RewardTier
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
+import com.quiz.pride.ui.components.DailyChallengesCard
 import com.quiz.pride.ui.components.LoadingIndicator
-import com.quiz.pride.ui.components.PrideTopAppBar
+import com.quiz.pride.ui.components.StreakWidget
 import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GradientPointsBottom
@@ -103,15 +111,18 @@ import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
+import com.quiz.pride.ui.theme.RankGold
+import com.quiz.pride.ui.theme.ResponseCorrect
 import com.quiz.pride.ui.theme.White
-import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import java.io.ByteArrayOutputStream
 
 @Composable
 fun ProfileScreen(
     onNavigateBack: () -> Unit,
     onNavigateToLeaderboard: () -> Unit = {},
+    onNavigateToShop: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -123,73 +134,147 @@ fun ProfileScreen(
     val colorScheme = MaterialTheme.colorScheme
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
 
-    Scaffold(
-        topBar = {
-            PrideTopAppBar(
-                title = stringResource(R.string.profile_title),
-                onBackClick = onNavigateBack
-            )
-        }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            AnimatedScreenBackground(
-                orbColor1 = NeonPurple,
-                orbColor2 = NeonPink
+    AnimatedScreenBackground(
+        orbColor1 = NeonPurple,
+        orbColor2 = NeonPink
+    ) {
+        if (uiState.isLoading) {
+            LoadingIndicator()
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                if (uiState.isLoading) {
-                    LoadingIndicator()
-                } else {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
-                    ) {
-                        // User Profile Card
-                        UserProfileCard(
-                            userProfile = uiState.userProfile,
-                            isDarkTheme = isDarkTheme,
-                            onSaveNickname = { viewModel.saveNickname(it) },
-                            onSaveImage = { viewModel.saveUserImage(it) }
-                        )
+                // Espacio para la top row flotante (back + título) + status bar
+                Spacer(modifier = Modifier.height(120.dp))
 
-                        Spacer(modifier = Modifier.height(20.dp))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp)
+                ) {
+                // User Profile Card
+                UserProfileCard(
+                    userProfile = uiState.userProfile,
+                    isDarkTheme = isDarkTheme,
+                    onSaveNickname = { viewModel.saveNickname(it) },
+                    onSaveImage = { viewModel.saveUserImage(it) }
+                )
 
-                        // Level Card
-                        uiState.levelInfo?.let { levelInfo ->
-                            LevelCard(levelInfo = levelInfo, isDarkTheme = isDarkTheme)
-                        }
+                Spacer(modifier = Modifier.height(20.dp))
 
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Global Rank Card
-                        GlobalRankCard(
-                            globalRank = uiState.globalRank,
-                            isLoading = uiState.isLoadingRank,
-                            isDarkTheme = isDarkTheme,
-                            onViewLeaderboard = onNavigateToLeaderboard
-                        )
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Statistics Section
-                        uiState.statistics?.let { stats ->
-                            StatisticsSection(statistics = stats, isDarkTheme = isDarkTheme)
-                        }
-
-                        Spacer(modifier = Modifier.height(20.dp))
-
-                        // Achievements Section
-                        AchievementsSection(
-                            allAchievements = uiState.allAchievements,
-                            unlockedAchievements = uiState.unlockedAchievements,
-                            isDarkTheme = isDarkTheme
-                        )
-
-                        Spacer(modifier = Modifier.height(24.dp))
-                    }
+                // Level Card
+                uiState.levelInfo?.let { levelInfo ->
+                    LevelCard(levelInfo = levelInfo, isDarkTheme = isDarkTheme)
                 }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Global Rank Card
+                GlobalRankCard(
+                    globalRank = uiState.globalRank,
+                    isLoading = uiState.isLoadingRank,
+                    isDarkTheme = isDarkTheme,
+                    onViewLeaderboard = onNavigateToLeaderboard
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Streak Section
+                StreakSection(
+                    streakState = uiState.streakState,
+                    isAtRisk = uiState.isStreakAtRisk,
+                    hasPlayedToday = uiState.hasPlayedToday,
+                    isDarkTheme = isDarkTheme
+                )
+
+                // Estado de la recompensa del dia (siempre visible en perfil)
+                if (uiState.dailyReward != null) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    DailyRewardStatusBadge(
+                        reward = uiState.dailyReward!!,
+                        isDarkTheme = isDarkTheme
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Statistics Section
+                uiState.statistics?.let { stats ->
+                    StatisticsSection(statistics = stats, isDarkTheme = isDarkTheme)
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Desafios activos del dia
+                if (!uiState.isLoadingChallenges && uiState.challengeState.challenges.isNotEmpty()) {
+                    DailyChallengesCard(challengeState = uiState.challengeState)
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
+                // Seccion de Desafios Diarios
+                ChallengesStatsSection(
+                    challengeStats = uiState.challengeStats,
+                    isDarkTheme = isDarkTheme
+                )
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Achievements Section
+                AchievementsSection(
+                    allAchievements = uiState.allAchievements,
+                    unlockedAchievements = uiState.unlockedAchievements,
+                    isDarkTheme = isDarkTheme
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                } // cierra Column interior (scrolleable)
+            } // cierra Column exterior
+        }
+
+        // Top row flotante: back button (solo flecha blanca) + título en la misma row.
+        // Scrim gradient vertical (negro→transparente) para que el contenido scrolleable
+        // se disuelva al pasar bajo el top bar en lugar de verse nítido detrás.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Black.copy(alpha = 0.55f),
+                            Color.Black.copy(alpha = 0.35f),
+                            Color.Transparent
+                        )
+                    )
+                )
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
             }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(R.string.profile_title),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    shadow = Shadow(
+                        color = NeonPurple.copy(alpha = 0.6f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 12f
+                    )
+                ),
+                color = White,
+                textAlign = TextAlign.Start
+            )
         }
     }
 }
@@ -214,9 +299,9 @@ private fun LevelCard(levelInfo: LevelInfo, isDarkTheme: Boolean) {
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val textColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val subtextColor = if (isDarkTheme) White.copy(alpha = 0.7f) else Color(0xFF6B7280)
-    val trackColor = if (isDarkTheme) White.copy(alpha = 0.1f) else Color(0xFFE5E7EB)
+    val textColor = MaterialTheme.colorScheme.onSurface
+    val subtextColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val trackColor = MaterialTheme.colorScheme.outlineVariant
 
     // Animated progress
     var animatedProgress by remember { mutableFloatStateOf(0f) }
@@ -279,8 +364,7 @@ private fun LevelCard(levelInfo: LevelInfo, isDarkTheme: Boolean) {
             ) {
                 Text(
                     text = levelInfo.level.toString(),
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.displaySmall,
                     color = Color.Black
                 )
             }
@@ -291,7 +375,6 @@ private fun LevelCard(levelInfo: LevelInfo, isDarkTheme: Boolean) {
             Text(
                 text = levelInfo.title,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = if (isDarkTheme) Shadow(
                         color = GradientPointsTop.copy(alpha = 0.5f),
                         offset = Offset(0f, 0f),
@@ -374,8 +457,8 @@ private fun GlobalRankCard(
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val titleColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val subtextColor = if (isDarkTheme) White.copy(alpha = 0.6f) else Color(0xFF6B7280)
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val subtextColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
 
     Card(
         modifier = Modifier
@@ -434,7 +517,6 @@ private fun GlobalRankCard(
                 Text(
                     text = stringResource(R.string.global_rank),
                     style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
                         shadow = if (isDarkTheme) Shadow(
                             color = NeonPurple.copy(alpha = 0.5f),
                             offset = Offset(0f, 0f),
@@ -456,7 +538,6 @@ private fun GlobalRankCard(
                     Text(
                         text = stringResource(R.string.global_rank_value, globalRank),
                         style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
                             shadow = if (isDarkTheme) Shadow(
                                 color = NeonPink.copy(alpha = 0.5f),
                                 offset = Offset(0f, 0f),
@@ -474,7 +555,7 @@ private fun GlobalRankCard(
                     Text(
                         text = stringResource(R.string.play_to_rank),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (isDarkTheme) White.copy(alpha = 0.4f) else Color(0xFF9CA3AF)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                     )
                 }
             }
@@ -490,10 +571,113 @@ private fun GlobalRankCard(
 }
 
 @Composable
+private fun StreakSection(
+    streakState: StreakState,
+    isAtRisk: Boolean,
+    hasPlayedToday: Boolean,
+    isDarkTheme: Boolean
+) {
+    val titleColor = MaterialTheme.colorScheme.onSurface
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.profile_daily_streak),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                shadow = if (isDarkTheme) Shadow(
+                    color = NeonOrange.copy(alpha = 0.5f),
+                    offset = Offset(0f, 0f),
+                    blurRadius = 6f
+                ) else null
+            ),
+            color = titleColor
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Reutilizamos el widget de SelectScreen — misma UI, mismos datos
+        StreakWidget(
+            streakState = streakState,
+            isAtRisk = isAtRisk,
+            hasPlayedToday = hasPlayedToday
+        )
+
+        // Stats rapidas de racha en una fila
+        if (streakState.totalDaysPlayed > 0) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                StreakStatChip(
+                    label = "Total dias",
+                    value = streakState.totalDaysPlayed.toString(),
+                    color = NeonBlue,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.weight(1f)
+                )
+                StreakStatChip(
+                    label = "Tokens ❄",
+                    value = streakState.freezeTokens.toString(),
+                    color = NeonBlue,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.weight(1f)
+                )
+                StreakStatChip(
+                    label = "Dia del ciclo",
+                    value = "${streakState.cycleDay}/7",
+                    color = NeonPurple,
+                    isDarkTheme = isDarkTheme,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StreakStatChip(
+    label: String,
+    value: String,
+    color: Color,
+    isDarkTheme: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .background(color.copy(alpha = 0.12f))
+            .border(
+                width = 1.dp,
+                color = color.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(vertical = 8.dp, horizontal = 4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                color = color
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = labelColor,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
 private fun StatisticsSection(statistics: PlayerStatistics, isDarkTheme: Boolean) {
     // Theme-aware colors
-    val titleColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val subtitleColor = if (isDarkTheme) White.copy(alpha = 0.8f) else Color(0xFF4B5563)
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -633,8 +817,8 @@ private fun StatCard(
 ) {
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val valueColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val labelColor = if (isDarkTheme) White.copy(alpha = 0.7f) else Color(0xFF6B7280)
+    val valueColor = MaterialTheme.colorScheme.onSurface
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
         modifier = modifier,
@@ -659,7 +843,6 @@ private fun StatCard(
             Text(
                 text = value,
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = if (isDarkTheme) Shadow(
                         color = color.copy(alpha = 0.5f),
                         offset = Offset(0f, 0f),
@@ -687,7 +870,7 @@ private fun ModeChip(
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val labelColor = if (isDarkTheme) White.copy(alpha = 0.7f) else Color(0xFF6B7280)
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = modifier
@@ -706,7 +889,7 @@ private fun ModeChip(
         ) {
             Text(
                 text = count.toString(),
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleMedium,
                 color = color
             )
             Text(
@@ -719,12 +902,83 @@ private fun ModeChip(
 }
 
 @Composable
+private fun ChallengesStatsSection(
+    challengeStats: ChallengeStats,
+    isDarkTheme: Boolean
+) {
+    val titleColor = MaterialTheme.colorScheme.onSurface
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(R.string.profile_challenges),
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                shadow = if (isDarkTheme) Shadow(
+                    color = NeonPurple.copy(alpha = 0.5f),
+                    offset = Offset(0f, 0f),
+                    blurRadius = 6f
+                ) else null
+            ),
+            color = titleColor
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            StatCard(
+                icon = rememberVectorPainter(Icons.Default.Star),
+                label = "Total completados",
+                value = challengeStats.totalCompleted.toString(),
+                color = NeonPurple,
+                isDarkTheme = isDarkTheme,
+                modifier = Modifier.weight(1f)
+            )
+            StatCard(
+                icon = painterResource(id = R.drawable.ic_emoji_events),
+                label = "Dias completos",
+                value = challengeStats.totalAllDailyCompleteDays.toString(),
+                color = NeonGreen,
+                isDarkTheme = isDarkTheme,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            StatCard(
+                icon = painterResource(id = R.drawable.ic_local_fire_department),
+                label = "Racha actual",
+                value = "${challengeStats.currentAllDailyStreak}d",
+                color = NeonOrange,
+                isDarkTheme = isDarkTheme,
+                modifier = Modifier.weight(1f)
+            )
+            StatCard(
+                icon = painterResource(id = R.drawable.ic_local_fire_department),
+                label = "Mejor racha",
+                value = "${challengeStats.bestAllDailyStreak}d",
+                color = GradientPointsBottom,
+                isDarkTheme = isDarkTheme,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+@Composable
 private fun AchievementsSection(
     allAchievements: List<Achievement>,
     unlockedAchievements: Set<Achievement>,
     isDarkTheme: Boolean
 ) {
-    val titleColor = if (isDarkTheme) White else Color(0xFF1F2937)
+    val titleColor = MaterialTheme.colorScheme.onSurface
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -735,7 +989,6 @@ private fun AchievementsSection(
             Text(
                 text = stringResource(R.string.achievements_title),
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = if (isDarkTheme) Shadow(
                         color = NeonYellow.copy(alpha = 0.5f),
                         offset = Offset(0f, 0f),
@@ -797,8 +1050,8 @@ private fun AchievementCard(
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val titleColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val descriptionColor = if (isDarkTheme) White.copy(alpha = 0.7f) else Color(0xFF6B7280)
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val descriptionColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
         modifier = Modifier
@@ -822,7 +1075,7 @@ private fun AchievementCard(
             // Icon
             Text(
                 text = achievement.icon,
-                fontSize = 32.sp,
+                style = MaterialTheme.typography.displaySmall,
                 modifier = Modifier.alpha(if (isUnlocked) 1f else 0.3f)
             )
 
@@ -851,8 +1104,8 @@ private fun AchievementCard(
             if (isUnlocked) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "+${achievement.xpReward} XP",
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    text = stringResource(R.string.xp_gained, achievement.xpReward),
+                    style = MaterialTheme.typography.labelSmall,
                     color = GradientPointsBottom
                 )
             }
@@ -875,10 +1128,10 @@ private fun UserProfileCard(
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val titleColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val nicknameColor = if (isDarkTheme) White else Color(0xFF1F2937)
-    val placeholderColor = if (isDarkTheme) White.copy(alpha = 0.5f) else Color(0xFF9CA3AF)
-    val borderColor = if (isDarkTheme) White.copy(alpha = 0.3f) else Color(0xFFE5E7EB)
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val nicknameColor = MaterialTheme.colorScheme.onSurface
+    val placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
 
     // Image picker launcher
     val imagePickerLauncher = rememberLauncherForActivityResult(
@@ -918,7 +1171,6 @@ private fun UserProfileCard(
             Text(
                 text = stringResource(R.string.my_profile),
                 style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold,
                     shadow = if (isDarkTheme) Shadow(
                         color = NeonPurple.copy(alpha = 0.5f),
                         offset = Offset(0f, 0f),
@@ -1057,9 +1309,7 @@ private fun UserProfileCard(
                 ) {
                     Text(
                         text = userProfile.nickname.ifEmpty { stringResource(R.string.tap_to_set_nickname) },
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
+                        style = MaterialTheme.typography.titleLarge,
                         color = if (userProfile.nickname.isEmpty()) placeholderColor else nicknameColor,
                         modifier = Modifier.clickable { isEditingNickname = true }
                     )
@@ -1117,4 +1367,86 @@ private fun bitmapToBase64(bitmap: Bitmap): String {
     bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutputStream)
     val byteArray = byteArrayOutputStream.toByteArray()
     return Base64.encodeToString(byteArray, Base64.DEFAULT)
+}
+
+// ---------------------------------------------------------------------------
+// Daily Reward Status Badge — indicador compacto del estado de la recompensa
+// del dia. Siempre visible en perfil (ignora swipe-to-dismiss de SelectScreen).
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun DailyRewardStatusBadge(reward: DailyReward, isDarkTheme: Boolean) {
+    val accent = when (reward.tier) {
+        RewardTier.COMMON -> NeonBlue
+        RewardTier.UNCOMMON -> NeonPurple
+        RewardTier.RARE -> RankGold
+    }
+    val claimed = reward.isClaimed
+    val statusColor = if (claimed) ResponseCorrect else accent
+    val statusText = stringResource(
+        if (claimed) R.string.daily_reward_status_claimed
+        else R.string.daily_reward_status_pending
+    )
+    val icon = if (claimed) "\u2705" else "\uD83C\uDF81"
+
+    // Fondo opaco consistente con el resto de cards del perfil.
+    // El color de estado se aplica solo al borde, icono y chips para mantener identidad.
+    val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
+    val textColor = MaterialTheme.colorScheme.onSurface
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = cardBackground),
+        shape = RoundedCornerShape(14.dp),
+        border = BorderStroke(1.dp, statusColor.copy(alpha = 0.45f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(statusColor.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = icon, style = MaterialTheme.typography.titleMedium)
+            }
+            Text(
+                text = statusText,
+                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                color = textColor,
+                modifier = Modifier.weight(1f)
+            )
+            if (reward.xpAmount > 0) {
+                RewardAmountChip(label = "+${reward.xpAmount} XP", color = statusColor)
+            }
+            if (reward.coinsAmount > 0) {
+                RewardAmountChip(label = "+${reward.coinsAmount} \uD83D\uDCB0", color = statusColor)
+            }
+            if (reward.gemsAmount > 0) {
+                RewardAmountChip(label = "+${reward.gemsAmount} \uD83D\uDC8E", color = statusColor)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RewardAmountChip(label: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(color.copy(alpha = 0.18f))
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+            color = color
+        )
+    }
 }

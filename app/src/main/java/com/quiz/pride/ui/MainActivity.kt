@@ -1,5 +1,6 @@
 package com.quiz.pride.ui
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,11 +9,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -102,6 +106,20 @@ class MainActivity : ComponentActivity() {
             SelectRoute
         } else {
             OnboardingRoute
+        }
+
+        // Status bar + navigation bar adaptativas: iconos se ajustan segun tema.
+        // Dark mode => fondo oscuro => iconos claros (isAppearanceLightStatusBars=false).
+        // Light mode => fondo claro => iconos oscuros (isAppearanceLightStatusBars=true).
+        val view = LocalView.current
+        if (!view.isInEditMode) {
+            DisposableEffect(isDarkMode) {
+                val window = (view.context as Activity).window
+                val controller = WindowCompat.getInsetsController(window, view)
+                controller.isAppearanceLightStatusBars = !isDarkMode
+                controller.isAppearanceLightNavigationBars = !isDarkMode
+                onDispose {}
+            }
         }
 
         PrideQuizTheme(

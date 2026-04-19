@@ -1,14 +1,16 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class)
+
 package com.quiz.pride.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 // Esquema de alto contraste oscuro — WCAG AAA (ratio minimo 7:1)
@@ -35,19 +37,19 @@ private val HighContrastDarkColorScheme = darkColorScheme(
     surfaceVariant = HighContrastDarkSurfaceVariant,
     onSurfaceVariant = HighContrastDarkOnSurface,
 
-    error = Color(0xFFFF6B6B),
-    onError = Color(0xFF000000),
-    errorContainer = Color(0xFF2A0000),
-    onErrorContainer = Color(0xFFFF6B6B),
+    error = HighContrastDarkError,
+    onError = Black,
+    errorContainer = HighContrastDarkErrorContainer,
+    onErrorContainer = HighContrastDarkError,
 
-    outline = Color(0xFFFFFFFF),
-    outlineVariant = Color(0xFFAAAAAA),
+    outline = White,
+    outlineVariant = HighContrastDarkOutlineVariant,
 
-    inverseSurface = Color(0xFFFFFFFF),
-    inverseOnSurface = Color(0xFF000000),
-    inversePrimary = HighContrastDarkPrimary,
+    inverseSurface = White,
+    inverseOnSurface = Black,
+    inversePrimary = HighContrastLightPrimary,
 
-    scrim = Color(0xFF000000)
+    scrim = Black
 )
 
 // Esquema de alto contraste claro — WCAG AAA (ratio minimo 7:1)
@@ -74,111 +76,111 @@ private val HighContrastLightColorScheme = lightColorScheme(
     surfaceVariant = HighContrastLightSurfaceVariant,
     onSurfaceVariant = HighContrastLightOnSurface,
 
-    error = Color(0xFF8B0000),
-    onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFFFFDDDD),
-    onErrorContainer = Color(0xFF4A0000),
+    error = HighContrastLightError,
+    onError = White,
+    errorContainer = HighContrastLightErrorContainer,
+    onErrorContainer = HighContrastLightOnErrorContainer,
 
-    outline = Color(0xFF000000),
-    outlineVariant = Color(0xFF555555),
+    outline = Black,
+    outlineVariant = HighContrastLightOutlineVariant,
 
-    inverseSurface = Color(0xFF000000),
-    inverseOnSurface = Color(0xFFFFFFFF),
-    inversePrimary = HighContrastLightPrimary,
+    inverseSurface = Black,
+    inverseOnSurface = White,
+    inversePrimary = HighContrastDarkPrimary,
 
-    scrim = Color(0x80000000)
+    scrim = Overlay
 )
 
-// Vibrant Pride Light Color Scheme
+// Pride Light Color Scheme — rosa claro y aireado (Pink50 background, Pink400 primary)
 private val PrideLightColorScheme = lightColorScheme(
-    // Primary - Vibrant Pink/Magenta with good contrast
-    primary = Color(0xFFDB2777),
+    // Primary - Rosa vibrante (identidad light theme)
+    primary = Pink400,
     onPrimary = White,
-    primaryContainer = Color(0xFFFCE7F3),
-    onPrimaryContainer = Color(0xFF831843),
+    primaryContainer = Pink50,
+    onPrimaryContainer = Pink700,
 
-    // Secondary - Electric Purple with good contrast
-    secondary = Color(0xFF7C3AED),
+    // Secondary - Morado (Purple Scale)
+    secondary = Purple600,
     onSecondary = White,
-    secondaryContainer = Color(0xFFEDE9FE),
-    onSecondaryContainer = Color(0xFF4C1D95),
+    secondaryContainer = Purple100,
+    onSecondaryContainer = Purple900,
 
-    // Tertiary - Vibrant Cyan with good contrast
-    tertiary = Color(0xFF0891B2),
+    // Tertiary - Cian (Cyan Scale)
+    tertiary = Cyan600,
     onTertiary = White,
-    tertiaryContainer = Color(0xFFCFFAFE),
-    onTertiaryContainer = Color(0xFF164E63),
+    tertiaryContainer = Cyan100,
+    onTertiaryContainer = Cyan900,
 
-    // Background & Surface
-    background = LightBackground,
-    onBackground = TextOnLight,
-    surface = LightSurface,
+    // Background & Surface (rosa claro)
+    background = LightBackground,           // Pink50
+    onBackground = TextOnLight,             // Casi negro rosa (contraste 17:1)
+    surface = LightSurface,                 // Blanco
     onSurface = TextOnLight,
-    surfaceVariant = LightSurfaceVariant,
+    surfaceVariant = LightSurfaceVariant,   // Pink100
     onSurfaceVariant = DarkGray,
 
     // Error
     error = ResponseFail,
     onError = White,
-    errorContainer = Color(0xFFFEE2E2),
-    onErrorContainer = Color(0xFF991B1B),
+    errorContainer = Red100,
+    onErrorContainer = Red900,
 
     // Outline
-    outline = Color(0xFFD1D5DB),
-    outlineVariant = Color(0xFFE5E7EB),
+    outline = PinkOutlineLight,
+    outlineVariant = PinkOutlineVariantLight,
 
     // Inverse
-    inverseSurface = Color(0xFF1F2937),
+    inverseSurface = DarkPurpleSurface,
     inverseOnSurface = White,
-    inversePrimary = Color(0xFFF9A8D4),
+    inversePrimary = PinkInverseLight,
 
     scrim = Overlay
 )
 
-// Vibrant Pride Dark Color Scheme
+// Pride Dark Color Scheme — morado (identidad principal dark)
 private val PrideDarkColorScheme = darkColorScheme(
-    // Primary - Deeper Pink for dark mode
-    primary = Color(0xFFBE185D),
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFF831843),
-    onPrimaryContainer = Color(0xFFFCE7F3),
+    // Primary - Morado vibrante (Purple Scale)
+    primary = Purple600,
+    onPrimary = White,
+    primaryContainer = Purple800,
+    onPrimaryContainer = Purple100,
 
-    // Secondary - Deeper Purple for dark mode
-    secondary = Color(0xFF7C3AED),
-    onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFF5B21B6),
-    onSecondaryContainer = Color(0xFFEDE9FE),
+    // Secondary - Rosa vibrante (intercambio con primary)
+    secondary = Pink400,
+    onSecondary = Pink900,
+    secondaryContainer = Pink700,
+    onSecondaryContainer = Pink100,
 
-    // Tertiary - Deeper Cyan for dark mode
-    tertiary = Color(0xFF0891B2),
-    onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFF164E63),
-    onTertiaryContainer = Color(0xFFCFFAFE),
+    // Tertiary - Cian (Cyan Scale)
+    tertiary = Cyan300,
+    onTertiary = Cyan950,
+    tertiaryContainer = Cyan900,
+    onTertiaryContainer = Cyan100,
 
-    // Background & Surface - Deep colors for vibrancy
-    background = DarkBackground,
-    onBackground = TextOnDark,
-    surface = DarkSurface,
+    // Background & Surface - Morado muy oscuro
+    background = DarkBackground,            // DarkPurpleBackground
+    onBackground = TextOnDark,              // Blanco violeta
+    surface = DarkSurface,                  // DarkPurpleSurface
     onSurface = TextOnDark,
-    surfaceVariant = DarkSurfaceVariant,
-    onSurfaceVariant = Color(0xFFD1D5DB),
+    surfaceVariant = DarkSurfaceVariant,    // DarkPurpleSurfaceVariant
+    onSurfaceVariant = Purple200,           // Violeta claro legible
 
     // Error
-    error = Color(0xFFEF4444),
-    onError = Color(0xFFFFFFFF),
-    errorContainer = Color(0xFF991B1B),
-    onErrorContainer = Color(0xFFFEE2E2),
+    error = Red400,
+    onError = Red950,
+    errorContainer = Red900,
+    onErrorContainer = Red100,
 
     // Outline
-    outline = Color(0xFF4B5563),
-    outlineVariant = Color(0xFF374151),
+    outline = PurpleOutlineDark,
+    outlineVariant = PurpleOutlineVariantDark,
 
     // Inverse
-    inverseSurface = Color(0xFFF3F4F6),
-    inverseOnSurface = Color(0xFF1F2937),
-    inversePrimary = Color(0xFFEC4899),
+    inverseSurface = Pink50,
+    inverseOnSurface = DarkPurpleBackground,
+    inversePrimary = Purple300,
 
-    scrim = Color(0xCC000000)
+    scrim = ScrimDark
 )
 
 @Composable
@@ -205,10 +207,11 @@ fun PrideQuizTheme(
 
     val typography = if (largeText) PrideLargeTypography else PrideTypography
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = colorScheme,
         typography = typography,
         shapes = PrideShapes,
+        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }

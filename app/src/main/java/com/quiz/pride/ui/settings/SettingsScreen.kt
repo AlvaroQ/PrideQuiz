@@ -10,13 +10,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
@@ -25,35 +31,42 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.quiz.pride.BuildConfig
 import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
+import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.BannerAdView
-import com.quiz.pride.ui.components.PrideTopAppBar
 import com.quiz.pride.ui.components.TrackScreenTime
+import com.quiz.pride.ui.theme.NeonPink
+import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.PrideQuizTheme
+import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.flow.collectLatest
-import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun SettingsScreen(
@@ -103,24 +116,21 @@ fun SettingsScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            PrideTopAppBar(
-                title = stringResource(R.string.settings),
-                onBackClick = onNavigateBack
-            )
-        }
-    ) { paddingValues ->
+    AnimatedScreenBackground(
+        orbColor1 = NeonPink,
+        orbColor2 = NeonPurple
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+            modifier = Modifier.fillMaxSize()
         ) {
+            // Espacio para la top row flotante (back + título) + status bar
+            Spacer(modifier = Modifier.height(120.dp))
+
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
             // Appearance Section
@@ -307,6 +317,40 @@ fun SettingsScreen(
                 )
             }
         } // cierra Column exterior
+
+        // Top row flotante: back button (solo flecha blanca) + título en la misma row.
+        // Mismo patrón visual que SelectGameScreen para unificar la línea visual.
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_back),
+                    tint = White,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Text(
+                text = stringResource(R.string.settings),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    shadow = Shadow(
+                        color = NeonPink.copy(alpha = 0.6f),
+                        offset = Offset(0f, 0f),
+                        blurRadius = 12f
+                    )
+                ),
+                color = White,
+                textAlign = TextAlign.Start
+            )
+        }
     }
 }
 
@@ -315,7 +359,7 @@ private fun SettingsSectionHeader(title: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.onSurface,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(start = 4.dp)
     )
@@ -328,7 +372,7 @@ private fun SettingsCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         content()
@@ -352,7 +396,7 @@ private fun SettingsSwitchItem(
         Icon(
             painter = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.onSurface
         )
 
         Column(
@@ -373,7 +417,12 @@ private fun SettingsSwitchItem(
 
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.onSurface,
+                checkedBorderColor = MaterialTheme.colorScheme.onSurface
+            )
         )
     }
 }
@@ -389,7 +438,7 @@ private fun SettingsClickableItem(
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Row(
@@ -401,7 +450,7 @@ private fun SettingsClickableItem(
             Icon(
                 painter = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.onSurface
             )
 
             Column(
