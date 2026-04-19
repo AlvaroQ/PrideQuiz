@@ -76,21 +76,14 @@ import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GlowPink
-import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
-import com.quiz.pride.ui.theme.LearnGradientBottom
-import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
-import com.quiz.pride.ui.theme.StartGradientBottom
-import com.quiz.pride.ui.theme.StartGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.components.ChallengeCompletionBanner
@@ -1012,16 +1005,14 @@ private fun ActionButtons(
         PrideButton(
             text = stringResource(R.string.play_again),
             onClick = onNavigateToGame,
-            gradientColors = listOf(StartGradientTop, StartGradientBottom),
-            glowColor = GlowPink,
+            style = PrideButtonStyles.Start.current(),
             modifier = Modifier.fillMaxWidth()
         )
 
         PrideButton(
             text = stringResource(R.string.ranking),
             onClick = onNavigateToRanking,
-            gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
-            glowColor = GlowPurple,
+            style = PrideButtonStyles.Settings.current(),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -1032,16 +1023,14 @@ private fun ActionButtons(
             PrideButton(
                 text = stringResource(R.string.share),
                 onClick = onShare,
-                gradientColors = listOf(LearnGradientTop, LearnGradientBottom),
-                glowColor = NeonGreen.copy(alpha = 0.4f),
+                style = PrideButtonStyles.Learn.current(),
                 modifier = Modifier.weight(1f)
             )
 
             PrideButton(
                 text = stringResource(R.string.rate),
                 onClick = onRate,
-                gradientColors = listOf(GradientPointsTop, GradientPointsBottom),
-                glowColor = GradientPointsTop.copy(alpha = 0.4f),
+                style = PrideButtonStyles.Rate.current(),
                 modifier = Modifier.weight(1f)
             )
         }

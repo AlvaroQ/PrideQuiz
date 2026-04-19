@@ -60,8 +60,7 @@ import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.PrideQuizTheme
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -350,6 +349,7 @@ private fun AllCompletedBanner() {
 
 @Composable
 private fun WeeklyChallengeSection(challenge: DailyChallenge) {
+    val settings = PrideButtonStyles.Settings.current()
     Column(modifier = Modifier.fillMaxWidth()) {
         // Separador con etiqueta semanal
         Row(
@@ -368,13 +368,13 @@ private fun WeeklyChallengeSection(challenge: DailyChallenge) {
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         Brush.horizontalGradient(
-                            listOf(SettingsGradientTop.copy(alpha = 0.3f), SettingsGradientBottom.copy(alpha = 0.3f))
+                            listOf(settings.top.copy(alpha = 0.3f), settings.bottom.copy(alpha = 0.3f))
                         )
                     )
                     .border(
                         1.dp,
                         Brush.horizontalGradient(
-                            listOf(SettingsGradientTop.copy(alpha = 0.6f), SettingsGradientBottom.copy(alpha = 0.6f))
+                            listOf(settings.top.copy(alpha = 0.6f), settings.bottom.copy(alpha = 0.6f))
                         ),
                         RoundedCornerShape(10.dp)
                     )

@@ -10,7 +10,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -54,6 +53,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -73,18 +73,11 @@ import com.quiz.pride.ui.components.RewardStatsDisplay
 import com.quiz.pride.ui.components.StreakAtRiskBanner
 import com.quiz.pride.ui.components.StreakWidget
 import com.quiz.pride.ui.components.TrackScreenTime
-import com.quiz.pride.ui.theme.GlowBlue
-import com.quiz.pride.ui.theme.GlowPink
-import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.LearnGradientBottom
-import com.quiz.pride.ui.theme.LearnGradientTop
+import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.PrideQuizTheme
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
-import com.quiz.pride.ui.theme.StartGradientBottom
-import com.quiz.pride.ui.theme.StartGradientTop
 import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 
@@ -177,37 +170,34 @@ fun SelectScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            // Start Game Card - Coral/Orange gradient
+            // Start Game Card
             VibrantMenuCard(
                 title = stringResource(R.string.start),
                 description = stringResource(R.string.start_new_game),
                 imageRes = R.drawable.image_play,
-                gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                glowColor = GlowPink,
+                style = PrideButtonStyles.Start.current(),
                 onClick = onNavigateToSelectGame
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Learn Card - Cyan/Blue gradient
+            // Learn Card
             VibrantMenuCard(
                 title = stringResource(R.string.learn),
                 description = stringResource(R.string.learn_more),
                 imageRes = R.drawable.image_learn,
-                gradientColors = listOf(LearnGradientTop, LearnGradientBottom),
-                glowColor = GlowBlue,
+                style = PrideButtonStyles.Learn.current(),
                 onClick = onNavigateToInfo
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Settings Card - Purple/Pink gradient
+            // Settings Card
             VibrantMenuCard(
                 title = stringResource(R.string.settings),
                 description = stringResource(R.string.settings_description),
                 imageRes = R.drawable.image_settings,
-                gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
-                glowColor = GlowPurple,
+                style = PrideButtonStyles.Settings.current(),
                 onClick = onNavigateToSettings
             )
 
@@ -293,8 +283,9 @@ fun SelectScreen(
             // superior del IconButton de perfil (44.dp) y quedar pegado al status bar.
             CurrencyDisplay(balance = uiState.balance)
 
-            // Boton Perfil (derecha)
-            val profileIconTint = if (isSystemInDarkTheme()) Color.White else Color(0xFF2E2E2E)
+            // Boton Perfil (derecha) — tint derivado del tema activo (no del sistema)
+            val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+            val profileIconTint = if (isDarkTheme) Color.White else Color(0xFF2E2E2E)
             IconButton(
                 onClick = onNavigateToProfile,
                 modifier = Modifier.size(44.dp)
@@ -316,16 +307,14 @@ internal fun VibrantMenuCardPreviewWrapper(
     title: String,
     description: String,
     imageRes: Int,
-    gradientColors: List<Color>,
-    glowColor: Color,
+    style: ButtonGradient,
     onClick: () -> Unit
 ) {
     VibrantMenuCard(
         title = title,
         description = description,
         imageRes = imageRes,
-        gradientColors = gradientColors,
-        glowColor = glowColor,
+        style = style,
         onClick = onClick
     )
 }
@@ -335,8 +324,7 @@ private fun VibrantMenuCard(
     title: String,
     description: String,
     imageRes: Int,
-    gradientColors: List<Color>,
-    glowColor: Color,
+    style: ButtonGradient,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -351,6 +339,12 @@ private fun VibrantMenuCard(
         label = "card_scale"
     )
 
+    // Shadow/highlight opuestos al contentColor para que el texto siempre se lea
+    val isLightContent = style.contentColor.luminance() > 0.5f
+    val textShadowColor = if (isLightContent) Color.Black.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.3f)
+    val shineColor = if (isLightContent) Color.White.copy(alpha = 0.2f) else Color.Black.copy(alpha = 0.15f)
+    val iconHaloColor = if (isLightContent) Color.White.copy(alpha = 0.2f) else Color.Black.copy(alpha = 0.15f)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -359,8 +353,8 @@ private fun VibrantMenuCard(
             .shadow(
                 elevation = 20.dp,
                 shape = RoundedCornerShape(28.dp),
-                ambientColor = glowColor,
-                spotColor = glowColor
+                ambientColor = style.glow,
+                spotColor = style.glow
             )
     ) {
         Card(
@@ -380,7 +374,7 @@ private fun VibrantMenuCard(
                     .fillMaxSize()
                     .background(
                         Brush.linearGradient(
-                            colors = gradientColors,
+                            colors = style.colors,
                             start = Offset(0f, 0f),
                             end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                         )
@@ -393,7 +387,7 @@ private fun VibrantMenuCard(
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(
-                                    Color.White.copy(alpha = 0.2f),
+                                    shineColor,
                                     Color.Transparent,
                                     Color.Transparent
                                 ),
@@ -418,18 +412,18 @@ private fun VibrantMenuCard(
                             text = title,
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 shadow = Shadow(
-                                    color = Color.Black.copy(alpha = 0.3f),
+                                    color = textShadowColor,
                                     offset = Offset(2f, 2f),
                                     blurRadius = 4f
                                 )
                             ),
-                            color = Color.White
+                            color = style.contentColor
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = description,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.9f),
+                            color = style.contentColor.copy(alpha = 0.9f),
                             textAlign = TextAlign.Start
                         )
                     }
@@ -442,7 +436,7 @@ private fun VibrantMenuCard(
                             .drawBehind {
                                 // Glow behind icon
                                 drawCircle(
-                                    color = Color.White.copy(alpha = 0.2f),
+                                    color = iconHaloColor,
                                     radius = size.minDimension / 1.8f
                                 )
                             },
@@ -468,8 +462,7 @@ private fun VibrantMenuCardStartPreview() {
                 title = "Jugar",
                 description = "Inicia un nuevo juego",
                 imageRes = R.drawable.image_play,
-                gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                glowColor = GlowPink,
+                style = PrideButtonStyles.Start.current(),
                 onClick = {}
             )
         }
@@ -485,8 +478,7 @@ private fun VibrantMenuCardLearnPreview() {
                 title = "Aprender",
                 description = "Conoce mas sobre el movimiento",
                 imageRes = R.drawable.image_learn,
-                gradientColors = listOf(GlowBlue.copy(alpha = 0.8f), NeonPink.copy(alpha = 0.6f)),
-                glowColor = GlowBlue,
+                style = PrideButtonStyles.Learn.current(),
                 onClick = {}
             )
         }
@@ -502,8 +494,7 @@ private fun VibrantMenuCardSettingsPreview() {
                 title = "Ajustes",
                 description = "Configuracion del juego",
                 imageRes = R.drawable.image_settings,
-                gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
-                glowColor = GlowPurple,
+                style = PrideButtonStyles.Settings.current(),
                 onClick = {}
             )
         }
@@ -529,24 +520,21 @@ private fun SelectScreenCardsPreview() {
                     title = "Jugar",
                     description = "Inicia un nuevo juego",
                     imageRes = R.drawable.image_play,
-                    gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                    glowColor = GlowPink,
+                    style = PrideButtonStyles.Start.current(),
                     onClick = {}
                 )
                 VibrantMenuCardPreviewWrapper(
                     title = "Aprender",
                     description = "Conoce mas sobre el movimiento",
                     imageRes = R.drawable.image_learn,
-                    gradientColors = listOf(GlowBlue.copy(alpha = 0.8f), NeonPink.copy(alpha = 0.6f)),
-                    glowColor = GlowBlue,
+                    style = PrideButtonStyles.Learn.current(),
                     onClick = {}
                 )
                 VibrantMenuCardPreviewWrapper(
                     title = "Ajustes",
                     description = "Configuracion del juego",
                     imageRes = R.drawable.image_settings,
-                    gradientColors = listOf(SettingsGradientTop, SettingsGradientBottom),
-                    glowColor = GlowPurple,
+                    style = PrideButtonStyles.Settings.current(),
                     onClick = {}
                 )
             }

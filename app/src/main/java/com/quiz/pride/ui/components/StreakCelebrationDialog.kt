@@ -47,21 +47,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.domain.StreakCheckResult
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GlowPink
-import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
-import com.quiz.pride.ui.theme.LearnGradientBottom
-import com.quiz.pride.ui.theme.LearnGradientTop
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
-import com.quiz.pride.ui.theme.StartGradientBottom
-import com.quiz.pride.ui.theme.StartGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -147,8 +140,7 @@ fun StreakCelebrationDialog(
                 PrideButton(
                     text = stringResource(R.string.continue_action),
                     onClick = onDismiss,
-                    gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                    glowColor = GlowPink,
+                    style = PrideButtonStyles.Start.current(),
                     modifier = Modifier.fillMaxWidth()
                 )
             }

@@ -85,6 +85,7 @@ class GameViewModel(
     private var questionStartTime = System.currentTimeMillis()
     private var currentGameMode: String = "NORMAL"
     private var timerJob: Job? = null
+    private var hasEndedGame = false
 
     // Restaurar estado critico del juego tras process death
     private val savedPoints = savedStateHandle.get<Int>("points") ?: 0
@@ -132,6 +133,7 @@ class GameViewModel(
 
     fun initGame(gameType: Constants.GameType) {
         val isTimedMode = gameType == Constants.GameType.TIMED
+        hasEndedGame = false
         _uiState.update {
             it.copy(
                 lives = if (isTimedMode) Int.MAX_VALUE else 3,
@@ -153,9 +155,13 @@ class GameViewModel(
                 delay(1000)
                 _uiState.update { it.copy(timeRemaining = it.timeRemaining - 1) }
             }
-            // Time's up
-            _events.emit(GameEvent.PlayFailSound)
-            emitNavigateToResult()
+            // Tiempo agotado — delegar a un coroutine hermano de viewModelScope para
+            // que el timerJob?.cancel() dentro de emitNavigateToResult() no aborte
+            // la emision del evento por autocancelacion.
+            viewModelScope.launch {
+                _events.emit(GameEvent.PlayFailSound)
+                emitNavigateToResult()
+            }
         }
     }
 
@@ -343,6 +349,8 @@ class GameViewModel(
     }
 
     private suspend fun emitNavigateToResult() {
+        if (hasEndedGame) return
+        hasEndedGame = true
         val state = _uiState.value
         timerJob?.cancel()
         val timePlayed = System.currentTimeMillis() - startTime

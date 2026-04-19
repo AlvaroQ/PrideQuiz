@@ -1,27 +1,12 @@
-buildscript {
-    repositories {
-        mavenCentral()
-        mavenLocal()
-        google()
-    }
-    ext.names = [
-            'applicationId': "com.quiz.pride"
-    ]
-    ext.versions = [
-            'compileSdk' : 36,
-            'minSdk'     : 26,
-            'targetSdk'  : 36,
-            'name'       : '3.0.0',
-            'code'       : 50,
-    ]
-
-    dependencies {
-        classpath libs.google.services
-        classpath libs.firebase.crashlytics.gradle
-        classpath libs.android.gradlePlugin
-        classpath libs.kotlin.gradlePlugin
-        classpath "org.jetbrains.kotlin:compose-compiler-gradle-plugin:${libs.versions.kotlin.get()}"
-        classpath "org.jetbrains.kotlin:kotlin-serialization:${libs.versions.kotlin.get()}"
-        classpath "io.github.takahirom.roborazzi:roborazzi-gradle-plugin:${libs.versions.roborazzi.get()}"
-    }
+plugins {
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
+    alias(libs.plugins.roborazzi) apply false
 }
+
+ext.names = [
+        'applicationId': "com.quiz.pride"
+]

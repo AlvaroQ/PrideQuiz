@@ -56,8 +56,7 @@ import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.PrideQuizTheme
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -220,6 +219,7 @@ private fun CompletedChallengeItem(challenge: DailyChallenge) {
 
 @Composable
 private fun AllDailyBonusItem() {
+    val settings = PrideButtonStyles.Settings.current()
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -227,8 +227,8 @@ private fun AllDailyBonusItem() {
             .background(
                 Brush.horizontalGradient(
                     listOf(
-                        SettingsGradientTop.copy(alpha = 0.15f),
-                        SettingsGradientBottom.copy(alpha = 0.12f)
+                        settings.top.copy(alpha = 0.15f),
+                        settings.bottom.copy(alpha = 0.12f)
                     )
                 )
             )
@@ -236,8 +236,8 @@ private fun AllDailyBonusItem() {
                 width = 1.5.dp,
                 brush = Brush.horizontalGradient(
                     listOf(
-                        SettingsGradientTop.copy(alpha = 0.5f),
-                        SettingsGradientBottom.copy(alpha = 0.4f)
+                        settings.top.copy(alpha = 0.5f),
+                        settings.bottom.copy(alpha = 0.4f)
                     )
                 ),
                 shape = RoundedCornerShape(10.dp)

@@ -65,6 +65,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.quiz.pride.R
+import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GlowPurple
 import com.quiz.pride.ui.theme.GradientBackgroundEnd
@@ -80,12 +81,11 @@ import com.quiz.pride.ui.theme.GradientPositionBottom
 import com.quiz.pride.ui.theme.GradientPositionTop
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.PrideRed
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.PrideQuizTheme
+import com.quiz.pride.ui.theme.PrideRed
 import com.quiz.pride.ui.theme.RainbowColors
 import com.quiz.pride.ui.theme.Shimmer
-import com.quiz.pride.ui.theme.StartGradientBottom
-import com.quiz.pride.ui.theme.StartGradientTop
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -431,15 +431,21 @@ fun EmptyState(
 }
 
 /**
- * Pride button with vibrant gradient and glow
+ * Pride button with vibrant gradient and glow.
+ *
+ * Admite dos formas de uso:
+ * - Recomendado: pasar `style: ButtonGradient` (obtenido de `PrideButtonStyles.X.current()`).
+ * - Legado: pasar `gradientColors`/`glowColor` sueltos (el texto usa `contentColor` por defecto blanco).
  */
 @Composable
 fun PrideButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    gradientColors: List<Color> = listOf(NeonPink, GradientBackgroundStart),
-    glowColor: Color = GlowPurple,
+    style: ButtonGradient? = null,
+    gradientColors: List<Color> = style?.colors ?: listOf(NeonPink, GradientBackgroundStart),
+    glowColor: Color = style?.glow ?: GlowPurple,
+    contentColor: Color = style?.contentColor ?: White,
     enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -450,6 +456,12 @@ fun PrideButton(
         animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "button_scale"
     )
+
+    val textShadowColor = if (contentColor.luminance() > 0.5f) {
+        Color.Black.copy(alpha = 0.3f)
+    } else {
+        Color.White.copy(alpha = 0.3f)
+    }
 
     Box(
         modifier = modifier
@@ -483,12 +495,12 @@ fun PrideButton(
             text = text,
             style = MaterialTheme.typography.labelLarge.copy(
                 shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.3f),
+                    color = textShadowColor,
                     offset = Offset(1f, 1f),
                     blurRadius = 2f
                 )
             ),
-            color = White
+            color = contentColor
         )
     }
 }
@@ -836,9 +848,10 @@ private fun GradientCardPreview() {
                 .size(200.dp)
                 .padding(16.dp)
         ) {
+            val startStyle = PrideButtonStyles.Start.current()
             GradientCard(
-                gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                glowColor = GlowPink,
+                gradientColors = startStyle.colors,
+                glowColor = startStyle.glow,
                 onClick = {}
             ) {
                 Box(

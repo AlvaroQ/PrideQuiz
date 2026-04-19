@@ -74,8 +74,7 @@ import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
-import com.quiz.pride.ui.theme.SettingsGradientBottom
-import com.quiz.pride.ui.theme.SettingsGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 
@@ -240,7 +239,7 @@ private fun CategoryTabs(
                         .clip(RoundedCornerShape(20.dp))
                         .background(
                             if (isSelected) Brush.linearGradient(
-                                listOf(SettingsGradientTop, SettingsGradientBottom)
+                                PrideButtonStyles.Settings.current().colors
                             ) else Brush.linearGradient(
                                 listOf(
                                     DarkSurfaceVariant.copy(alpha = 0.8f),
@@ -485,7 +484,7 @@ private fun EquippedBadge() {
             .clip(RoundedCornerShape(8.dp))
             .background(
                 Brush.horizontalGradient(
-                    listOf(SettingsGradientTop, SettingsGradientBottom)
+                    PrideButtonStyles.Settings.current().colors
                 )
             )
             .padding(horizontal = 10.dp, vertical = 3.dp)

@@ -60,19 +60,10 @@ import com.quiz.pride.R
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.AnimatedScreenBackground
 import com.quiz.pride.ui.components.PrideButton
-import com.quiz.pride.ui.theme.AdvanceGradientBottom
-import com.quiz.pride.ui.theme.AdvanceGradientTop
-import com.quiz.pride.ui.theme.GlowPink
-import com.quiz.pride.ui.theme.GlowPurple
-import com.quiz.pride.ui.theme.LearnGradientBottom
-import com.quiz.pride.ui.theme.LearnGradientTop
-import com.quiz.pride.ui.theme.NeonGreen
+import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.NormalGradientBottom
-import com.quiz.pride.ui.theme.NormalGradientTop
-import com.quiz.pride.ui.theme.StartGradientBottom
-import com.quiz.pride.ui.theme.StartGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -81,8 +72,7 @@ data class OnboardingPage(
     val title: String,
     val description: String,
     val icon: Painter,
-    val gradientColors: List<Color>,
-    val glowColor: Color
+    val style: ButtonGradient
 )
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -96,29 +86,25 @@ fun OnboardingScreen(
             title = stringResource(R.string.onboarding_welcome_title),
             description = stringResource(R.string.onboarding_welcome_desc),
             icon = rememberVectorPainter(Icons.Default.Favorite),
-            gradientColors = listOf(StartGradientTop, StartGradientBottom),
-            glowColor = GlowPink
+            style = PrideButtonStyles.Start.current()
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_learn_title),
             description = stringResource(R.string.onboarding_learn_desc),
             icon = painterResource(id = R.drawable.ic_school),
-            gradientColors = listOf(LearnGradientTop, LearnGradientBottom),
-            glowColor = GlowPurple
+            style = PrideButtonStyles.Learn.current()
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_play_title),
             description = stringResource(R.string.onboarding_play_desc),
             icon = rememberVectorPainter(Icons.Default.PlayArrow),
-            gradientColors = listOf(NormalGradientTop, NormalGradientBottom),
-            glowColor = NeonGreen.copy(alpha = 0.4f)
+            style = PrideButtonStyles.Normal.current()
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_modes_title),
             description = stringResource(R.string.onboarding_modes_desc),
             icon = rememberVectorPainter(Icons.Default.Star),
-            gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
-            glowColor = Color(0x40FBBF24)
+            style = PrideButtonStyles.Advance.current()
         )
     )
 
@@ -196,7 +182,7 @@ fun OnboardingScreen(
                             .clip(CircleShape)
                             .background(
                                 if (isSelected) {
-                                    Brush.horizontalGradient(pages[index].gradientColors)
+                                    Brush.horizontalGradient(pages[index].style.colors)
                                 } else {
                                     Brush.horizontalGradient(
                                         listOf(
@@ -226,8 +212,7 @@ fun OnboardingScreen(
                         analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "completed")
                         onFinish()
                     },
-                    gradientColors = listOf(StartGradientTop, StartGradientBottom),
-                    glowColor = GlowPink,
+                    style = PrideButtonStyles.Start.current(),
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -261,8 +246,7 @@ fun OnboardingScreen(
                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                             }
                         },
-                        gradientColors = pages[pagerState.currentPage].gradientColors,
-                        glowColor = pages[pagerState.currentPage].glowColor
+                        style = pages[pagerState.currentPage].style
                     )
                 }
             }
@@ -301,7 +285,7 @@ private fun OnboardingPageContent(
                     drawCircle(
                         brush = Brush.radialGradient(
                             colors = listOf(
-                                page.glowColor,
+                                page.style.glow,
                                 Color.Transparent
                             )
                         ),
@@ -310,14 +294,14 @@ private fun OnboardingPageContent(
                 }
                 .clip(CircleShape)
                 .background(
-                    Brush.linearGradient(page.gradientColors)
+                    Brush.linearGradient(page.style.colors)
                 ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = page.icon,
                 contentDescription = null,
-                tint = White,
+                tint = page.style.contentColor,
                 modifier = Modifier.size(64.dp)
             )
         }

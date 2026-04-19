@@ -44,6 +44,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,17 +52,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.quiz.pride.R
 import com.quiz.pride.ui.components.AnimatedScreenBackground
-import com.quiz.pride.ui.theme.AdvanceGradientBottom
-import com.quiz.pride.ui.theme.AdvanceGradientTop
-import com.quiz.pride.ui.theme.NeonBlue
-import com.quiz.pride.ui.theme.NeonGreen
-import com.quiz.pride.ui.theme.NeonOrange
+import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.NormalGradientBottom
-import com.quiz.pride.ui.theme.NormalGradientTop
-import com.quiz.pride.ui.theme.TimedGradientBottom
-import com.quiz.pride.ui.theme.TimedGradientTop
+import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.utils.Constants
 import org.koin.androidx.compose.koinViewModel
@@ -100,37 +94,34 @@ fun SelectGameScreen(
             // Aire entre la top row y la primera card
             Spacer(modifier = Modifier.height(64.dp))
 
-            // Normal difficulty - Green
+            // Normal difficulty
             VibrantDifficultyCard(
                 title = stringResource(R.string.normal),
                 description = stringResource(R.string.normal_description),
                 imageRes = R.drawable.normal,
-                gradientColors = listOf(NormalGradientTop, NormalGradientBottom),
-                glowColor = NeonGreen.copy(alpha = 0.5f),
+                style = PrideButtonStyles.Normal.current(),
                 onClick = { onNavigateToGame(Constants.GameType.NORMAL) }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Advance difficulty - Yellow/Amber
+            // Advance difficulty
             VibrantDifficultyCard(
                 title = stringResource(R.string.advance),
                 description = stringResource(R.string.advance_description),
                 imageRes = R.drawable.advance,
-                gradientColors = listOf(AdvanceGradientTop, AdvanceGradientBottom),
-                glowColor = NeonOrange.copy(alpha = 0.5f),
+                style = PrideButtonStyles.Advance.current(),
                 onClick = { onNavigateToGame(Constants.GameType.ADVANCE) }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Timed mode - Cyan
+            // Timed mode
             VibrantDifficultyCard(
                 title = stringResource(R.string.timed_mode),
                 description = stringResource(R.string.timed_mode_description),
-                imageRes = R.drawable.normal, // TODO: Add timed mode icon
-                gradientColors = listOf(TimedGradientTop, TimedGradientBottom),
-                glowColor = NeonBlue.copy(alpha = 0.5f),
+                imageRes = R.drawable.reloj,
+                style = PrideButtonStyles.Timed.current(),
                 onClick = { onNavigateToGame(Constants.GameType.TIMED) }
             )
         }
@@ -176,8 +167,7 @@ private fun VibrantDifficultyCard(
     title: String,
     description: String,
     imageRes: Int,
-    gradientColors: List<Color>,
-    glowColor: Color,
+    style: ButtonGradient,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -192,6 +182,12 @@ private fun VibrantDifficultyCard(
         label = "card_scale"
     )
 
+    // Shadow/highlight opuestos al contentColor para que el texto siempre se lea
+    val isLightContent = style.contentColor.luminance() > 0.5f
+    val textShadowColor = if (isLightContent) Color.Black.copy(alpha = 0.3f) else Color.White.copy(alpha = 0.3f)
+    val shineColor = if (isLightContent) White.copy(alpha = 0.25f) else Color.Black.copy(alpha = 0.15f)
+    val iconHaloColor = if (isLightContent) White.copy(alpha = 0.2f) else Color.Black.copy(alpha = 0.15f)
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,8 +196,8 @@ private fun VibrantDifficultyCard(
             .shadow(
                 elevation = 20.dp,
                 shape = RoundedCornerShape(28.dp),
-                ambientColor = glowColor,
-                spotColor = glowColor
+                ambientColor = style.glow,
+                spotColor = style.glow
             )
     ) {
         Card(
@@ -221,7 +217,7 @@ private fun VibrantDifficultyCard(
                     .fillMaxSize()
                     .background(
                         Brush.linearGradient(
-                            colors = gradientColors,
+                            colors = style.colors,
                             start = Offset(0f, 0f),
                             end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                         )
@@ -234,7 +230,7 @@ private fun VibrantDifficultyCard(
                         .background(
                             Brush.linearGradient(
                                 colors = listOf(
-                                    White.copy(alpha = 0.25f),
+                                    shineColor,
                                     Color.Transparent,
                                     Color.Transparent
                                 ),
@@ -259,18 +255,18 @@ private fun VibrantDifficultyCard(
                             text = title,
                             style = MaterialTheme.typography.headlineSmall.copy(
                                 shadow = Shadow(
-                                    color = Color.Black.copy(alpha = 0.3f),
+                                    color = textShadowColor,
                                     offset = Offset(2f, 2f),
                                     blurRadius = 4f
                                 )
                             ),
-                            color = White
+                            color = style.contentColor
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = description,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = White.copy(alpha = 0.9f)
+                            color = style.contentColor.copy(alpha = 0.9f)
                         )
                     }
 
@@ -281,7 +277,7 @@ private fun VibrantDifficultyCard(
                             .size(85.dp)
                             .drawBehind {
                                 drawCircle(
-                                    color = White.copy(alpha = 0.2f),
+                                    color = iconHaloColor,
                                     radius = size.minDimension / 1.8f
                                 )
                             },

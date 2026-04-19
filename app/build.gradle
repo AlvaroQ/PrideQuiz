@@ -1,14 +1,16 @@
 import groovy.xml.XmlParser
 
-apply plugin: 'com.android.application'
-apply plugin: 'org.jetbrains.kotlin.plugin.compose'
-apply plugin: 'org.jetbrains.kotlin.plugin.serialization'
-apply plugin: 'com.google.gms.google-services'
-apply plugin: 'com.google.firebase.crashlytics'
-apply plugin: 'io.github.takahirom.roborazzi'
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.roborazzi)
+}
 
 android {
-    compileSdk versions.compileSdk
+    compileSdk libs.versions.compileSdk.get().toInteger()
 
     signingConfigs {
         config {
@@ -21,10 +23,10 @@ android {
 
     defaultConfig {
         applicationId names.applicationId
-        minSdk versions.minSdk
-        targetSdk versions.targetSdk
-        versionCode versions.code
-        versionName versions.name
+        minSdk libs.versions.minSdk.get().toInteger()
+        targetSdk libs.versions.targetSdk.get().toInteger()
+        versionCode libs.versions.appVersionCode.get().toInteger()
+        versionName libs.versions.appVersionName.get()
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 

@@ -42,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -56,8 +55,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.quiz.pride.R
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.GradientPrimaryEnd
-import com.quiz.pride.ui.theme.GradientPrimaryStart
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.White
 import java.io.ByteArrayOutputStream
@@ -253,48 +250,37 @@ fun SaveScoreDialog(
                         onClick = { onSave(nickname.trim(), imageBase64) },
                         enabled = !isSaving && nickname.isNotBlank(),
                         modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            disabledContainerColor = Color.Gray.copy(alpha = 0.3f)
-                        ),
-                        contentPadding = ButtonDefaults.ContentPadding
+                            containerColor = NeonPurple,
+                            contentColor = White,
+                            disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
+                            disabledContentColor = White.copy(alpha = 0.6f)
+                        )
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    brush = Brush.horizontalGradient(
-                                        listOf(GradientPrimaryStart, GradientPrimaryEnd)
-                                    ),
-                                    shape = RoundedCornerShape(50)
+                        if (isSaving) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = White,
+                                    strokeWidth = 2.dp
                                 )
-                                .padding(vertical = 8.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSaving) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(16.dp),
-                                        color = White,
-                                        strokeWidth = 2.dp
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        text = stringResource(R.string.dialog_saving),
-                                        style = MaterialTheme.typography.labelLarge,
-                                        color = White
-                                    )
-                                }
-                            } else {
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = stringResource(R.string.dialog_save),
+                                    text = stringResource(R.string.dialog_saving),
                                     style = MaterialTheme.typography.labelLarge,
                                     color = White
                                 )
                             }
+                        } else {
+                            Text(
+                                text = stringResource(R.string.dialog_save),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = White
+                            )
                         }
                     }
                 }

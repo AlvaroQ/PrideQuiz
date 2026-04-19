@@ -105,14 +105,6 @@ import com.quiz.pride.ui.components.rememberRewardedAdState
 import com.quiz.pride.ui.theme.AuroraWashBlue
 import com.quiz.pride.ui.theme.AuroraWashPink
 import com.quiz.pride.ui.theme.AuroraWashViolet
-import com.quiz.pride.ui.theme.ButtonAccentA
-import com.quiz.pride.ui.theme.ButtonAccentB
-import com.quiz.pride.ui.theme.ButtonAccentC
-import com.quiz.pride.ui.theme.ButtonAccentD
-import com.quiz.pride.ui.theme.ButtonTintA
-import com.quiz.pride.ui.theme.ButtonTintB
-import com.quiz.pride.ui.theme.ButtonTintC
-import com.quiz.pride.ui.theme.ButtonTintD
 import com.quiz.pride.ui.theme.GlowBlue
 import com.quiz.pride.ui.theme.GlowPink
 import com.quiz.pride.ui.theme.GradientGameBottom
@@ -1013,21 +1005,13 @@ private fun VibrantAnswerButton(
         else -> answerDescription
     }
 
-    // --- Color identity per button (from pride spectrum) ---
-    val accentColor = when (buttonIndex) {
-        0 -> ButtonAccentA  // Rose
-        1 -> ButtonAccentB  // Sky
-        2 -> ButtonAccentC  // Violet
-        3 -> ButtonAccentD  // Emerald
-        else -> ButtonAccentA
-    }
-
-    val surfaceTint = when (buttonIndex) {
-        0 -> ButtonTintA
-        1 -> ButtonTintB
-        2 -> ButtonTintC
-        3 -> ButtonTintD
-        else -> ButtonTintA
+    // --- Neutral accent — se aclara u oscurece con el tema (como los textos) ---
+    // Reemplaza la identidad cromática por botón (rosa/azul/violeta/verde)
+    // por un tono neutro que sigue a onSurface del tema activo.
+    val accentColor = if (isDarkTheme) {
+        colorScheme.onSurface.copy(alpha = 0.85f)
+    } else {
+        colorScheme.onSurface.copy(alpha = 0.7f)
     }
 
     val optionLabel = when (buttonIndex) {
@@ -1127,9 +1111,14 @@ private fun VibrantAnswerButton(
             .scale(scale)
             .clip(buttonShape)
             .drawBehind {
-                // Chromatic drop shadow — uses the button's own accent color
+                // Sombra neutra — negro sutil, no cromática
+                val shadowColor = when {
+                    isCorrect -> ResponseCorrect.copy(alpha = glowAlpha)
+                    isWrong -> ResponseFail.copy(alpha = glowAlpha)
+                    else -> Color.Black.copy(alpha = glowAlpha * 0.6f)
+                }
                 drawRoundRect(
-                    color = accentColor.copy(alpha = glowAlpha),
+                    color = shadowColor,
                     topLeft = androidx.compose.ui.geometry.Offset(0f, 3.dp.toPx()),
                     size = size,
                     cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx())
@@ -1143,7 +1132,7 @@ private fun VibrantAnswerButton(
                 indication = null
             )
     ) {
-        // Layer 1: Warm glass surface with chromatic tint
+        // Layer 1: Superficie neutra (white en light, SpectrumSurface en dark)
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -1151,7 +1140,6 @@ private fun VibrantAnswerButton(
                     color = if (isDarkTheme) SpectrumSurface else Color.White,
                     shape = buttonShape
                 )
-                .background(surfaceTint, buttonShape)
                 .background(animatedSurfaceBg, buttonShape)
                 .border(
                     width = borderWidth.dp,
