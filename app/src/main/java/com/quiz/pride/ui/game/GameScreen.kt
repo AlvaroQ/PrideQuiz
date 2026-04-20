@@ -5,8 +5,10 @@ import android.media.AudioAttributes
 import android.media.SoundPool
 import androidx.activity.compose.BackHandler
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.togetherWith
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -286,22 +288,44 @@ fun GameScreen(
             }
 
             when {
-                uiState.isLoading -> LoadingIndicator()
                 uiState.hasError -> GameErrorState(
                     message = stringResource(R.string.error_loading_question),
                     onRetry = { viewModel.retryCurrentStage() }
                 )
-                else -> GameContent(
-                    gameType = gameType,
-                    question = uiState.question,
-                    options = uiState.options,
-                    correctOptionIndex = uiState.correctOptionIndex,
-                    selectedAnswer = uiState.selectedAnswer,
-                    isDarkTheme = isDarkTheme,
-                    onAnswerSelected = { index ->
-                        viewModel.onAnswerSelected(index, streakOnFire, streakUnstoppable, streakLegendary, streakCombo)
+                else -> {
+                    // Crossfade suave entre fases: evita el parpadeo del LoadingIndicator
+                    // cuando los datos de la siguiente pregunta ya estan en memoria.
+                    // Solo muestra LoadingIndicator en la primera carga (question == null).
+                    AnimatedContent(
+                        targetState = uiState.question,
+                        transitionSpec = {
+                            fadeIn(animationSpec = tween(220)) togetherWith
+                                fadeOut(animationSpec = tween(180))
+                        },
+                        contentKey = { it?.name?.EN ?: "loading" },
+                        label = "question_transition"
+                    ) { question ->
+                        if (question == null) {
+                            LoadingIndicator()
+                        } else {
+                            // Snapshot de options/correctIndex ligado a ESTA pregunta:
+                            // evita que el slot en fade-out muestre datos de la siguiente.
+                            val options = remember(question) { uiState.options }
+                            val correctOptionIndex = remember(question) { uiState.correctOptionIndex }
+                            GameContent(
+                                gameType = gameType,
+                                question = question,
+                                options = options,
+                                correctOptionIndex = correctOptionIndex,
+                                selectedAnswer = uiState.selectedAnswer,
+                                isDarkTheme = isDarkTheme,
+                                onAnswerSelected = { index ->
+                                    viewModel.onAnswerSelected(index, streakOnFire, streakUnstoppable, streakLegendary, streakCombo)
+                                }
+                            )
+                        }
                     }
-                )
+                }
             }
         }
     }

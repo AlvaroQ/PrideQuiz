@@ -1,11 +1,7 @@
 package com.quiz.pride.ui.info
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,12 +38,11 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -164,7 +159,8 @@ fun InfoScreen(
                         PrideInfoCard(
                             pride = pride,
                             index = index,
-                            isDarkTheme = isDarkTheme
+                            isDarkTheme = isDarkTheme,
+                            modifier = Modifier.animateItem()
                         )
                     }
 
@@ -239,29 +235,7 @@ private fun PrideInfoCard(
     isDarkTheme: Boolean,
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
-    // Staggered animation delay
-    var isVisible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 50L)
-        isVisible = true
-    }
-
-    val scale by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0.8f,
-        animationSpec = spring(
-            dampingRatio = 0.8f,
-            stiffness = 300f
-        ),
-        label = "card_scale"
-    )
-
-    val alpha by animateFloatAsState(
-        targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(400),
-        label = "card_alpha"
-    )
+    var isExpanded by rememberSaveable(pride.name?.EN ?: index) { mutableStateOf(false) }
 
     // Different accent colors for variety
     val accentColor = when (index % 6) {
@@ -282,8 +256,6 @@ private fun PrideInfoCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .scale(scale)
-            .alpha(alpha)
             .clip(RoundedCornerShape(20.dp))
             .background(cardBackground)
             .clickable(
@@ -294,10 +266,12 @@ private fun PrideInfoCard(
             }
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize(animationSpec = tween(durationMillis = 250))
         ) {
-            // Collapsed view: Image + Title side by side
             if (!isExpanded) {
+                // Collapsed view: Image + Title side by side
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -344,16 +318,9 @@ private fun PrideInfoCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
-
                 }
-            }
-
-            // Expanded view: Title, Image, Description - each full width
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = fadeIn(animationSpec = tween(300)),
-                exit = fadeOut(animationSpec = tween(200))
-            ) {
+            } else {
+                // Expanded view: Title, Image, Description - each full width
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

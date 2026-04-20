@@ -5,19 +5,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.flow.first
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.crashlytics.crashlytics
@@ -88,14 +94,27 @@ class MainActivity : ComponentActivity() {
         themeManager: ThemeManager,
         networkManager: NetworkManager
     ) {
-        // Collect theme state
-        val isDarkMode by themeManager.isDarkMode.collectAsStateWithLifecycle(initialValue = false)
+        // Collect theme state.
+        // initialValue usa el tema del sistema como fallback para el primer frame,
+        // evitando el FOUC (light -> dark) cuando DataStore aun no ha emitido.
+        val systemIsDark = isSystemInDarkTheme()
+        val isDarkMode by themeManager.isDarkMode.collectAsStateWithLifecycle(initialValue = systemIsDark)
         val isDynamicColors by themeManager.isDynamicColorsEnabled.collectAsStateWithLifecycle(initialValue = true)
         val isOnboardingCompleted by onboardingPreferences.isOnboardingCompleted.collectAsStateWithLifecycle(initialValue = true)
         // Collect accessibility settings
         val isHighContrast by themeManager.isHighContrastEnabled.collectAsStateWithLifecycle(initialValue = false)
         val isLargeText by themeManager.isLargeTextEnabled.collectAsStateWithLifecycle(initialValue = false)
         val coroutineScope = rememberCoroutineScope()
+
+        // Espera al primer emit de DataStore antes de renderizar el NavGraph para
+        // eliminar el FOUC cuando la preferencia guardada difiere del tema del sistema.
+        // Mientras no este listo, el Surface raiz se muestra en el color correcto
+        // y se confunde con la transicion desde el splash del sistema.
+        var prefsReady by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            themeManager.isDarkMode.first()
+            prefsReady = true
+        }
 
         // Collect network state para el banner global
         val networkState by networkManager.networkState
@@ -129,23 +148,27 @@ class MainActivity : ComponentActivity() {
             largeText = isLargeText
         ) {
             Surface(modifier = Modifier.fillMaxSize()) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    val navController = rememberNavController()
-                    PrideNavGraph(
-                        navController = navController,
-                        startDestination = startDestination,
-                        onOnboardingComplete = {
-                            coroutineScope.launch {
-                                onboardingPreferences.setOnboardingCompleted(true)
+                // Solo renderizar el NavGraph cuando las prefs esten listas,
+                // para evitar cualquier flash de tema durante el arranque.
+                if (prefsReady) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        val navController = rememberNavController()
+                        PrideNavGraph(
+                            navController = navController,
+                            startDestination = startDestination,
+                            onOnboardingComplete = {
+                                coroutineScope.launch {
+                                    onboardingPreferences.setOnboardingCompleted(true)
+                                }
                             }
-                        }
-                    )
+                        )
 
-                    // Banner offline global: visible en todas las pantallas
-                    OfflineBanner(
-                        isOffline = networkState is NetworkState.Unavailable,
-                        modifier = Modifier.align(Alignment.TopCenter)
-                    )
+                        // Banner offline global: visible en todas las pantallas
+                        OfflineBanner(
+                            isOffline = networkState is NetworkState.Unavailable,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
                 }
             }
         }

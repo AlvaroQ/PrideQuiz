@@ -244,15 +244,20 @@ fun ResultScreen(
             ResultBackgroundOrbs()
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.fillMaxSize()
             ) {
-                // Espacio para la top row flotante (back + título) + status bar
+                // Espacio FIJO para la top row flotante (back + título) + status bar.
+                // Queda fuera del scroll para que el contenido nunca pase por debajo de la top bar.
                 Spacer(modifier = Modifier.height(120.dp))
 
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                 // New Record Badge
                 AnimatedVisibility(
                     visible = showNewRecord && isNewRecord,
@@ -372,7 +377,8 @@ fun ResultScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-            } // cierra Column (scroll)
+                } // cierra Column (scroll interno)
+            } // cierra Column exterior (no scroll)
 
             // Top row flotante: back button (solo flecha blanca) + título.
             // Mismo patrón visual que SelectGameScreen/Settings/Profile.
