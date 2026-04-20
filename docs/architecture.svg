@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 580" role="img" aria-label="Clean Architecture — 4 modules with unidirectional dependency">
+  <title>Clean Architecture — 4 modules</title>
+  <desc>Four stacked layers showing the unidirectional dependency rule: app → usecases → data → domain.</desc>
+
+  <defs>
+    <style>
+      .layer-title { font: 700 18px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #fff; }
+      .layer-desc  { font: 13px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #fff; fill-opacity: 0.92; }
+      .arrow-label { font: 12px system-ui, sans-serif; fill: #9ca3af; }
+      .diagram-title { font: 700 20px system-ui, sans-serif; fill: #1f2937; }
+      .subtitle { font: 13px system-ui, sans-serif; fill: #6b7280; }
+      .side-rule { font: 600 12px system-ui, sans-serif; fill: #9ca3af; letter-spacing: 0.5px; }
+      @media (prefers-color-scheme: dark) {
+        .diagram-title { fill: #f3f4f6; }
+        .subtitle { fill: #9ca3af; }
+      }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <text x="410" y="32" text-anchor="middle" class="diagram-title">Clean Architecture — 4 modules</text>
+  <text x="410" y="54" text-anchor="middle" class="subtitle">Unidirectional dependency rule · app → usecases → data → domain</text>
+
+  <!-- Layer 1: app (Presentation) -->
+  <rect x="90" y="90" width="640" height="80" rx="10" fill="#8B5CF6" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="110" y="120" class="layer-title">app — Presentation</text>
+  <text x="110" y="145" class="layer-desc">Jetpack Compose screens · ViewModels · Koin DI</text>
+  <text x="110" y="162" class="layer-desc">DataSource implementations · Managers</text>
+
+  <line x1="410" y1="175" x2="410" y2="210" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="425" y="198" class="arrow-label">uses</text>
+
+  <!-- Layer 2: usecases -->
+  <rect x="90" y="220" width="640" height="80" rx="10" fill="#6366F1" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="110" y="250" class="layer-title">usecases</text>
+  <text x="110" y="275" class="layer-desc">Application business logic</text>
+  <text x="110" y="292" class="layer-desc">One class per use case</text>
+
+  <line x1="410" y1="305" x2="410" y2="340" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="425" y="328" class="arrow-label">uses</text>
+
+  <!-- Layer 3: data -->
+  <rect x="90" y="350" width="640" height="80" rx="10" fill="#0EA5E9" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="110" y="380" class="layer-title">data</text>
+  <text x="110" y="405" class="layer-desc">Repository interfaces</text>
+  <text x="110" y="422" class="layer-desc">DataSource interfaces</text>
+
+  <line x1="410" y1="435" x2="410" y2="470" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="425" y="458" class="arrow-label">uses</text>
+
+  <!-- Layer 4: domain -->
+  <rect x="90" y="480" width="640" height="80" rx="10" fill="#10B981" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="110" y="510" class="layer-title">domain — pure Kotlin</text>
+  <text x="110" y="535" class="layer-desc">Models: Pride · User · Name · XpLeaderboardEntry</text>
+  <text x="110" y="552" class="layer-desc">Zero Android dependencies</text>
+
+  <!-- Side rule indicator -->
+  <line x1="770" y1="110" x2="770" y2="540" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+  <text x="800" y="325" text-anchor="middle" transform="rotate(90 800 325)" class="side-rule">DEPENDENCY DIRECTION</text>
+</svg>

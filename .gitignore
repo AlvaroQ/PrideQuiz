@@ -35,7 +35,9 @@ capture/*
 .claude/
 .atl/
 CLAUDE.md
-docs/
+docs/*
+!docs/architecture.svg
+!docs/test-pyramid.svg
 *-adminsdk-*.json
 serviceAccountKey.json
 serviceAccount.json

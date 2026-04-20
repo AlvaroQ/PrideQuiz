@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 530" role="img" aria-label="Testing pyramid showing 340 tests across 4 layers">
+  <title>Testing Pyramid</title>
+  <desc>Four-layer testing pyramid: 260 unit tests at the base (fast, JVM), 44 screenshot tests, 33 UI instrumented tests, 3 visual regression specs at the apex (slow, device).</desc>
+
+  <defs>
+    <style>
+      .level-title { font: 700 15px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; fill: #fff; }
+      .level-meta  { font: 12px system-ui, sans-serif; fill: #fff; fill-opacity: 0.92; }
+      .count       { font: 800 22px system-ui, sans-serif; fill: #fff; }
+      .count-top   { font: 800 18px system-ui, sans-serif; fill: #fff; }
+      .diagram-title { font: 700 20px system-ui, sans-serif; fill: #1f2937; }
+      .subtitle      { font: 13px system-ui, sans-serif; fill: #6b7280; }
+      .axis-label    { font: 600 11px system-ui, sans-serif; fill: #9ca3af; letter-spacing: 0.5px; }
+      @media (prefers-color-scheme: dark) {
+        .diagram-title { fill: #f3f4f6; }
+        .subtitle { fill: #9ca3af; }
+      }
+    </style>
+    <marker id="arrow-up" viewBox="0 0 10 10" refX="5" refY="0" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,10 L5,0 L10,10 z" fill="#9ca3af"/>
+    </marker>
+  </defs>
+
+  <text x="400" y="30" text-anchor="middle" class="diagram-title">Testing Pyramid</text>
+  <text x="400" y="52" text-anchor="middle" class="subtitle">340 tests across 4 layers — base is cheapest and fastest</text>
+
+  <!-- Level 4: Visual (Percy) — apex -->
+  <polygon points="290,170 510,170 450,80 350,80" fill="#EF4444" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="400" y="110" text-anchor="middle" class="count-top">3</text>
+  <text x="400" y="132" text-anchor="middle" class="level-title">Visual (Percy)</text>
+  <text x="400" y="152" text-anchor="middle" class="level-meta">Device · Slow</text>
+
+  <!-- Level 3: UI Instrumented -->
+  <polygon points="210,265 590,265 510,170 290,170" fill="#F59E0B" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="400" y="203" text-anchor="middle" class="count">33</text>
+  <text x="400" y="225" text-anchor="middle" class="level-title">UI — Instrumented</text>
+  <text x="400" y="245" text-anchor="middle" class="level-meta">Device · Medium</text>
+
+  <!-- Level 2: Screenshot (Roborazzi) -->
+  <polygon points="130,360 670,360 590,265 210,265" fill="#0EA5E9" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="400" y="298" text-anchor="middle" class="count">44</text>
+  <text x="400" y="320" text-anchor="middle" class="level-title">Screenshot (Roborazzi)</text>
+  <text x="400" y="340" text-anchor="middle" class="level-meta">JVM · Fast</text>
+
+  <!-- Level 1: Unit — base -->
+  <polygon points="50,455 750,455 670,360 130,360" fill="#10B981" stroke="rgba(0,0,0,0.12)" stroke-width="1"/>
+  <text x="400" y="395" text-anchor="middle" class="count">260</text>
+  <text x="400" y="417" text-anchor="middle" class="level-title">Unit</text>
+  <text x="400" y="437" text-anchor="middle" class="level-meta">JVM · Fast</text>
+
+  <!-- Speed / cost axis on the right -->
+  <line x1="775" y1="450" x2="775" y2="85" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow-up)"/>
+  <text x="775" y="475" text-anchor="middle" class="axis-label">FAST · CHEAP</text>
+  <text x="775" y="75" text-anchor="middle" class="axis-label">SLOW · COSTLY</text>
+</svg>

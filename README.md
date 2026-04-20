@@ -50,30 +50,9 @@ PrideQuiz is an Android quiz game that tests your knowledge of LGBTQ+ history, c
 
 PrideQuiz follows **Clean Architecture** with a strict unidirectional dependency rule across four Gradle modules:
 
-```
-┌──────────────────────────────────────────────────────┐
-│  app  (Presentation)                                 │
-│  Jetpack Compose screens · ViewModels · Koin DI      │
-│  DataSource implementations · Managers               │
-└───────────────────────┬──────────────────────────────┘
-                        │ uses
-┌───────────────────────▼──────────────────────────────┐
-│  usecases                                            │
-│  Application business logic · one class per use case │
-└───────────────────────┬──────────────────────────────┘
-                        │ uses
-┌───────────────────────▼──────────────────────────────┐
-│  data                                                │
-│  Repository interfaces · DataSource interfaces       │
-└───────────────────────┬──────────────────────────────┘
-                        │ uses
-┌───────────────────────▼──────────────────────────────┐
-│  domain  (pure Kotlin — zero Android dependencies)   │
-│  Models: Pride · User · Name · XpLeaderboardEntry    │
-└──────────────────────────────────────────────────────┘
-
-Dependency rule: app → usecases → data → domain
-```
+<p align="center">
+  <img src="docs/architecture.svg" alt="Clean Architecture — 4 modules with unidirectional dependency rule from app to domain" width="720">
+</p>
 
 ViewModels expose `StateFlow` for UI state and `SharedFlow` for one-shot events (navigation, dialogs). Koin handles dependency injection at every layer.
 
@@ -95,6 +74,10 @@ ViewModels expose `StateFlow` for UI state and `SharedFlow` for one-shot events 
 ## Testing
 
 PrideQuiz has a comprehensive, multi-layer testing strategy covering unit logic, UI components, visual regression, and full end-to-end visual flows on real devices.
+
+<p align="center">
+  <img src="docs/test-pyramid.svg" alt="Testing pyramid — 260 unit tests at the base, 44 screenshot, 33 UI instrumented, 3 visual regression specs at the apex" width="720">
+</p>
 
 ### Unit Tests — 260 tests
 
