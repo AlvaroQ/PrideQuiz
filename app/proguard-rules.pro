@@ -74,3 +74,10 @@
 # Crashlitics
 -keepattributes SourceFile,LineNumberTable        # Keep file names and line numbers.
 -keep public class * extends java.lang.Exception  # Optional: Keep custom exceptions.
+
+# Accesibilidad (Play Console pre-launch report)
+# El escaner de accesibilidad identifica Views por su nombre de clase Java.
+# Sin esta regla, R8 renombra AndroidComposeView -> "ef0" y el escaner reporta
+# "tipo no compatible con servicios de accesibilidad" (falso positivo).
+# -keepnames solo preserva el nombre de la clase; miembros se siguen ofuscando.
+-keepnames class * extends android.view.View
