@@ -16,7 +16,7 @@ targetSdk = "36"
 # APP VERSION
 # ==========================================
 appVersionName = "3.0.0"
-appVersionCode = "53"
+appVersionCode = "55"
 
 # ==========================================
 # KOTLIN & COROUTINES
@@ -108,6 +108,7 @@ robolectric = "4.16.1"
 mockk = "1.14.9"
 turbine = "1.2.1"
 junit = "4.13.2"
+androidxTestExt = "1.3.0"
 
 
 [libraries]
@@ -160,6 +161,7 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 # Debug
 compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 # ==========================================
 # DEPENDENCY INJECTION (KOIN)
@@ -219,6 +221,8 @@ mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 koin-test = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
 koin-test-junit4 = { group = "io.insert-koin", name = "koin-test-junit4", version.ref = "koin" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExt" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 
 
 [plugins]
