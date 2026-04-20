@@ -98,6 +98,7 @@ fun createProfileViewModel(
     dailyChallengeManager: DailyChallengeManager = mockk(relaxed = true),
     currencyManager: CurrencyManager = mockk(relaxed = true),
     unlockablesManager: UnlockablesManager = mockk(relaxed = true),
+    dailyRewardManager: DailyRewardManager = mockk(relaxed = true),
 ): ProfileViewModel = ProfileViewModel(
     progressionManager = progressionManager,
     gameStatsManager = gameStatsManager,
@@ -109,4 +110,5 @@ fun createProfileViewModel(
     dailyChallengeManager = dailyChallengeManager,
     currencyManager = currencyManager,
     unlockablesManager = unlockablesManager,
+    dailyRewardManager = dailyRewardManager,
 )

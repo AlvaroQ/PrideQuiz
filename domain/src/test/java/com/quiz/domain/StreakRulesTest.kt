@@ -208,15 +208,15 @@ class StreakRulesTest {
 
     @Test
     fun `checkStreak gana 1 freeze token al completar el ciclo dia 7`() {
-        // cycleDay actual es 6, al continuar avanzara a 7 — y al dia siguiente volvera a 1
-        // Para ganar freeze en el PROXIMO estado, el cycleDay del nuevo estado debe ser 7
+        // Se usa currentStreak=15 (fuera de FREEZE_MILESTONES: 7, 30, 90) para aislar
+        // la recompensa del CICLO (cycleDay==7) del bonus de MILESTONE de racha.
         // cycleDay=6 -> nuevo cycleDay = (6%7)+1 = 7
-        val estado = estadoConRacha(dias = 6, ciclo = 6, freezeTokens = 0)
+        val estado = estadoConRacha(dias = 15, ciclo = 6, freezeTokens = 0)
 
         val resultado = StreakRules.checkStreak(estado, HOY, AYER) as StreakCheckResult.StreakContinued
 
         assertEquals(7, resultado.newState.cycleDay)
-        // buildReward detecta cycleDay==7 y otorga freeze
+        // buildReward detecta cycleDay==7 y otorga freeze (sin solapamiento con milestone)
         assertEquals(1, resultado.reward.freezeTokens)
     }
 

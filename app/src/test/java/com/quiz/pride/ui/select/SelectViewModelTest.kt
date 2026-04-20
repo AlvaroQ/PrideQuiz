@@ -2,6 +2,7 @@ package com.quiz.pride.ui.select
 
 import com.quiz.domain.LevelInfo
 import com.quiz.domain.StreakState
+import com.quiz.domain.XpGainResult
 import com.quiz.domain.challenge.DailyChallengeState
 import com.quiz.domain.cosmetics.CurrencyBalance
 import com.quiz.domain.reward.DailyReward
@@ -19,6 +20,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -69,6 +71,15 @@ class SelectViewModelTest {
             xpInCurrentLevel = 0L,
             xpNeededForNextLevel = 100L,
             progressPercent = 0f,
+        )
+        // addXp se invoca desde claimDailyReward. Al ser progressionManager estricto,
+        // sin este stub la llamada lanza excepcion y aborta la cadena de acreditacion.
+        coEvery { progressionManager.addXp(any()) } returns XpGainResult(
+            xpGained = 0L,
+            totalXp = 0L,
+            oldLevel = 1,
+            newLevel = 1,
+            leveledUp = false,
         )
         coEvery { dailyChallengeManager.getDailyChallengeState(any()) } returns DailyChallengeState()
 
@@ -231,12 +242,18 @@ class SelectViewModelTest {
 
     @Test
     fun `claimDailyReward doble-tap solo invoca claimTodayReward una vez mientras la primera esta en curso`() = runTest {
-        // El flag isClaiming debe impedir que una segunda invocacion entre al launch.
-        val reward = sampleReward(tier = RewardTier.COMMON)
-        coEvery { dailyRewardManager.claimTodayReward() } returns reward.copy(isClaimed = true)
+        // Con UnconfinedTestDispatcher la coroutine se ejecuta hasta suspender. Para
+        // simular el escenario real de doble-tap, bloqueamos claimTodayReward con un
+        // CompletableDeferred: asi la primera invocacion queda suspendida "en vuelo"
+        // cuando llega la segunda, que debe ser rechazada por isClaimingDailyReward.
+        val reward = sampleReward(tier = RewardTier.COMMON).copy(isClaimed = true)
+        val gate = CompletableDeferred<DailyReward>()
+        coEvery { dailyRewardManager.claimTodayReward() } coAnswers { gate.await() }
 
-        viewModel.claimDailyReward()
-        viewModel.claimDailyReward() // segunda llamada sincrona antes de que avance el dispatcher
+        viewModel.claimDailyReward() // (1) entra al launch y suspende en claimTodayReward
+        viewModel.claimDailyReward() // (2) bloqueada por isClaimingDailyReward == true
+
+        gate.complete(reward)
         advanceUntilIdle()
 
         // Solo una ejecucion efectiva; la segunda fue bloqueada por isClaimingDailyReward.

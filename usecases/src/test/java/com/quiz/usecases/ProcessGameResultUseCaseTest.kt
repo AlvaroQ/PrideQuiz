@@ -8,6 +8,7 @@ import com.quiz.domain.XpGainResult
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -41,6 +42,13 @@ class ProcessGameResultUseCaseTest {
     @Before
     fun setup() {
         useCase = ProcessGameResultUseCase(processor)
+        // Los getters auxiliares del processor se leen siempre tras recordGameAndComputeXp.
+        // Se stubean aqui con valores neutros para que cada test solo sobrescriba lo relevante.
+        every { processor.getLastStreakResult() } returns null
+        every { processor.getLastStreakXpBonus() } returns 0
+        every { processor.getLastChallengeResult() } returns null
+        every { processor.getLastCoinsEarned() } returns 0
+        every { processor.getLastGemsEarned() } returns 0
     }
 
     // =========================================================
