@@ -16,12 +16,12 @@ PrideQuiz is an Android quiz game that tests your knowledge of LGBTQ+ history, c
 ## Screenshots
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image1.png" width="180">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image2.png" width="180">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image3.png" width="180">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image4.png" width="180">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image5.png" width="180">
-  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image6.png" width="180">
+  <img src="capture/image1.png" width="180">
+  <img src="capture/image2.png" width="180">
+  <img src="capture/image3.png" width="180">
+  <img src="capture/image4.png" width="180">
+  <img src="capture/image5.png" width="180">
+  <img src="capture/image6.png" width="180">
 </p>
 
 ---
