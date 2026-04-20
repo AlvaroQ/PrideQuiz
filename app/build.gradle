@@ -58,6 +58,9 @@ android {
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             debuggable = false
+            ndk {
+                debugSymbolLevel = 'FULL'
+            }
             firebaseCrashlytics {
                 mappingFileUploadEnabled = true
             }
@@ -90,10 +93,6 @@ android {
     }
 
     ndkVersion = "27.0.12077973"
-
-    buildTypes.release {
-        ndk { debugSymbolLevel 'FULL' }
-    }
 
     bundle {
         language {
@@ -360,6 +359,50 @@ def getAdmobBonificadoShowInfoId() {
         println(e)
         return ""
     }
+}
+
+// ==========================================
+// NATIVE DEBUG SYMBOLS ZIP TASK
+// ==========================================
+// Packages the stripped native libs from AndroidX dependencies into a ZIP
+// ready for manual upload to Play Console. This silences the warning:
+// "This App Bundle contains native code, but you haven't uploaded debug symbols."
+//
+// Why manual: libs like libdatastore_shared_counter.so and libandroidx.graphics.path.so
+// ship pre-stripped from AndroidX, so AGP cannot populate BUNDLE-METADATA/com.android.tools.build.debugsymbols/
+// even with debugSymbolLevel = 'FULL'. The only way to silence Play Console is this upload.
+//
+// Usage: runs automatically after :app:bundleRelease.
+// Output: app/build/outputs/native-debug-symbols/symbols.zip
+// Upload: Play Console -> App bundle explorer -> <version> -> Downloads -> Native debug symbols
+tasks.register('packageNativeDebugSymbols', Zip) {
+    description = 'Packages stripped native libs into a ZIP for Play Console manual upload'
+    group = 'build'
+
+    dependsOn 'mergeReleaseNativeLibs'
+
+    def libsDir = file("${buildDir}/intermediates/merged_native_libs/release/mergeReleaseNativeLibs/out/lib")
+    from(libsDir) {
+        include 'arm64-v8a/**', 'armeabi-v7a/**', 'x86/**', 'x86_64/**'
+    }
+
+    archiveFileName = 'symbols.zip'
+    destinationDirectory = file("${buildDir}/outputs/native-debug-symbols")
+
+    doLast {
+        def outFile = archiveFile.get().asFile
+        println ""
+        println "  Native debug symbols ZIP generated."
+        println "  Location : ${outFile.absolutePath}"
+        println "  Size     : ${outFile.length()} bytes"
+        println "  Upload   : Play Console -> App bundle explorer -> <version> -> Downloads -> Native debug symbols"
+        println ""
+    }
+}
+
+// Auto-run after bundleRelease so the zip is always fresh next to the AAB.
+tasks.matching { it.name == 'bundleRelease' }.configureEach {
+    finalizedBy 'packageNativeDebugSymbols'
 }
 
 // ==========================================

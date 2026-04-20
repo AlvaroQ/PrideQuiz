@@ -16,7 +16,7 @@ targetSdk = "36"
 # APP VERSION
 # ==========================================
 appVersionName = "3.0.0"
-appVersionCode = "51"
+appVersionCode = "53"
 
 # ==========================================
 # KOTLIN & COROUTINES
