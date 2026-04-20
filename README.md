@@ -2,12 +2,8 @@
 
 ![API Level](https://img.shields.io/badge/API-26%2B-brightgreen)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF)
-![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-2026.03.00-4285F4)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-2026.03.01-4285F4)
 ![Material3](https://img.shields.io/badge/Material3-Dynamic%20Colors-6750A4)
-
-<p align="center">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/app.gif" width="260">
-</p>
 
 ---
 
@@ -20,11 +16,12 @@ PrideQuiz is an Android quiz game that tests your knowledge of LGBTQ+ history, c
 ## Screenshots
 
 <p align="center">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/es_select.png" width="180">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture//es_game_ok.png" width="180">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/es_result.png" width="180">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/es_ranking.png" width="180">
-  <img src="https://github.com/AlvaroQ/PrideQuiz/blob/main/capture/es_info.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image1.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image2.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image3.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image4.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image5.png" width="180">
+  <img src="https://raw.githubusercontent.com/AlvaroQ/PrideQuiz/main/capture/image6.png" width="180">
 </p>
 
 ---
@@ -34,16 +31,16 @@ PrideQuiz is an Android quiz game that tests your knowledge of LGBTQ+ history, c
 | Category | Technology | Version |
 |---|---|---|
 | Language | Kotlin | 2.3.20 |
-| UI | Jetpack Compose + Material3 | BOM 2026.03.00 |
+| Build | Android Gradle Plugin | 9.1.1 |
+| UI | Jetpack Compose + Material3 | BOM 2026.03.01 |
 | Architecture | Clean Architecture — 4 modules | MVVM |
 | State Management | StateFlow + SharedFlow | Coroutines 1.10.2 |
-| Dependency Injection | Koin (Android + Compose) | 4.1.1 |
-| Backend | Firebase (Firestore, Realtime DB, Auth, Analytics, Crashlytics) | BOM 34.9.0 |
-| Networking | Retrofit + OkHttp | 2.9.0 / 4.12.0 |
-| Images | Coil Compose | 2.7.0 |
-| Functional Programming | Arrow Core (Either) | 1.2.4 |
-| Local Persistence | DataStore Preferences | 1.2.0 |
-| Monetization | AdMob + Google Play Billing | 24.8.0 / 8.3.0 |
+| Dependency Injection | Koin (Android + Compose) | 4.2.1 |
+| Backend | Firebase (Firestore, Realtime DB, Auth, Analytics, Crashlytics) | BOM 34.12.0 |
+| Images | Coil Compose | 3.4.0 |
+| Functional Programming | Arrow Core (Either) | 2.2.2.1 |
+| Local Persistence | DataStore Preferences | 1.2.1 |
+| Monetization | AdMob + Google Play Billing | 25.2.0 / 8.3.0 |
 | Min SDK | Android 8.0 (Oreo) | API 26 |
 | Compile / Target SDK | Android 15 | API 36 |
 
@@ -137,7 +134,7 @@ Roborazzi screenshot tests run entirely on the JVM (via Robolectric) and provide
 |---|---|
 | Location | `app/src/test/java/com/quiz/pride/screenshots/` |
 | Coverage | All major UI components across 4 theme variants: Light, Dark, High Contrast Light, High Contrast Dark + Large Text accessibility |
-| Stack | Roborazzi 1.59.0, Robolectric 4.14.1 |
+| Stack | Roborazzi 1.59.0, Robolectric 4.16.1 |
 | Runs on | JVM (no device required) |
 | Test files | `GameComponentsScreenshotTest`, `ResultComponentsScreenshotTest`, `ThemeScreenshotTest` |
 
