@@ -25,12 +25,23 @@ app/secrets/secrets.xml
 app/google-services.json
 app/release/app-release.aab
 assets/
-capture/
+capture/*
+!capture/image1.png
+!capture/image2.png
+!capture/image3.png
+!capture/image4.png
+!capture/image5.png
+!capture/image6.png
 .claude/
 .atl/
 CLAUDE.md
 docs/
 *-adminsdk-*.json
+serviceAccountKey.json
+serviceAccount.json
+firebase-credentials.json
+.env
+.env.local
 
 # Tests de regresion visual (Appium + Percy)
 appium-visual-tests/node_modules/
