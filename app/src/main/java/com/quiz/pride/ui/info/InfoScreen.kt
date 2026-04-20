@@ -68,7 +68,6 @@ import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.RankGold
-import com.quiz.pride.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 

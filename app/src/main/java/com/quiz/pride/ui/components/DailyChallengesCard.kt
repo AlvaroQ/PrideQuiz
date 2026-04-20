@@ -61,6 +61,7 @@ import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.ui.theme.PrideButtonStyles
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -111,7 +112,7 @@ fun DailyChallengesCard(
                 Text(
                     text = stringResource(R.string.daily_challenges_loading),
                     style = MaterialTheme.typography.bodySmall,
-                    color = White.copy(alpha = 0.5f),
+                    color = OffWhiteInk.copy(alpha = 0.5f),
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             } else {
@@ -155,7 +156,7 @@ private fun ChallengesHeader(date: String, allCompleted: Boolean) {
                     blurRadius = 6f
                 )
             ),
-            color = White
+            color = OffWhiteInk
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -171,7 +172,7 @@ private fun ChallengesHeader(date: String, allCompleted: Boolean) {
             Text(
                 text = if (date.isNotEmpty()) formatDisplayDate(date) else "",
                 style = MaterialTheme.typography.labelSmall,
-                color = if (allCompleted) NeonGreen else White.copy(alpha = 0.5f)
+                color = if (allCompleted) NeonGreen else OffWhiteInk.copy(alpha = 0.5f)
             )
         }
     }
@@ -208,7 +209,7 @@ private fun ChallengeRow(challenge: DailyChallenge) {
             Text(
                 text = challenge.resolveDescription(),
                 style = MaterialTheme.typography.bodySmall,
-                color = if (challenge.isCompleted) White.copy(alpha = 0.6f) else White.copy(alpha = 0.9f),
+                color = if (challenge.isCompleted) OffWhiteInk.copy(alpha = 0.6f) else OffWhiteInk.copy(alpha = 0.9f),
                 modifier = Modifier.weight(1f),
                 maxLines = 2
             )
@@ -257,7 +258,7 @@ private fun ChallengeRow(challenge: DailyChallenge) {
             Text(
                 text = "${challenge.currentProgress}/${challenge.targetValue}",
                 style = MaterialTheme.typography.labelSmall,
-                color = White.copy(alpha = 0.5f)
+                color = OffWhiteInk.copy(alpha = 0.5f)
             )
         }
     }

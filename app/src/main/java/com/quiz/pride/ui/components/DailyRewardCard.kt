@@ -52,6 +52,7 @@ import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.RankGold
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 
 // Colores por tier — alineados con la paleta Pride
@@ -178,7 +179,7 @@ private fun DismissBackground(
         Text(
             text = "\uD83D\uDC41\u200D\uD83D\uDDE8 " + stringResource(R.string.daily_reward_hide_until_tomorrow),
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = White.copy(alpha = 0.85f)
+            color = OffWhiteInk.copy(alpha = 0.85f)
         )
     }
 }
@@ -240,12 +241,12 @@ private fun UnclaimedRewardCard(
                 Text(
                     text = stringResource(R.string.daily_reward_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = White
+                    color = OffWhiteInk
                 )
                 Text(
                     text = stringResource(R.string.daily_reward_subtitle),
                     style = MaterialTheme.typography.labelSmall,
-                    color = White.copy(alpha = 0.7f)
+                    color = OffWhiteInk.copy(alpha = 0.7f)
                 )
             }
 
@@ -282,7 +283,7 @@ private fun UnclaimedRewardCard(
                 Text(
                     text = stringResource(R.string.daily_reward_claim),
                     style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-                    color = White
+                    color = OffWhiteInk
                 )
             }
         }
@@ -327,14 +328,14 @@ private fun ClaimedRewardCard(
                 Text(
                     text = stringResource(R.string.daily_reward_claimed_title),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = White
+                    color = OffWhiteInk
                 )
             }
 
             Text(
                 text = stringResource(R.string.daily_reward_come_back),
                 style = MaterialTheme.typography.labelSmall,
-                color = White.copy(alpha = 0.6f)
+                color = OffWhiteInk.copy(alpha = 0.6f)
             )
         }
     }

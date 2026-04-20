@@ -56,6 +56,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.quiz.pride.R
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 import java.io.ByteArrayOutputStream
 
@@ -119,7 +120,7 @@ fun SaveScoreDialog(
                 Text(
                     text = stringResource(R.string.dialog_ranking_congratulation),
                     style = MaterialTheme.typography.headlineSmall,
-                    color = White
+                    color = OffWhiteInk
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -128,7 +129,7 @@ fun SaveScoreDialog(
                 Text(
                     text = stringResource(R.string.dialog_ranking_timed_description),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = White.copy(alpha = 0.7f),
+                    color = OffWhiteInk.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
 
@@ -181,23 +182,29 @@ fun SaveScoreDialog(
                         }
                     }
 
-                    // Camera icon
+                    // Camera icon — touch target 48dp; visual circle 32dp centered
                     Box(
                         modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(NeonPurple)
+                            .size(48.dp)
                             .clickable(enabled = !isSaving) {
                                 imagePickerLauncher.launch("image/*")
                             },
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_camera_alt),
-                            contentDescription = stringResource(R.string.dialog_change_photo),
-                            modifier = Modifier.size(18.dp),
-                            tint = White
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(NeonPurple),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_camera_alt),
+                                contentDescription = stringResource(R.string.dialog_change_photo),
+                                modifier = Modifier.size(18.dp),
+                                tint = OffWhiteInk
+                            )
+                        }
                     }
                 }
 
@@ -218,10 +225,10 @@ fun SaveScoreDialog(
                         focusedBorderColor = NeonPurple,
                         unfocusedBorderColor = White.copy(alpha = 0.3f),
                         focusedLabelColor = NeonPurple,
-                        unfocusedLabelColor = White.copy(alpha = 0.6f),
+                        unfocusedLabelColor = OffWhiteInk.copy(alpha = 0.6f),
                         cursorColor = NeonPurple,
-                        focusedTextColor = White,
-                        unfocusedTextColor = White
+                        focusedTextColor = OffWhiteInk,
+                        unfocusedTextColor = OffWhiteInk
                     )
                 )
 
@@ -241,7 +248,7 @@ fun SaveScoreDialog(
                         Text(
                             text = stringResource(R.string.dialog_cancel),
                             style = MaterialTheme.typography.labelLarge,
-                            color = White.copy(alpha = 0.7f)
+                            color = OffWhiteInk.copy(alpha = 0.7f)
                         )
                     }
 
@@ -253,9 +260,9 @@ fun SaveScoreDialog(
                         shape = RoundedCornerShape(50),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = NeonPurple,
-                            contentColor = White,
+                            contentColor = OffWhiteInk,
                             disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
-                            disabledContentColor = White.copy(alpha = 0.6f)
+                            disabledContentColor = OffWhiteInk.copy(alpha = 0.6f)
                         )
                     ) {
                         if (isSaving) {

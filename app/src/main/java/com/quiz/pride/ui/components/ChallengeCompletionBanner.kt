@@ -48,16 +48,18 @@ import com.quiz.domain.challenge.ChallengeCompletionResult
 import com.quiz.domain.challenge.ChallengeReward
 import com.quiz.domain.challenge.ChallengeType
 import com.quiz.domain.challenge.DailyChallenge
+import androidx.compose.ui.graphics.luminance
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.NeonGreen
+import com.quiz.pride.ui.theme.NeonGreenDim
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.ui.theme.PrideButtonStyles
-import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.OffWhiteInk
 
 /**
  * Banner inline que se muestra en ResultScreen cuando el jugador completo
@@ -110,6 +112,8 @@ fun ChallengeCompletionBanner(
 
 @Composable
 private fun BannerHeader() {
+    val isDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val greenAccent = if (isDark) NeonGreen else NeonGreenDim
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -117,14 +121,14 @@ private fun BannerHeader() {
         Box(
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
-                .background(NeonGreen.copy(alpha = 0.15f))
-                .border(1.dp, NeonGreen.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                .background(greenAccent.copy(alpha = 0.15f))
+                .border(1.dp, greenAccent.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
                 .padding(horizontal = 8.dp, vertical = 3.dp)
         ) {
             Text(
                 text = stringResource(R.string.challenges_completed),
                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                color = NeonGreen
+                color = greenAccent
             )
         }
     }
@@ -185,7 +189,7 @@ private fun CompletedChallengeItem(challenge: DailyChallenge) {
         Text(
             text = challenge.resolveDescription(),
             style = MaterialTheme.typography.bodySmall,
-            color = White.copy(alpha = 0.9f),
+            color = OffWhiteInk.copy(alpha = 0.9f),
             modifier = Modifier.weight(1f),
             maxLines = 1
         )

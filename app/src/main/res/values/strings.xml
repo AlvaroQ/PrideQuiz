@@ -441,4 +441,6 @@
     <!-- Accessibility content descriptions -->
     <string name="cd_back">Back</string>
     <string name="cd_completed">Completed</string>
+    <string name="cd_profile_avatar">Profile photo. Tap to change</string>
+    <string name="cd_profile_avatar_placeholder">Default profile icon. Tap to add a photo</string>
 </resources>

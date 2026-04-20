@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -113,6 +114,8 @@ import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.RankGold
 import com.quiz.pride.ui.theme.ResponseCorrect
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -365,7 +368,7 @@ private fun LevelCard(levelInfo: LevelInfo, isDarkTheme: Boolean) {
                 Text(
                     text = levelInfo.level.toString(),
                     style = MaterialTheme.typography.displaySmall,
-                    color = Color.Black
+                    color = OffBlackInk
                 )
             }
 
@@ -505,7 +508,7 @@ private fun GlobalRankCard(
                     painter = painterResource(R.drawable.ic_leaderboard),
                     contentDescription = null,
                     modifier = Modifier.size(32.dp),
-                    tint = White
+                    tint = OffWhiteInk
                 )
             }
 
@@ -1128,7 +1131,6 @@ private fun UserProfileCard(
 
     // Theme-aware colors
     val cardBackground = if (isDarkTheme) DarkSurfaceVariant else Color.White
-    val titleColor = MaterialTheme.colorScheme.onSurface
     val nicknameColor = MaterialTheme.colorScheme.onSurface
     val placeholderColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
     val borderColor = MaterialTheme.colorScheme.outlineVariant
@@ -1168,25 +1170,16 @@ private fun UserProfileCard(
                 .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = stringResource(R.string.my_profile),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    shadow = if (isDarkTheme) Shadow(
-                        color = NeonPurple.copy(alpha = 0.5f),
-                        offset = Offset(0f, 0f),
-                        blurRadius = 6f
-                    ) else null
-                ),
-                color = titleColor,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Avatar with edit button
             Box(
                 contentAlignment = Alignment.BottomEnd
             ) {
+                val hasImage = currentImageBase64.isNotEmpty()
+                val avatarContentDescription = stringResource(
+                    if (hasImage) R.string.cd_profile_avatar
+                    else R.string.cd_profile_avatar_placeholder
+                )
+
                 // Avatar
                 Box(
                     modifier = Modifier
@@ -1202,10 +1195,12 @@ private fun UserProfileCard(
                             brush = Brush.linearGradient(listOf(NeonPurple, NeonPink)),
                             shape = CircleShape
                         )
-                        .clickable { imagePickerLauncher.launch("image/*") },
+                        .clickable(
+                            onClickLabel = avatarContentDescription
+                        ) { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    if (currentImageBase64.isNotEmpty()) {
+                    if (hasImage) {
                         val bitmap = try {
                             val imageBytes = Base64.decode(currentImageBase64, Base64.DEFAULT)
                             BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
@@ -1216,35 +1211,41 @@ private fun UserProfileCard(
                         if (bitmap != null) {
                             Image(
                                 bitmap = bitmap.asImageBitmap(),
-                                contentDescription = null,
+                                contentDescription = avatarContentDescription,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(CircleShape),
                                 contentScale = ContentScale.Crop
                             )
                         } else {
-                            DefaultProfileIcon()
+                            DefaultProfileIcon(contentDescription = avatarContentDescription)
                         }
                     } else {
-                        DefaultProfileIcon()
+                        DefaultProfileIcon(contentDescription = avatarContentDescription)
                     }
                 }
 
-                // Camera button
+                // Camera button — touch target 48dp; visual circle 32dp centered
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(NeonPurple)
+                        .size(48.dp)
                         .clickable { imagePickerLauncher.launch("image/*") },
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_camera_alt),
-                        contentDescription = stringResource(R.string.change_photo),
-                        tint = White,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(NeonPurple),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_camera_alt),
+                            contentDescription = stringResource(R.string.change_photo),
+                            tint = OffWhiteInk,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
 
@@ -1311,14 +1312,16 @@ private fun UserProfileCard(
                         text = userProfile.nickname.ifEmpty { stringResource(R.string.tap_to_set_nickname) },
                         style = MaterialTheme.typography.titleLarge,
                         color = if (userProfile.nickname.isEmpty()) placeholderColor else nicknameColor,
-                        modifier = Modifier.clickable { isEditingNickname = true }
+                        modifier = Modifier
+                            .clickable { isEditingNickname = true }
+                            .sizeIn(minHeight = 48.dp)
+                            .padding(vertical = 12.dp)
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
 
                     IconButton(
-                        onClick = { isEditingNickname = true },
-                        modifier = Modifier.size(24.dp)
+                        onClick = { isEditingNickname = true }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
@@ -1334,10 +1337,10 @@ private fun UserProfileCard(
 }
 
 @Composable
-private fun DefaultProfileIcon() {
+private fun DefaultProfileIcon(contentDescription: String? = null) {
     Icon(
         imageVector = Icons.Default.Person,
-        contentDescription = null,
+        contentDescription = contentDescription,
         modifier = Modifier.size(50.dp),
         tint = White.copy(alpha = 0.6f)
     )

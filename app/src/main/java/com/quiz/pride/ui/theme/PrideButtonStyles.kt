@@ -50,16 +50,16 @@ object PrideButtonStyles {
     /** Botón principal "Jugar" — rosa. */
     val Start = ButtonThemeVariant(
         light = ButtonGradient(
-            top = Pink300,
-            bottom = Pink300,
-            glow = Pink200,
-            contentColor = Color.Black
+            top = Pink400,
+            bottom = Pink500,
+            glow = GlowPink,
+            contentColor = OffWhiteInk
         ),
         dark = ButtonGradient(
             top = Pink500,
             bottom = Pink800,
             glow = GlowPink,
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -69,13 +69,13 @@ object PrideButtonStyles {
             top = Color(0xFFA7E2FF),
             bottom = Color(0xFF38BDF8),
             glow = GlowBlue,
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Color(0xFF005CB0),
             bottom = Color(0xFF003C80),
             glow = GlowBlue,
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -85,13 +85,13 @@ object PrideButtonStyles {
             top = Color(0xFFA4E5BB),
             bottom = Color(0xFF4ADE80),
             glow = NeonGreen.copy(alpha = 0.3f),
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Color(0xFF256C44),
             bottom = Color(0xFF00521A),
             glow = NeonGreen.copy(alpha = 0.5f),
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -101,13 +101,13 @@ object PrideButtonStyles {
             top = Color(0xFFA4E5BB),
             bottom = Color(0xFF4ADE80),
             glow = NeonGreen.copy(alpha = 0.3f),
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Color(0xFF256C44),
             bottom = Color(0xFF00521A),
             glow = NeonGreen.copy(alpha = 0.5f),
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -117,13 +117,13 @@ object PrideButtonStyles {
             top = Pink300,
             bottom = Pink400,
             glow = NeonOrange.copy(alpha = 0.3f),
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Pink500,
             bottom = Pink800,
             glow = GlowPink,
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -133,13 +133,13 @@ object PrideButtonStyles {
             top = Color(0xFFA7E2FF),
             bottom = Color(0xFF38BDF8),
             glow = GlowBlue,
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Color(0xFF005CB0),
             bottom = Color(0xFF003C80),
             glow = GlowBlue,
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 
@@ -149,13 +149,13 @@ object PrideButtonStyles {
             top = Color(0xFFFFE4A0),
             bottom = Color(0xFFFBBF24),
             glow = NeonOrange.copy(alpha = 0.3f),
-            contentColor = Color.Black
+            contentColor = OffBlackInk
         ),
         dark = ButtonGradient(
             top = Color(0xFF8A5A00),
             bottom = Color(0xFF5C3A00),
             glow = NeonOrange.copy(alpha = 0.5f),
-            contentColor = White
+            contentColor = OffWhiteInk
         )
     )
 }

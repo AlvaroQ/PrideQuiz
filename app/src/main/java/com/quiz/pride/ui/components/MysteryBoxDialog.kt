@@ -46,7 +46,7 @@ import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
-import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.OffWhiteInk
 import kotlinx.coroutines.delay
 
 /**
@@ -103,7 +103,7 @@ fun MysteryBoxDialog(
                 Text(
                     text = stringResource(R.string.mystery_box_subtitle),
                     style = MaterialTheme.typography.labelMedium,
-                    color = White.copy(alpha = 0.7f),
+                    color = OffWhiteInk.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center
                 )
 
@@ -187,7 +187,7 @@ fun MysteryBoxDialog(
                         Text(
                             text = stringResource(R.string.mystery_box_claim),
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                            color = White,
+                            color = OffWhiteInk,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -198,7 +198,7 @@ fun MysteryBoxDialog(
                     Text(
                         text = stringResource(R.string.mystery_box_opening),
                         style = MaterialTheme.typography.labelSmall,
-                        color = White.copy(alpha = 0.6f),
+                        color = OffWhiteInk.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center
                     )
                 }

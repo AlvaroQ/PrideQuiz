@@ -107,6 +107,10 @@ val NeonPink = Color(0xFFFF6B9D)
 val NeonPurple = Color(0xFFB24BF3)
 val NeonBlue = Color(0xFF4FC3F7)
 val NeonGreen = Color(0xFF69F0AE)
+// Variantes "dim" para tema claro — mantienen la identidad pero ganan contraste sobre surfaces
+// blancos/pastel. Usar en light theme cuando su contraparte neon sea demasiado luminosa.
+val NeonPinkDim = Color(0xFFDB2777)   // Pink500 — rosa saturado legible sobre blanco
+val NeonGreenDim = Color(0xFF16A34A)  // Verde esmeralda oscuro legible sobre blanco
 // Antes amarillo (#FFFF00) — ahora rosa caliente para flama/racha dentro de la paleta rosa.
 // Se conserva el nombre por compatibilidad con llamantes existentes (streak, flame, accent).
 val NeonYellow = Color(0xFFFF4D94)
@@ -168,8 +172,16 @@ val Black = Color(0xFF000000)
 val LightGray = Color(0xFFF3F4F6)
 val DarkGray = Color(0xFF6B7280)
 
+// Ink tokens — tinta suavizada con tinte rosa para evitar el negro/blanco puro.
+// Usar en contentColor de botones, texto principal sobre gradientes y overlays de icono.
+val OffBlackInk = Pink900    // #500724 — casi negro con tinte rosa (reemplaza Color.Black en texto)
+val OffWhiteInk = Pink50     // #FFF1F5 — casi blanco con tinte rosa (reemplaza Color.White/White en texto)
+
 // Text Colors
-val TextOnDark = PurpleTextOnDark
+// TextOnDark homogeneizado a tinte rosa (antes PurpleTextOnDark) para alinear con la
+// identidad principal rosa. onSurfaceVariant sigue tintado violeta (Purple200) para
+// crear jerarquia de textos secundarios.
+val TextOnDark = PinkTextOnDark
 val TextOnLight = PinkTextOnLight
 val TextMuted = Color(0xFF9CA3AF)
 

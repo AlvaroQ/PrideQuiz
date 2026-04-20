@@ -76,6 +76,8 @@ import com.quiz.pride.ui.components.TrackScreenTime
 import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.PrideQuizTheme
 import org.koin.compose.koinInject
@@ -285,10 +287,9 @@ fun SelectScreen(
 
             // Boton Perfil (derecha) — tint derivado del tema activo (no del sistema)
             val isDarkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
-            val profileIconTint = if (isDarkTheme) Color.White else Color(0xFF2E2E2E)
+            val profileIconTint = if (isDarkTheme) OffWhiteInk else OffBlackInk
             IconButton(
-                onClick = onNavigateToProfile,
-                modifier = Modifier.size(44.dp)
+                onClick = onNavigateToProfile
             ) {
                 Icon(
                     imageVector = Icons.Default.Person,

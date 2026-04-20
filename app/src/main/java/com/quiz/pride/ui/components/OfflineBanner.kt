@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
 import com.quiz.pride.R
 import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
-import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.OffWhiteInk
 import kotlinx.coroutines.delay
 
 /**
@@ -98,7 +98,7 @@ private fun OfflineContent() {
         Icon(
             painter = painterResource(id = R.drawable.ic_cloud_off),
             contentDescription = null,
-            tint = White,
+            tint = OffWhiteInk,
             modifier = Modifier
                 .size(20.dp)
                 .scale(pulse)
@@ -107,7 +107,7 @@ private fun OfflineContent() {
         Text(
             text = stringResource(R.string.offline_mode),
             style = MaterialTheme.typography.labelLarge,
-            color = White
+            color = OffWhiteInk
         )
     }
 }
@@ -125,14 +125,14 @@ private fun ConnectionRestoredContent() {
         Icon(
             painter = painterResource(id = R.drawable.ic_cloud_done),
             contentDescription = null,
-            tint = White,
+            tint = OffWhiteInk,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.connection_restored),
             style = MaterialTheme.typography.labelLarge,
-            color = White
+            color = OffWhiteInk
         )
     }
 }

@@ -186,9 +186,9 @@
     <!-- Profile screen -->
     <string name="profile_title">Perfil</string>
     <string name="my_profile">Mi perfil</string>
-    <string name="enter_nickname">Introduce un apodo</string>
-    <string name="tap_to_set_nickname">Toca para introducir apodo</string>
-    <string name="edit_nickname">Editar apodo</string>
+    <string name="enter_nickname">Introduce un nickname</string>
+    <string name="tap_to_set_nickname">Toca para introducir nickname</string>
+    <string name="edit_nickname">Editar nickname</string>
     <string name="change_photo">Cambiar foto</string>
     <string name="save">Guardar</string>
     <string name="total_xp">Total: %d XP</string>
@@ -434,4 +434,6 @@
     <!-- Accessibility content descriptions -->
     <string name="cd_back">Atrás</string>
     <string name="cd_completed">Completado</string>
+    <string name="cd_profile_avatar">Foto de perfil. Pulsa para cambiarla</string>
+    <string name="cd_profile_avatar_placeholder">Icono de perfil predeterminado. Pulsa para añadir una foto</string>
 </resources>

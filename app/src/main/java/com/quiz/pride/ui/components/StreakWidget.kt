@@ -57,6 +57,7 @@ import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -122,7 +123,7 @@ private fun StreakDismissBackground(direction: SwipeToDismissBoxValue) {
         Text(
             text = "\uD83D\uDC41\u200D\uD83D\uDDE8 " + stringResource(R.string.daily_reward_hide_until_tomorrow),
             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-            color = White.copy(alpha = 0.85f)
+            color = OffWhiteInk.copy(alpha = 0.85f)
         )
     }
 }
@@ -238,7 +239,7 @@ private fun StreakWidgetContent(
                         Text(
                             text = "\uD83D\uDD25",
                             fontSize = 26.sp,
-                            color = if (streakState.currentStreak > 0) NeonOrange else White.copy(alpha = 0.7f)
+                            color = if (streakState.currentStreak > 0) NeonOrange else OffWhiteInk.copy(alpha = 0.7f)
                         )
                     }
 
@@ -255,12 +256,12 @@ private fun StreakWidgetContent(
                                     blurRadius = 8f
                                 )
                             ),
-                            color = if (streakState.currentStreak > 0) NeonOrange else White.copy(alpha = 0.85f)
+                            color = if (streakState.currentStreak > 0) NeonOrange else OffWhiteInk.copy(alpha = 0.85f)
                         )
                         Text(
                             text = stringResource(R.string.streak_current),
                             style = MaterialTheme.typography.labelSmall,
-                            color = White.copy(alpha = 0.85f)
+                            color = OffWhiteInk.copy(alpha = 0.85f)
                         )
                     }
                 }
@@ -319,7 +320,7 @@ private fun StreakWidgetContent(
                                 Text(
                                     text = "+${streakState.freezeTokens - 3}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = White.copy(alpha = 0.85f)
+                                    color = OffWhiteInk.copy(alpha = 0.85f)
                                 )
                             }
                         }

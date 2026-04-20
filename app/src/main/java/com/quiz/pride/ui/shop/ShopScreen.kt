@@ -74,6 +74,8 @@ import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import org.koin.androidx.compose.koinViewModel
@@ -181,7 +183,7 @@ private fun ShopTopBar(
                         blurRadius = 8f
                     )
                 ),
-                color = White
+                color = OffWhiteInk
             )
         },
         navigationIcon = {
@@ -329,7 +331,7 @@ private fun ShopItemCard(
                                 blurRadius = 6f
                             )
                         ),
-                        color = White,
+                        color = OffWhiteInk,
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -492,7 +494,7 @@ private fun EquippedBadge() {
         Text(
             text = stringResource(R.string.shop_equipped),
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-            color = White
+            color = OffWhiteInk
         )
     }
 }
@@ -508,7 +510,7 @@ private fun OwnedBadge(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.shop_owned),
             style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-            color = Color.Black
+            color = OffBlackInk
         )
     }
 }
@@ -537,7 +539,7 @@ private fun PurchaseConfirmDialog(
             Text(
                 text = stringResource(R.string.shop_buy_item, shopItem.unlockable.name),
                 style = MaterialTheme.typography.titleMedium,
-                color = White
+                color = OffWhiteInk
             )
         },
         text = {
@@ -545,7 +547,7 @@ private fun PurchaseConfirmDialog(
                 Text(
                     text = shopItem.unlockable.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = White.copy(alpha = 0.8f)
+                    color = OffWhiteInk.copy(alpha = 0.8f)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(

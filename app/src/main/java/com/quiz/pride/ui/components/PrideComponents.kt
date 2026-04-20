@@ -85,6 +85,7 @@ import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.PrideQuizTheme
 import com.quiz.pride.ui.theme.PrideRed
 import com.quiz.pride.ui.theme.RainbowColors
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.Shimmer
 import com.quiz.pride.ui.theme.White
 
@@ -306,7 +307,7 @@ fun GameTopBar(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.cd_back),
-                tint = White
+                tint = OffWhiteInk
             )
         }
 
@@ -374,7 +375,7 @@ fun LifeIndicator(
                     Icons.Default.FavoriteBorder
                 },
                 contentDescription = null,
-                tint = if (isAlive) PrideRed else White.copy(alpha = 0.4f),
+                tint = if (isAlive) PrideRed else OffWhiteInk.copy(alpha = 0.4f),
                 modifier = Modifier
                     .size(28.dp)
                     .scale(scale)
@@ -445,7 +446,7 @@ fun PrideButton(
     style: ButtonGradient? = null,
     gradientColors: List<Color> = style?.colors ?: listOf(NeonPink, GradientBackgroundStart),
     glowColor: Color = style?.glow ?: GlowPurple,
-    contentColor: Color = style?.contentColor ?: White,
+    contentColor: Color = style?.contentColor ?: OffWhiteInk,
     enabled: Boolean = true
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -599,9 +600,11 @@ fun GlassCard(
 fun AnimatedScreenBackground(
     orbColor1: Color = NeonPink,
     orbColor2: Color = NeonPurple,
+    forceLightPalette: Boolean = false,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val darkTheme = MaterialTheme.colorScheme.background.luminance() < 0.5f
+    val darkTheme = !forceLightPalette &&
+        MaterialTheme.colorScheme.background.luminance() < 0.5f
     val colorStops = if (darkTheme) {
         arrayOf(
             0.0f to GradientBackgroundStart,
@@ -861,7 +864,7 @@ private fun GradientCardPreview() {
                     Text(
                         text = stringResource(R.string.start),
                         style = MaterialTheme.typography.titleLarge,
-                        color = White
+                        color = OffWhiteInk
                     )
                 }
             }
@@ -884,7 +887,7 @@ private fun AnimatedScreenBackgroundPreview() {
                 Text(
                     text = "Pride Quiz",
                     style = MaterialTheme.typography.headlineLarge,
-                    color = White
+                    color = OffWhiteInk
                 )
             }
         }

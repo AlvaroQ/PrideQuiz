@@ -39,6 +39,7 @@ import com.quiz.pride.ui.theme.PrideOrange
 import com.quiz.pride.ui.theme.PridePurple
 import com.quiz.pride.ui.theme.PrideRed
 import com.quiz.pride.ui.theme.PrideYellow
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 
 /**
@@ -133,7 +134,7 @@ fun PrideMonthBanner(
                             blurRadius = 8f
                         )
                     ),
-                    color = White
+                    color = OffWhiteInk
                 )
                 Text(
                     text = stringResource(
@@ -141,7 +142,7 @@ fun PrideMonthBanner(
                         String.format("%.1f", xpMultiplier)
                     ),
                     style = MaterialTheme.typography.labelMedium,
-                    color = White.copy(alpha = 0.92f)
+                    color = OffWhiteInk.copy(alpha = 0.92f)
                 )
             }
 
@@ -156,7 +157,7 @@ fun PrideMonthBanner(
                             blurRadius = 10f
                         )
                     ),
-                    color = White
+                    color = OffWhiteInk
                 )
                 if (daysRemaining > 0) {
                     Text(
@@ -166,7 +167,7 @@ fun PrideMonthBanner(
                             daysRemaining
                         ),
                         style = MaterialTheme.typography.labelSmall,
-                        color = White.copy(alpha = 0.8f)
+                        color = OffWhiteInk.copy(alpha = 0.8f)
                     )
                 }
             }

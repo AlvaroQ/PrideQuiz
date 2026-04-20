@@ -19,7 +19,6 @@ import com.quiz.domain.cosmetics.CurrencyBalance
 import com.quiz.pride.ui.theme.GradientPointsBottom
 import com.quiz.pride.ui.theme.GradientPointsTop
 import com.quiz.pride.ui.theme.NeonBlue
-import com.quiz.pride.ui.theme.White
 
 /**
  * Componente reutilizable que muestra el balance de monedas y gemas del jugador.

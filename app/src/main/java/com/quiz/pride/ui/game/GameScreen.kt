@@ -116,8 +116,10 @@ import com.quiz.pride.ui.theme.GradientPositionTop
 import com.quiz.pride.ui.theme.IridescentColors
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.theme.NeonGreen
+import com.quiz.pride.ui.theme.NeonGreenDim
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
+import com.quiz.pride.ui.theme.NeonPinkDim
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
 import com.quiz.pride.ui.theme.PrideRed
@@ -127,6 +129,8 @@ import com.quiz.pride.ui.theme.ResponseFail
 import com.quiz.pride.ui.theme.SpectrumSurface
 import com.quiz.pride.ui.theme.SpectrumSurfaceElevated
 import com.quiz.pride.ui.theme.SpectrumSurfaceLightElevated
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 import com.quiz.pride.managers.AnalyticsManager
 import com.quiz.pride.ui.components.TrackScreenTime
@@ -1269,7 +1273,7 @@ private fun VibrantAnswerButton(
                 ) {
                     Text(
                         text = if (isCorrect) "✓" else "✗",
-                        color = White,
+                        color = OffWhiteInk,
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -1284,6 +1288,14 @@ private fun ExitConfirmationDialog(
     onLeave: () -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val isDarkTheme = colorScheme.background.luminance() < 0.5f
+    // Botones con tono neon en dark y variante dim (mas saturada/oscura) en light,
+    // para mantener identidad pride pero ganar contraste sobre surfaces claros.
+    val leaveColor = if (isDarkTheme) NeonPink else NeonPinkDim
+    val stayColor = if (isDarkTheme) NeonGreen else NeonGreenDim
+    val titleShadowColor = if (isDarkTheme) NeonPink.copy(alpha = 0.5f)
+                           else NeonPinkDim.copy(alpha = 0.25f)
+
     AlertDialog(
         onDismissRequest = onStay,
         containerColor = colorScheme.surface,
@@ -1294,7 +1306,7 @@ private fun ExitConfirmationDialog(
                 text = stringResource(R.string.exit_game_title),
                 style = MaterialTheme.typography.titleLarge.copy(
                     shadow = Shadow(
-                        color = NeonPink.copy(alpha = 0.5f),
+                        color = titleShadowColor,
                         offset = Offset(0f, 0f),
                         blurRadius = 8f
                     )
@@ -1312,7 +1324,7 @@ private fun ExitConfirmationDialog(
                 Text(
                     text = stringResource(R.string.exit_game_stay),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NeonGreen
+                    color = stayColor
                 )
             }
         },
@@ -1321,7 +1333,7 @@ private fun ExitConfirmationDialog(
                 Text(
                     text = stringResource(R.string.exit_game_leave),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NeonPink
+                    color = leaveColor
                 )
             }
         }
@@ -1668,7 +1680,7 @@ fun GameErrorState(
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyLarge,
-                color = White,
+                color = OffWhiteInk,
                 textAlign = TextAlign.Center
             )
             Button(onClick = onRetry) {

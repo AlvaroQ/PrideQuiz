@@ -54,6 +54,7 @@ import com.quiz.pride.ui.theme.NeonGreen
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 
@@ -311,7 +312,7 @@ private fun StreakSavedContent(
     Text(
         text = stringResource(R.string.streak_freeze_used),
         style = MaterialTheme.typography.bodySmall,
-        color = White.copy(alpha = 0.7f),
+        color = OffWhiteInk.copy(alpha = 0.7f),
         textAlign = TextAlign.Center
     )
 
@@ -380,7 +381,7 @@ private fun StreakBrokenContent(
     Text(
         text = stringResource(R.string.streak_previous_days, result.previousStreak),
         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-        color = White.copy(alpha = 0.8f),
+        color = OffWhiteInk.copy(alpha = 0.8f),
         textAlign = TextAlign.Center
     )
 
@@ -410,7 +411,7 @@ private fun StreakBrokenContent(
     Text(
         text = stringResource(R.string.streak_play_daily_tip),
         style = MaterialTheme.typography.bodySmall,
-        color = White.copy(alpha = 0.6f),
+        color = OffWhiteInk.copy(alpha = 0.6f),
         textAlign = TextAlign.Center
     )
 }
@@ -462,7 +463,7 @@ private fun NewStreakContent(glowScale: Float) {
     Text(
         text = stringResource(R.string.streak_play_each_day_tip),
         style = MaterialTheme.typography.bodySmall,
-        color = White.copy(alpha = 0.7f),
+        color = OffWhiteInk.copy(alpha = 0.7f),
         textAlign = TextAlign.Center
     )
 
@@ -561,7 +562,7 @@ private fun CycleProgressDotsCompact(
         Text(
             text = stringResource(R.string.streak_cycle_label),
             style = MaterialTheme.typography.labelSmall,
-            color = White.copy(alpha = 0.6f)
+            color = OffWhiteInk.copy(alpha = 0.6f)
         )
         for (day in 1..7) {
             val isFilled = if (completed) day <= cycleDay else day < cycleDay

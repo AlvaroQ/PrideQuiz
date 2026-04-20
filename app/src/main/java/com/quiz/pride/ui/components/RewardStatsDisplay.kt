@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.quiz.domain.reward.DailyReward
 import com.quiz.pride.ui.theme.DarkSurfaceVariant
-import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.OffWhiteInk
 
 /**
  * Componente independiente que muestra XP, coins y gems de una recompensa.
@@ -92,7 +92,7 @@ private fun RewardStatItem(
             style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.Bold
             ),
-            color = White,
+            color = OffWhiteInk,
             fontSize = 13.sp
         )
     }

@@ -63,6 +63,8 @@ import com.quiz.pride.ui.components.PrideButton
 import com.quiz.pride.ui.theme.ButtonGradient
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.Pink900
 import com.quiz.pride.ui.theme.PrideButtonStyles
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
@@ -81,30 +83,32 @@ fun OnboardingScreen(
     onFinish: () -> Unit,
     analyticsManager: AnalyticsManager = koinInject()
 ) {
+    // Onboarding siempre usa fondo pastel y botones vibrantes con texto blanco,
+    // independientemente del tema del sistema (el usuario aun no lo ha elegido).
     val pages = listOf(
         OnboardingPage(
             title = stringResource(R.string.onboarding_welcome_title),
             description = stringResource(R.string.onboarding_welcome_desc),
             icon = rememberVectorPainter(Icons.Default.Favorite),
-            style = PrideButtonStyles.Start.current()
+            style = PrideButtonStyles.Start.dark
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_learn_title),
             description = stringResource(R.string.onboarding_learn_desc),
             icon = painterResource(id = R.drawable.ic_school),
-            style = PrideButtonStyles.Learn.current()
+            style = PrideButtonStyles.Learn.dark
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_play_title),
             description = stringResource(R.string.onboarding_play_desc),
             icon = rememberVectorPainter(Icons.Default.PlayArrow),
-            style = PrideButtonStyles.Normal.current()
+            style = PrideButtonStyles.Normal.dark
         ),
         OnboardingPage(
             title = stringResource(R.string.onboarding_modes_title),
             description = stringResource(R.string.onboarding_modes_desc),
             icon = rememberVectorPainter(Icons.Default.Star),
-            style = PrideButtonStyles.Advance.current()
+            style = PrideButtonStyles.Advance.dark
         )
     )
 
@@ -124,7 +128,8 @@ fun OnboardingScreen(
 
     AnimatedScreenBackground(
         orbColor1 = NeonPink,
-        orbColor2 = NeonPurple
+        orbColor2 = NeonPurple,
+        forceLightPalette = true
     ) {
         Column(
             modifier = Modifier
@@ -144,7 +149,7 @@ fun OnboardingScreen(
                     Text(
                         text = stringResource(R.string.onboarding_skip),
                         style = MaterialTheme.typography.labelLarge,
-                        color = White.copy(alpha = 0.7f)
+                        color = OffBlackInk.copy(alpha = 0.85f)
                     )
                 }
             }
@@ -186,8 +191,8 @@ fun OnboardingScreen(
                                 } else {
                                     Brush.horizontalGradient(
                                         listOf(
-                                            White.copy(alpha = 0.3f),
-                                            White.copy(alpha = 0.3f)
+                                            Pink900.copy(alpha = 0.25f),
+                                            Pink900.copy(alpha = 0.25f)
                                         )
                                     )
                                 }
@@ -224,21 +229,8 @@ fun OnboardingScreen(
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
-                        onClick = {
-                            analyticsManager.analyticsOnboardingStep(pagerState.currentPage, "skipped")
-                            onFinish()
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(R.string.onboarding_skip),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = White.copy(alpha = 0.7f)
-                        )
-                    }
-
                     PrideButton(
                         text = stringResource(R.string.onboarding_next),
                         onClick = {
@@ -313,12 +305,12 @@ private fun OnboardingPageContent(
             text = page.title,
             style = MaterialTheme.typography.headlineMedium.copy(
                 shadow = Shadow(
-                    color = Color.Black.copy(alpha = 0.3f),
-                    offset = Offset(2f, 2f),
-                    blurRadius = 4f
+                    color = White.copy(alpha = 0.6f),
+                    offset = Offset(0f, 1f),
+                    blurRadius = 3f
                 )
             ),
-            color = White,
+            color = OffBlackInk,
             textAlign = TextAlign.Center
         )
 
@@ -328,7 +320,7 @@ private fun OnboardingPageContent(
         Text(
             text = page.description,
             style = MaterialTheme.typography.bodyLarge,
-            color = White.copy(alpha = 0.85f),
+            color = OffBlackInk.copy(alpha = 0.78f),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 24.dp)
         )

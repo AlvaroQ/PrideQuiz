@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.sp
 import com.quiz.pride.R
 import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonYellow
-import com.quiz.pride.ui.theme.White
+import com.quiz.pride.ui.theme.OffWhiteInk
 
 /**
  * Banner de advertencia que se muestra en la parte superior de SelectScreen
@@ -132,7 +132,7 @@ fun StreakAtRiskBanner(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.labelSmall,
-                    color = White.copy(alpha = 0.8f)
+                    color = OffWhiteInk.copy(alpha = 0.8f)
                 )
             }
         }

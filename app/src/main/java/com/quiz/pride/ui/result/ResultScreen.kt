@@ -83,8 +83,9 @@ import com.quiz.pride.ui.theme.NeonOrange
 import com.quiz.pride.ui.theme.NeonPink
 import com.quiz.pride.ui.theme.NeonPurple
 import com.quiz.pride.ui.theme.NeonYellow
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.PrideButtonStyles
-import com.quiz.pride.ui.theme.White
 import com.quiz.pride.ui.theme.NeonBlue
 import com.quiz.pride.ui.components.ChallengeCompletionBanner
 import com.quiz.pride.ui.components.ConfettiOverlay
@@ -141,7 +142,6 @@ fun ResultScreen(
     // hasDoubledPoints: se determina comparando displayedPoints con el valor original
     val hasDoubledPoints = displayedPoints > points
     var isShowingAd by remember { mutableStateOf(false) }
-    var showXpGain by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Check if new record
@@ -230,8 +230,6 @@ fun ResultScreen(
         }
         delay(400)
         showButtons = true
-        delay(300)
-        showXpGain = true
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -281,8 +279,7 @@ fun ResultScreen(
                         newLevel = if (xpResult?.leveledUp == true) xpResult.newLevel else null,
                         streakXpBonus = uiState.streakXpBonus,
                         coinsEarned = uiState.coinsEarned,
-                        gemsEarned = uiState.gemsEarned,
-                        showRewards = showXpGain
+                        gemsEarned = uiState.gemsEarned
                     )
                 }
 
@@ -501,14 +498,14 @@ private fun NewRecordBadge() {
         Icon(
             painter = painterResource(R.drawable.ic_emoji_events),
             contentDescription = null,
-            tint = Color.Black,
+            tint = OffBlackInk,
             modifier = Modifier.size(24.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(R.string.result_new_record),
             style = MaterialTheme.typography.labelLarge,
-            color = Color.Black
+            color = OffBlackInk
         )
     }
 }
@@ -624,15 +621,12 @@ private fun ScoreDisplay(
     newLevel: Int? = null,
     streakXpBonus: Int = 0,
     coinsEarned: Int = 0,
-    gemsEarned: Int = 0,
-    showRewards: Boolean = false
+    gemsEarned: Int = 0
 ) {
-    val hasRewards = showRewards && (
-        xpGained != null ||
-            streakXpBonus > 0 ||
-            coinsEarned > 0 ||
-            gemsEarned > 0
-        )
+    val hasRewards = xpGained != null ||
+        streakXpBonus > 0 ||
+        coinsEarned > 0 ||
+        gemsEarned > 0
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -676,7 +670,7 @@ private fun ScoreDisplay(
                             blurRadius = 6f
                         )
                     ),
-                    color = White.copy(alpha = 0.9f)
+                    color = OffWhiteInk.copy(alpha = 0.9f)
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -702,74 +696,68 @@ private fun ScoreDisplay(
                     )
                 }
 
-                // Recompensas inline: XP, bonus de racha, monedas y gemas
-                AnimatedVisibility(
-                    visible = hasRewards,
-                    enter = scaleIn() + fadeIn()
-                ) {
-                    Column(
+                // Recompensas inline: XP, bonus de racha, monedas y gemas.
+                // Se renderizan junto al score (sin delay/animación propia) para
+                // evitar el "salto" al expandirse el card.
+                if (hasRewards) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        thickness = 1.dp,
+                        color = NeonPink.copy(alpha = 0.2f)
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = NeonPink.copy(alpha = 0.2f)
-                        )
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        FlowRow(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            if (xpGained != null) {
-                                RewardChip(
-                                    emoji = "\u2728",
-                                    label = stringResource(R.string.xp_gained, xpGained.toInt()),
-                                    accent = GradientPointsBottom
-                                )
-                            }
-                            if (streakXpBonus > 0) {
-                                RewardChip(
-                                    emoji = "\uD83D\uDD25",
-                                    label = stringResource(R.string.result_streak_xp_bonus, streakXpBonus),
-                                    accent = NeonOrange
-                                )
-                            }
-                            if (coinsEarned > 0) {
-                                RewardChip(
-                                    emoji = "\uD83E\uDE99",
-                                    label = "+$coinsEarned",
-                                    accent = NeonYellow
-                                )
-                            }
-                            if (gemsEarned > 0) {
-                                RewardChip(
-                                    emoji = "\uD83D\uDC8E",
-                                    label = "+$gemsEarned",
-                                    accent = NeonBlue
-                                )
-                            }
-                        }
-
-                        if (newLevel != null) {
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(
-                                text = stringResource(R.string.result_inline_level_up, newLevel),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    shadow = Shadow(
-                                        color = NeonGreen.copy(alpha = 0.5f),
-                                        offset = Offset(0f, 0f),
-                                        blurRadius = 8f
-                                    )
-                                ),
-                                color = NeonGreen,
-                                textAlign = TextAlign.Center
+                        if (xpGained != null) {
+                            RewardChip(
+                                emoji = "\u2728",
+                                label = stringResource(R.string.xp_gained, xpGained.toInt()),
+                                accent = GradientPointsBottom
                             )
                         }
+                        if (streakXpBonus > 0) {
+                            RewardChip(
+                                emoji = "\uD83D\uDD25",
+                                label = stringResource(R.string.result_streak_xp_bonus, streakXpBonus),
+                                accent = NeonOrange
+                            )
+                        }
+                        if (coinsEarned > 0) {
+                            RewardChip(
+                                emoji = "\uD83E\uDE99",
+                                label = "+$coinsEarned",
+                                accent = NeonYellow
+                            )
+                        }
+                        if (gemsEarned > 0) {
+                            RewardChip(
+                                emoji = "\uD83D\uDC8E",
+                                label = "+$gemsEarned",
+                                accent = NeonBlue
+                            )
+                        }
+                    }
+
+                    if (newLevel != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = stringResource(R.string.result_inline_level_up, newLevel),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                shadow = Shadow(
+                                    color = NeonGreen.copy(alpha = 0.5f),
+                                    offset = Offset(0f, 0f),
+                                    blurRadius = 8f
+                                )
+                            ),
+                            color = NeonGreen,
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -965,14 +953,14 @@ private fun StatCard(
                             blurRadius = 8f
                         )
                     ),
-                    color = White,
+                    color = OffWhiteInk,
                     textAlign = TextAlign.Center
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = label,
                     style = MaterialTheme.typography.labelSmall,
-                    color = White.copy(alpha = 0.7f),
+                    color = OffWhiteInk.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center,
                     maxLines = 2
                 )
@@ -1121,7 +1109,7 @@ private fun DoublePointsButton(
                             blurRadius = 8f
                         )
                     ),
-                    color = White
+                    color = OffWhiteInk
                 )
                 Text(
                     text = stringResource(
@@ -1129,7 +1117,7 @@ private fun DoublePointsButton(
                         else R.string.double_points_subtitle
                     ),
                     style = MaterialTheme.typography.bodySmall,
-                    color = White.copy(alpha = 0.7f)
+                    color = OffWhiteInk.copy(alpha = 0.7f)
                 )
             }
 
@@ -1169,8 +1157,7 @@ private fun ScoreDisplayPreview() {
                 newLevel = 5,
                 streakXpBonus = 50,
                 coinsEarned = 35,
-                gemsEarned = 2,
-                showRewards = true
+                gemsEarned = 2
             )
         }
     }
@@ -1189,8 +1176,7 @@ private fun ScoreDisplayNoRecordPreview() {
                 newLevel = null,
                 streakXpBonus = 0,
                 coinsEarned = 18,
-                gemsEarned = 0,
-                showRewards = true
+                gemsEarned = 0
             )
         }
     }

@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -102,6 +103,8 @@ import com.quiz.pride.ui.theme.RankGold
 import com.quiz.pride.ui.theme.RankGoldGlow
 import com.quiz.pride.ui.theme.RankSilver
 import com.quiz.pride.ui.theme.RankSilverGlow
+import com.quiz.pride.ui.theme.OffBlackInk
+import com.quiz.pride.ui.theme.OffWhiteInk
 import com.quiz.pride.ui.theme.White
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -198,7 +201,7 @@ private fun DefaultAvatar(modifier: Modifier = Modifier) {
             imageVector = Icons.Default.Person,
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            tint = White.copy(alpha = 0.6f)
+            tint = OffWhiteInk.copy(alpha = 0.6f)
         )
     }
 }
@@ -328,7 +331,7 @@ private fun PodiumSlot(
                     blurRadius = 6f
                 )
             ),
-            color = White,
+            color = OffWhiteInk,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center
@@ -486,19 +489,20 @@ private fun ClassicModeFilterRow(
             val isSelected = selectedFilter == value
             Box(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
+                    .clip(RoundedCornerShape(24.dp))
                     .clickable { onFilterSelected(value) }
                     .then(
                         if (isSelected) Modifier.background(
                             Brush.horizontalGradient(listOf(NeonPurple, NeonPink)),
-                            RoundedCornerShape(20.dp)
+                            RoundedCornerShape(24.dp)
                         ) else Modifier.border(
                             1.dp,
                             White.copy(alpha = 0.3f),
-                            RoundedCornerShape(20.dp)
+                            RoundedCornerShape(24.dp)
                         )
                     )
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .sizeIn(minHeight = 48.dp)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -506,7 +510,7 @@ private fun ClassicModeFilterRow(
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                     ),
-                    color = if (isSelected) White else White.copy(alpha = 0.6f)
+                    color = if (isSelected) OffWhiteInk else OffWhiteInk.copy(alpha = 0.6f)
                 )
             }
         }
@@ -530,13 +534,13 @@ private fun EmptyRankingState(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.ranking_empty_title),
             style = MaterialTheme.typography.titleMedium,
-            color = White
+            color = OffWhiteInk
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.ranking_empty_subtitle),
             style = MaterialTheme.typography.bodyMedium,
-            color = White.copy(alpha = 0.6f),
+            color = OffWhiteInk.copy(alpha = 0.6f),
             textAlign = TextAlign.Center
         )
     }
@@ -647,10 +651,11 @@ fun RankingScreen(
                             }
 
                             // Tab Row
+                            val tabContentColor = MaterialTheme.colorScheme.onBackground
                             SecondaryTabRow(
                                 selectedTabIndex = pagerState.currentPage,
                                 containerColor = Color.Transparent,
-                                contentColor = White,
+                                contentColor = tabContentColor,
                                 indicator = {
                                     TabRowDefaults.SecondaryIndicator(
                                         modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
@@ -677,9 +682,9 @@ fun RankingScreen(
                                                         FontWeight.Normal
                                                 ),
                                                 color = if (pagerState.currentPage == index)
-                                                    White
+                                                    tabContentColor
                                                 else
-                                                    White.copy(alpha = 0.6f)
+                                                    tabContentColor.copy(alpha = 0.6f)
                                             )
                                         }
                                     )
@@ -1040,7 +1045,7 @@ private fun VibrantRankingItem(
                                     blurRadius = 2f
                                 )
                             ),
-                            color = if (position == 2) Color.DarkGray else White
+                            color = if (position == 2) OffBlackInk else OffWhiteInk
                         )
                     }
 
@@ -1077,12 +1082,12 @@ private fun VibrantRankingItem(
                                     blurRadius = 4f
                                 ) else null
                             ),
-                            color = White
+                            color = OffWhiteInk
                         )
                         Text(
                             text = formatTimestamp(user.timestamp),
                             style = MaterialTheme.typography.bodySmall,
-                            color = White.copy(alpha = 0.6f)
+                            color = OffWhiteInk.copy(alpha = 0.6f)
                         )
                     }
 
@@ -1123,7 +1128,7 @@ private fun VibrantRankingItem(
                                     blurRadius = 2f
                                 )
                             ),
-                            color = Color.Black
+                            color = OffBlackInk
                         )
                     }
                 }
@@ -1218,7 +1223,7 @@ private fun XpLeaderboardItem(
                                 blurRadius = 2f
                             )
                         ),
-                        color = if (position == 2) Color.DarkGray else White
+                        color = if (position == 2) OffBlackInk else OffWhiteInk
                     )
                 }
 
@@ -1255,7 +1260,7 @@ private fun XpLeaderboardItem(
                                 blurRadius = 4f
                             ) else null
                         ),
-                        color = White
+                        color = OffWhiteInk
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
@@ -1269,7 +1274,7 @@ private fun XpLeaderboardItem(
                         Text(
                             text = entry.title,
                             style = MaterialTheme.typography.bodySmall,
-                            color = White.copy(alpha = 0.6f)
+                            color = OffWhiteInk.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -1308,7 +1313,7 @@ private fun XpLeaderboardItem(
                                 blurRadius = 2f
                             )
                         ),
-                        color = White
+                        color = OffWhiteInk
                     )
                 }
             }
