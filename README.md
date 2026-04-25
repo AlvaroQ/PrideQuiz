@@ -28,7 +28,7 @@ PrideQuiz is an Android quiz game that tests your knowledge of LGBTQ+ history, c
   <tr>
     <td align="center"><img src="capture/image1.png" width="180"><br/><sub>Game mode selection</sub></td>
     <td align="center"><img src="capture/image2.png" width="180"><br/><sub>Quiz question in play dark</sub></td>
-    <td align="center"><img src="capture/image2.png" width="180"><br/><sub>Quiz question in play light</sub></td>
+    <td align="center"><img src="capture/image3.png" width="180"><br/><sub>Quiz question in play light</sub></td>
   </tr>
   <tr>
     <td align="center"><img src="capture/image4.png" width="180"><br/><sub>Result & XP earned</sub></td>
